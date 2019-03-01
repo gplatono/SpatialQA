@@ -1,0 +1,13 @@
+(? ((the.d (|SRI|.n block.n)) on.p (the.d (|Target|.n block.n))))
+(? ((some.d block.n) on.p (the.d (|Target|.n block.n))))
+((what.d block.n) on.p (the.d (|SRI|.n block.n)))
+((the.d (|SRI|.n block.n)) on.p what.pro)
+
+((what.d (red.a (plur block.n))) on.p (k (green.a (plur block.n))))
+((what.d (red.a (plur block.n))) on.p (what.d (green.a (plur block.n))))
+
+((coll-of |B1| |B2| |B3|) (semval (what.d shape-pred.n)))
+
+((the.d (|SRI|.n block.n)) (at.p (what.d place.n)))
+((the.d (|SRI|.n block.n)) (semval (what.d color-pred.n)))
+((coll-of |B1| |B2| |B3|) (semval (what.d shape-pred.n)))
