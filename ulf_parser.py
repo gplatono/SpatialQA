@@ -1,11 +1,19 @@
 from collections import defaultdict
 
 class TreeNode(object):
+    __name__ = "TreeNode"
     def __init__(self, content=None, children=None):
         self.content = content
         self.children = children
 
     def __str__(self):
+        output = ""
+        if type(self.content) == str:
+            output += self.content
+        elif self.content is not None:
+            output += self.content.__str__()
+
+        return output
         return (self.content if isinstance(self.content, str) \
                 else (self.content.__str__() if self.content is not None else "")) \
                      + (" [" + " ".join([child.__str__() for child in self.children if child is not None]) + "]" if self.children is not None else "")
@@ -49,6 +57,17 @@ grammar['plur'] = lambda x: TPlurMarker(x)
 grammar['pres'] = lambda x: TTenseMarker(x)
 grammar['be.v'] = lambda x: TCopulaBe(x)
 
+grammar['nquan'] = lambda x: TQuanMarker(x)
+grammar['fquan'] = lambda x: TQuanMarker(x)
+
+grammar['sub'] = lambda x: TSubMarker(x)
+
+grammar['which.d'] = lambda x: TDet(x)
+grammar['the.d'] = lambda x: TDet(x)
+grammar['a.d'] = lambda x: TDet(x)
+grammar['other.d'] = lambda x: TDet(x)
+
+
 grammar[("TTenseMarker", "TCopulaBe")] = lambda x, y: NVerbHead(TCopulaBe, TTenseMarker)
 
 grammar[("TAdj", "TNoun")] = lambda x, y: NArg(name = y.content, mods = [x])
@@ -85,6 +104,17 @@ class TPlurMarker(TreeNode):
     def __init__(self, content=None):
         super(TPlurMarker, self).__init__(content, None)
 
+class TQuanMarker(TreeNode):
+    __name__ = "TQuanMarker"
+    def __init__(self, content=None):
+        super(TQuanMarker, self).__init__(content, None)
+
+class TSubMarker(TreeNode):
+    __name__ = "TSubMarker"
+    def __init__(self, content=None):
+        super(TQuanMarker, self).__init__(content, None)
+
+
 class TTenseMarker(TreeNode):
     __name__ = "TTenseMarker"
     def __init__(self, content=None):
@@ -119,6 +149,11 @@ class TAdj(TreeNode):
     __name__ = "TAdj"
     def __init__(self, content=None):
         super(TAdj, self).__init__(content, None)
+
+class TAdv(TreeNode):
+    __name__ = "TAdv"
+    def __init__(self, content=None):
+        super(TAdv, self).__init__(content, None)
 
 class TPred(TreeNode):
     __name__ = "TPred"
@@ -184,7 +219,7 @@ class ULFQuery(object):
         elif token == 'plur':
             return TPlur()
 
-    def parse_tree(self, tree):        
+    def parse_tree(self, tree):
         if type(tree) == str:
             if tree in grammar:
                 print (tree, grammar[tree])
@@ -196,10 +231,18 @@ class ULFQuery(object):
 
         while len(tree) >= 2 and (tree[0].__name__, tree[1].__name__) in grammar:
             substitute = grammar[(tree[0].__name__, tree[1].__name__)](tree[0], tree[1])
-            print("result: ", substitute)
+            #print("result: ", substitute)
             tree[0] = substitute
-                
-        return tree
+                       
+        return tree[0] #if len(tree) == 1 else tree
+
+    def move_sub(self, tree, expr=None):
+        if expt == None:
+            if tree[0] == 'sub':
+                expr = tree[0]
+                return move_sub(tree[1], expr)
+            else: 
+            
 
         '''       
         if type(tree) != list:
@@ -300,8 +343,10 @@ print (query.query)
 
 f = open("sqa_input.bw")
 for ulf in f.readlines():
-    query = ULFQuery(ulf)
-    print (query.query_tree)
+    if ";;" not in ulf and ulf != "":
+        ulf = ulf.lower()
+        query = ULFQuery(ulf)
+        print (query.query_tree)
 
 #det = Det("test", ["children"])
 #print(det.printable())
