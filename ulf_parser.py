@@ -15,6 +15,8 @@ class TreeNode(object):
         elif self.content is not None:
             output += self.content.__str__()
 
+        if type(self.children) == list and len(self.children) > 0:
+            output += "[" + ";".join([child.__str__() for child in self.children]) + "]"
         return output
         #return (self.content if isinstance(self.content, str) \
         #        else (self.content.__str__() if self.content is not None else "")) \
@@ -44,6 +46,9 @@ grammar['between.p'] = lambda x: TPrep(x)
 grammar['side-by-side-with.p'] = lambda x: TPrep(x)
 grammar['on_top_of.p'] = lambda x: TPrep(x)
 
+grammar['touch.v'] = lambda x: TPrep(x)
+
+
 grammar['halfway.adv-a'] = lambda x: TAdv(x)
 grammar['slightly.adv-a'] = lambda x: TAdv(x)
 grammar['directly.adv-a'] = lambda x: TAdv(x)
@@ -58,10 +63,12 @@ grammar['row.n'] = lambda x: NArg(obj_type = x, obj_id = "STACK")
 grammar['thing.n'] = lambda x: NArg(obj_type = None, obj_id = None)
 grammar['{thing}.n'] = lambda x: NArg(obj_type = None, obj_id = None)
 
+grammar['how.mod-a'] = lambda x: TAdvAdjMod(x)
 
 grammar['red.a'] = lambda x: TAdj(x)
 grammar['green.a'] = lambda x: TAdj(x)
 grammar['blue.a'] = lambda x: TAdj(x)
+grammar['clear.a'] = lambda x: TAdj(x)
 
 grammar['left.a'] = lambda x: TAdj(x)
 grammar['right.a'] = lambda x: TAdj(x)
@@ -70,6 +77,12 @@ grammar['high.a'] = lambda x: TAdj(x)
 grammar['low.a'] = lambda x: TAdj(x)
 grammar['last.a'] = lambda x: TAdj(x)
 grammar['first.a'] = lambda x: TAdj(x)
+grammar['short.a'] = lambda x: TAdj(x)
+grammar['long.a'] = lambda x: TAdj(x)
+grammar['middle.a'] = lambda x: TAdj(x)
+grammar['tall.a'] = lambda x: TAdj(x)
+grammar['many.a'] = lambda x: TAdj(x)
+
 
 grammar['plur'] = lambda x: TPlurMarker()
 grammar['pres'] = lambda x: TTenseMarker()
@@ -81,6 +94,9 @@ grammar['most'] = lambda x: TSuperMarker()
 grammar['sub'] = lambda x: TSubMarker()
 grammar['?'] = lambda x: TQMarker()
 grammar['n+preds'] = lambda x: TNModMarker()
+grammar['prog'] = lambda x: TAspectMarker(prog=True, perf=False)
+grammar['perf'] = lambda x: TAspectMarker(prog=False, perf=True)
+grammar['k'] = lambda x: TNReifierMarker()
 
 grammar['which.d'] = lambda x: TDet(x)
 grammar['the.d'] = lambda x: TDet(x)
@@ -101,40 +117,49 @@ grammar['|sri|'] = lambda x: TName(x)
 grammar['|starbucks|'] = lambda x: TName(x)
 grammar['|texaco|'] = lambda x: TName(x)
 
+grammar['not.adv-s'] = lambda x: TNeg()
 
 
+#Verb + tense/aspect rules
+grammar[("TTenseMarker", "TCopulaBe")] = lambda x, y: NVP(content=y, children=[NVerbParams(tense=x)])
+grammar[("NVerbParams", "TCopulaBe")] = lambda x, y: NVP(content=y, children=[x])
+grammar[("TTenseMarker", "TVerb")] = lambda x, y: NVP(content=y, children=[NVerbParams(tense=x)] + y.children)
+grammar[("NVerbParams", "TVerb")] = lambda x, y: NVP(content=y, children=[x] + y.children)
+
+grammar[("TAspectMarker", "TAspectMarker")] = lambda x, y: TAspectMarker(prog = x.prog or y.prog, perf = x.perf or y.perf)
+grammar[("TTenseMarker", "TAspectMarker")] = lambda x, y: NVerbParams(tense = x, aspect = y)
 
 
-#grammar[("TTenseMarker", "TCopulaBe")] = lambda x, y: NVerbHead(TCopulaBe, TTenseMarker)
+#Adjective modifier rules
 grammar[("TSuperMarker", "TAdj")] = lambda x, y: TAdj(content = y.content, mod = x)
+grammar[("TAdvAdjMod", "TAdj")] = lambda x, y: TAdj(content = y.content, mod = x)
 
+#Determiner rules
+grammar[("TQuanMarker", "TAdj")] = lambda x, y: NDet(y) if (y.content != "many.a" or y.mod is None or y.mod.content != "how.mod-a") else NCardDet()
+
+
+#Argument + modifier rules
 grammar[("TName", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = x.content)
 grammar[("TDet", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods, det = x, plur = y.plur)
+grammar[("NDet", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods, det = x, plur = y.plur)
+grammar[("NCardDet", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods, det = x, plur = y.plur)
+
 grammar[("TAdj", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = y.plur)
 grammar[("TPlurMarker", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = True)
+grammar[("TNReifierMarker", "NArg")] = lambda x, y: y
 
+#Relational rules
+grammar[("TPrep", "NArg")] = lambda x, y: NRel(x, children=[y])
+grammar[("TNeg", "NRel")] = lambda x, y: NRel(y.content, y.children, neg=True)
 
-grammar[("TAdj", "TNoun")] = lambda x, y: NArg(obj_type = y.content, mods = [x])
+#grammar[("TAdj", "TNoun")] = lambda x, y: NArg(obj_type = y.content, mods = [x])
+#grammar[("TName", "TNoun")] = lambda x, y: NArg(obj_type = x.content + " " + y.content)
+#grammar[("TPlur", "TNoun")] = lambda x, y: NArg(obj_type = y.content, plur = True)
 
-grammar[("TName", "TNoun")] = lambda x, y: NArg(obj_type = x.content + " " + y.content)
-grammar[("TPlur", "TNoun")] = lambda x, y: NArg(obj_type = y.content, plur = True)
+#grammar[("TDet", "TNoun")] = lambda x, y: NArg(obj_type = y.content, det = x)
+#grammar[("NArg", "TPrep", "NArg")] = lambda x, y, z: NRel(y.content, [x, z])
+#grammar[("TQ", "NRel")] = lambda x, y: NYesNo(y)
 
-grammar[("TDet", "TNoun")] = lambda x, y: NArg(obj_type = y.content, det = x)
-grammar[("NArg", "TPrep", "NArg")] = lambda x, y, z: NRel(y.content, [x, z])
-grammar[("TQ", "NRel")] = lambda x, y: NYesNo(y)
-
-class NVerbHead(TreeNode):
-    __name__ = "NVerbHead"
-    
-    def __init__(self, content, children=None):
-        self.content = content
-        self.children = children
-
-class NRel(TreeNode):
-    __name__ = "NRel"
-    def __init__(self, token, args):
-        self.content = token
-        self.children = args
 
 class TCopulaBe(TreeNode):
     __name__ = "TCopulaBe"
@@ -159,10 +184,33 @@ class TSuperMarker(TreeNode):
     def __init__(self, content=None):
         super(TSuperMarker, self).__init__(None, None)
 
+class TNReifierMarker(TreeNode):
+    __name__ = "TNReifierMarker"
+    def __init__(self):
+        super(TNReifierMarker, self).__init__()
+
+class TAspectMarker(TreeNode):
+    __name__ = "TAspectMarker"
+    def __init__(self, prog=False, perf=False):
+        super(TAspectMarker, self).__init__(None, None)
+        self.prog = prog
+        self.perf = perf
+
+    def __str__(self):
+        return "PROG=" + str(self.prog) + ":PERF=" + str(self.perf)
+
 class TSubMarker(TreeNode):
     __name__ = "TSubMarker"
     def __init__(self):
         super().__init__(content, None)
+
+class TNeg(TreeNode):
+    __name__ = "TNeg"
+    def __init__(self):
+        super().__init__(None, None)
+
+    def __str__(self):
+        return "NOT"
 
 class TTenseMarker(TreeNode):
     __name__ = "TTenseMarker"
@@ -197,6 +245,11 @@ class TNoun(TreeNode):
     def __init__(self, content=None):
         super(TNoun, self).__init__(content, None)
 
+class TAdvAdjMod(TreeNode):
+    __name__ = "TAdvAdjMod"
+    def __init__(self, content=None):
+        super(TAdvAdjMod, self).__init__(content, None)
+
 class TName(TreeNode):
     __name__ = "TName"
     def __init__(self, content=None):
@@ -209,7 +262,7 @@ class TPro(TreeNode):
 
 class TAdj(TreeNode):
     __name__ = "TAdj"
-    def __init__(self, content=None, mod=None):
+    def __init__(self, content, mod=None):
         super(TAdj, self).__init__(content, None)
         self.mod = mod
 
@@ -236,9 +289,48 @@ class NYesNo(TreeNode):
     def __init__(self, content):
         super(NYesNo, self).__init__(content, None)
 
+class NVerbParams(TreeNode):
+    __name__ = "NVerbParams"    
+    def __init__(self, tense=None, aspect=None):
+        self.tense = tense
+        self.aspect = aspect
+
+    def __str__(self):
+        return self.tense.__str__() + ":" + self.aspect.__str__()
+
+class NDet(TreeNode):
+    __name__ = "NDet"
+    def __init__(self, content=None):
+        super(NDet, self).__init__(content, None)
+
+class NCardDet(TreeNode):
+    __name__ = "NCardDet"
+    def __init__(self):
+        super(NCardDet, self).__init__(None, None)
+
+    def __str__(self):
+        return "HOWMANY"
+
+class NVP(TreeNode):
+    __name__ = "NVP"
+    
+    def __init__(self, content, children=[]):
+        self.content = content
+        self.children = children
+        
+
+class NRel(TreeNode):
+    __name__ = "NRel"
+    def __init__(self, content, children=None, neg=False):
+        super().__init__(content, None)
+        self.content = content
+        self.children = children
+        self.neg = neg
+
 class NArg(TreeNode):
     __name__ = "NArg"
     def __init__(self, obj_type=None, obj_id=None, mods=[], det=None, plur=False):
+        super(NArg, self).__init__(None, None)
         self.obj_type = obj_type
         self.obj_id = obj_id
         self.mods = mods
@@ -246,8 +338,8 @@ class NArg(TreeNode):
         self.plur = plur
 
     def __str__(self):
-        return self.obj_type+":\n" + self.obj_id.__str__() + "\n"+ self.mods.__str__() + "\n" +\
-            self.det.__str__() + "\n" + self.plur.__str__()
+        return "ARG: " + self.obj_type+"; " + self.obj_id.__str__() + "; "+ self.mods.__str__() + "; " +\
+            self.det.__str__() + "; " + self.plur.__str__()
     
 
     def printable(self):
@@ -262,6 +354,7 @@ class ULFQuery(object):
     def __init__(self, input):
         self.lispified = self.lispify(input)
         self.preprocessed = self.process_sub(self.lispified)
+        print ("\nQUERY: ", self.preprocessed, "\n")       
         self.query_tree = self.parse_tree(self.preprocessed)
 
     def terminal_node(self, token):
@@ -283,28 +376,36 @@ class ULFQuery(object):
             return TPlur()
 
     def parse_tree(self, tree):
-        print ("INIT: ", tree)
+        #print ("INIT: ", tree)
         if type(tree) == str:
             if tree in grammar:
                 #print (tree, grammar[tree])
-                print ("PROC: ", tree)
+                #print ("PROC: ", tree)
+                #if (tree == "most-n"):
+                    #print (grammar[tree](tree))
                 return grammar[tree](tree)
             else:
-                print ("PROC: ", tree)
+                #print ("PROC: ", tree)
                 return TUnknown(tree)
 
         tree = [self.parse_tree(node) for node in tree]
+        print ("TREE:", tree)
+        print ("\n".join([node.__str__() for node in tree]))
 
         if type(tree[0]) == TNModMarker:
             tree[1].mods += tree[2:]
             return tree[1]
+
+        #if type(tree[0]) == TSuperMarker:
+        #    print ("SUPERMARKER:", tree[0], tree[1])
+            
 
         while len(tree) >= 2 and (tree[0].__name__, tree[1].__name__) in grammar:
             substitute = grammar[(tree[0].__name__, tree[1].__name__)](tree[0], tree[1])
             #print("result: ", substitute)
             tree[0] = substitute
 
-        print ("PROC: ", tree)
+        #print ("PROC: ", tree)
         return tree[0] #if len(tree) == 1 else tree
 
     def process_sub(self, tree, expr=None):
@@ -413,12 +514,12 @@ query = ULFQuery(str)
 print (query.query)
 '''
 f = open("sqa_input.bw")
-for ulf in f.readlines():
-    ulf = ulf.lower().strip()
+for ulf in f.readlines()[:10]:
+    #print (ulf)
+    ulf = ulf.lower().strip().replace("{", "").replace("}", "")
     if ";;" not in ulf and ulf != "":
-        print (ulf)
+        #print (ulf)
         query = ULFQuery(ulf)
-        print (query.preprocessed)
         print (query.query_tree)
         #break
 
