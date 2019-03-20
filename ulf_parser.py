@@ -18,12 +18,6 @@ class TreeNode(object):
         if type(self.children) == list and len(self.children) > 0:
             output += "[" + ";".join([child.__str__() for child in self.children]) + "]"
         return output
-        #return (self.content if isinstance(self.content, str) \
-        #        else (self.content.__str__() if self.content is not None else "")) \
-        #             + (" [" + " ".join([child.__str__() for child in self.children if child is not None]) + "]" if self.children is not None else "")
-
-    def get_type(self):
-        return str(type(self)).split("'")[1].split(".")[1]
 
 relations = ['on.p', 'to_the_left_of.p', 'to_the_right_of.p', 'in_front_of.p', 'behind.p', 'above.p', 'below.p', 'over.p', 'under.p', 'near.p', 'touching.p', 'at.p', 'between.p',
              'side-by-side-with.p', 'on_top_of.p']
@@ -42,12 +36,13 @@ grammar['under.p'] = lambda x: TPrep(x)
 grammar['near.p'] = lambda x: TPrep(x)
 grammar['touching.p'] = lambda x: TPrep(x)
 grammar['at.p'] = lambda x: TPrep(x)
+grammar['in.p'] = lambda x: TPrep(x)
 grammar['between.p'] = lambda x: TPrep(x)
 grammar['side-by-side-with.p'] = lambda x: TPrep(x)
 grammar['on_top_of.p'] = lambda x: TPrep(x)
 
 grammar['touch.v'] = lambda x: TPrep(x)
-
+grammar['face.v'] = lambda x: TPrep(x)
 
 grammar['halfway.adv-a'] = lambda x: TAdv(x)
 grammar['slightly.adv-a'] = lambda x: TAdv(x)
@@ -60,8 +55,13 @@ grammar['{block}.n'] = lambda x: NArg(obj_type = x)
 grammar['table.n'] = lambda x: NArg(obj_type = x, obj_id = "TABLE")
 grammar['stack.n'] = lambda x: NArg(obj_type = x, obj_id = "STACK")
 grammar['row.n'] = lambda x: NArg(obj_type = x, obj_id = "STACK")
-grammar['thing.n'] = lambda x: NArg(obj_type = None, obj_id = None)
-grammar['{thing}.n'] = lambda x: NArg(obj_type = None, obj_id = None)
+grammar['thing.n'] = lambda x: NArg(obj_type = x, obj_id = None)
+grammar['{thing}.n'] = lambda x: NArg(obj_type = x, obj_id = None)
+grammar['what.pro'] = lambda x: NArg()
+
+grammar['corner-of.n'] = lambda x: TRelNoun(x)
+grammar['edge-of.n'] = lambda x: TRelNoun(x)
+grammar['side-of.n'] = lambda x: TRelNoun(x)
 
 grammar['how.mod-a'] = lambda x: TAdvAdjMod(x)
 
@@ -84,6 +84,13 @@ grammar['tall.a'] = lambda x: TAdj(x)
 grammar['many.a'] = lambda x: TAdj(x)
 
 
+grammar['one.a'] = lambda x: TNumber(x)
+grammar['two.a'] = lambda x: TNumber(x)
+grammar['three.a'] = lambda x: TNumber(x)
+grammar['few.a'] = lambda x: TNumber(x)
+grammar['several.a'] = lambda x: TNumber(x)
+
+
 grammar['plur'] = lambda x: TPlurMarker()
 grammar['pres'] = lambda x: TTenseMarker()
 grammar['be.v'] = lambda x: TCopulaBe()
@@ -102,6 +109,8 @@ grammar['which.d'] = lambda x: TDet(x)
 grammar['the.d'] = lambda x: TDet(x)
 grammar['a.d'] = lambda x: TDet(x)
 grammar['other.d'] = lambda x: TDet(x)
+grammar['any.d'] = lambda x: TDet(x)
+grammar['some.d'] = lambda x: TDet(x)
 
 grammar['|Nvidia|'] = lambda x: TName(x)
 grammar['|Toyota|'] = lambda x: TName(x)
@@ -116,9 +125,18 @@ grammar['|mcdonalds|'] = lambda x: TName(x)
 grammar['|sri|'] = lambda x: TName(x)
 grammar['|starbucks|'] = lambda x: TName(x)
 grammar['|texaco|'] = lambda x: TName(x)
+grammar['|nvidia|.n'] = lambda x: TName(x)
+grammar['|toyota|.n'] = lambda x: TName(x)
+grammar['|mcdonalds|.n'] = lambda x: TName(x)
+grammar['|sri|.n'] = lambda x: TName(x)
+grammar['|starbucks|.n'] = lambda x: TName(x)
+grammar['|texaco|.n'] = lambda x: TName(x)
+
 
 grammar['not.adv-s'] = lambda x: TNeg()
 
+grammar['or.cc'] = lambda x: TConj(x)
+grammar['and.cc'] = lambda x: TConj(x)
 
 #Verb + tense/aspect rules
 grammar[("TTenseMarker", "TCopulaBe")] = lambda x, y: NVP(content=y, children=[NVerbParams(tense=x)])
@@ -145,20 +163,35 @@ grammar[("NDet", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.
 grammar[("NCardDet", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods, det = x, plur = y.plur)
 
 grammar[("TAdj", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = y.plur)
-grammar[("TPlurMarker", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = True)
+grammar[("TPlurMarker", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods, det = y.det, plur = True)
 grammar[("TNReifierMarker", "NArg")] = lambda x, y: y
+
+grammar[("TRelNoun", "NArg")] = lambda x, y: NArg(obj_type = x.content[:-5], obj_id = x.content[:-5].upper(), mods = [y])
+
+
+grammar[("TNumber", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = y.plur)
+
+grammar[("TConj", "NArg")] = lambda x, y: NConjArg(x, children = [y])
+grammar[("NArg", "TConj")] = lambda x, y: NConjArg(y, children = [x])
+grammar[("Narg", "NConjArg")] = lambda x, y: NConjArg(y.content, children = y.children + [x])
+grammar[("NConjArg", "NArg")] = lambda x, y: NConjArg(x.content, children = x.children + [y])
+
 
 #Relational rules
 grammar[("TPrep", "NArg")] = lambda x, y: NRel(x, children=[y])
+grammar[("TPrep", "NConjArg")] = lambda x, y: NRel(x, children=[y])
 grammar[("TNeg", "NRel")] = lambda x, y: NRel(y.content, y.children, neg=True)
+grammar[("NArg", "NRel")] = lambda x, y: NRel(content=y.content, children=[x]+y.children, neg = y.neg)
+grammar[("NConjArg", "NRel")] = lambda x, y: NRel(content=y.content, children=[x]+y.children, neg = y.neg)
 
-#grammar[("TAdj", "TNoun")] = lambda x, y: NArg(obj_type = y.content, mods = [x])
-#grammar[("TName", "TNoun")] = lambda x, y: NArg(obj_type = x.content + " " + y.content)
-#grammar[("TPlur", "TNoun")] = lambda x, y: NArg(obj_type = y.content, plur = True)
+grammar[("NVP", "NRel")] = lambda x, y: y
+grammar[("NVerbParams", "NRel")] = lambda x, y: y
 
-#grammar[("TDet", "TNoun")] = lambda x, y: NArg(obj_type = y.content, det = x)
-#grammar[("NArg", "TPrep", "NArg")] = lambda x, y, z: NRel(y.content, [x, z])
-#grammar[("TQ", "NRel")] = lambda x, y: NYesNo(y)
+grammar[("NVP", "TAdj")] = lambda x, y: NRel(y, children=[])
+
+
+#Sentence-level rules
+grammar[("NRel", "TQMarker")] = lambda x, y: NSentence(x, True)
 
 
 class TCopulaBe(TreeNode):
@@ -166,9 +199,6 @@ class TCopulaBe(TreeNode):
     def __init__(self, content=None):
         super(TCopulaBe, self).__init__(content, None)
 
-    #def __str__(self):
-    #    return "BE"
-    
 class TPlurMarker(TreeNode):
     __name__ = "TPlurMarker"
     def __init__(self):
@@ -245,6 +275,11 @@ class TNoun(TreeNode):
     def __init__(self, content=None):
         super(TNoun, self).__init__(content, None)
 
+class TRelNoun(TreeNode):
+    __name__ = "TRelNoun"
+    def __init__(self, content=None):
+        super(TRelNoun, self).__init__(content, None)
+
 class TAdvAdjMod(TreeNode):
     __name__ = "TAdvAdjMod"
     def __init__(self, content=None):
@@ -260,6 +295,11 @@ class TPro(TreeNode):
     def __init__(self, content=None):
         super(TPro, self).__init__(content, None)
 
+class TNumber(TreeNode):
+    __name__ = "TNumber"
+    def __init__(self, content=None):
+        super(TNumber, self).__init__(content, None)
+
 class TAdj(TreeNode):
     __name__ = "TAdj"
     def __init__(self, content, mod=None):
@@ -271,23 +311,15 @@ class TAdv(TreeNode):
     def __init__(self, content=None):
         super(TAdv, self).__init__(content, None)
 
-class TPred(TreeNode):
-    __name__ = "TPred"
+class TConj(TreeNode):
+    __name__ = "TConj"
     def __init__(self, content=None):
-        super(TPred, self).__init__(content, None)
+        super(TConj, self).__init__(content, None)
 
 class TUnknown(TreeNode):
     __name__ = "TUnknown"
     def __init__(self, content=None):
         super(TUnknown, self).__init__(content, None)
-
-class NColl(TreeNode):
-    def __init__(self, children):
-        super(NColl, self).__init__(None, children)
-
-class NYesNo(TreeNode):
-    def __init__(self, content):
-        super(NYesNo, self).__init__(content, None)
 
 class NVerbParams(TreeNode):
     __name__ = "NVerbParams"    
@@ -313,7 +345,6 @@ class NCardDet(TreeNode):
 
 class NVP(TreeNode):
     __name__ = "NVP"
-    
     def __init__(self, content, children=[]):
         self.content = content
         self.children = children
@@ -327,6 +358,13 @@ class NRel(TreeNode):
         self.children = children
         self.neg = neg
 
+class NConjArg(TreeNode):
+    __name__ = "NConjArg"
+    def __init__(self, content, children=None):
+        super().__init__(content, None)
+        self.content = content
+        self.children = children
+
 class NArg(TreeNode):
     __name__ = "NArg"
     def __init__(self, obj_type=None, obj_id=None, mods=[], det=None, plur=False):
@@ -338,75 +376,60 @@ class NArg(TreeNode):
         self.plur = plur
 
     def __str__(self):
-        return "ARG: " + self.obj_type+"; " + self.obj_id.__str__() + "; "+ self.mods.__str__() + "; " +\
-            self.det.__str__() + "; " + self.plur.__str__()
+        return "ARG: " + str(self.obj_type)+"; " + str(self.obj_id) + "; "+ str(self.mods) + "; " +\
+            str(self.det) + "; " + str(self.plur)
     
 
-    def printable(self):
-        return (self.content if isinstance(self.content, str) \
-                else (self.content.printable() if self.content is not None else "")) \
-                     + "[[" + " ".join([x.printable() for x in self.mods if x is not None]) + "] "\
-                     + (self.det.printable() if self.det is not None else "") + " " + str(self.plur) + "]"
-    
-    
+class NSentence(TreeNode):
+    __name__ = "NSentence"
+    def __init__(self, content, is_question=True):
+        super().__init__(content, None)
+        self.content = content
+        self.is_question = is_question
+  
        
 class ULFQuery(object):
     def __init__(self, input):
-        self.lispified = self.lispify(input)
-        self.preprocessed = self.process_sub(self.lispified)
-        print ("\nQUERY: ", self.preprocessed, "\n")       
-        self.query_tree = self.parse_tree(self.preprocessed)
+        #self.lispified = self.lispify(input)
+        #self.preprocessed = self.process_sub(self.lispified)
+        input = self.preprocess(input)
+        self.query_tree = self.parse_tree(input)
 
-    def terminal_node(self, token):
-        if token in relations:
-            return TPrep(token)
-        elif '.d' in token or token == 'k':
-            return TDet(token)
-        elif '|' in token:
-            return TName(token)
-        elif '.pro' in token:
-            return TPro(token)
-        elif token == 'coll-of' or token == 'semval':
-            return TPred(token)
-        elif '.n' in token:
-            return TNoun(token)
-        elif token == '?':
-            return TQ()
-        elif token == 'plur':
-            return TPlur()
+    def preprocess(self, ulf):
+        ulf = self.lispify(ulf)
+        print ("\nQUERY: ", ulf)
+        ulf = self.process_sub(ulf)
+        print ("PRECONJPROP QUERY: ", ulf)
+        ulf = self.propagate_conj(ulf, [])[0]
+        print ("PREPROC QUERY: ", ulf, "\n")        
+        return ulf
 
     def parse_tree(self, tree):
-        #print ("INIT: ", tree)
         if type(tree) == str:
             if tree in grammar:
-                #print (tree, grammar[tree])
-                #print ("PROC: ", tree)
-                #if (tree == "most-n"):
-                    #print (grammar[tree](tree))
                 return grammar[tree](tree)
             else:
-                #print ("PROC: ", tree)
                 return TUnknown(tree)
 
         tree = [self.parse_tree(node) for node in tree]
-        print ("TREE:", tree)
-        print ("\n".join([node.__str__() for node in tree]))
-
+        
         if type(tree[0]) == TNModMarker:
             tree[1].mods += tree[2:]
             return tree[1]
 
-        #if type(tree[0]) == TSuperMarker:
-        #    print ("SUPERMARKER:", tree[0], tree[1])
-            
-
         while len(tree) >= 2 and (tree[0].__name__, tree[1].__name__) in grammar:
             substitute = grammar[(tree[0].__name__, tree[1].__name__)](tree[0], tree[1])
-            #print("result: ", substitute)
-            tree[0] = substitute
+            tree = [substitute] + tree[2:]
+
+        while len(tree) >= 2 and (tree[-2].__name__, tree[-1].__name__) in grammar:
+            substitute = grammar[(tree[-2].__name__, tree[-1].__name__)](tree[-2], tree[-1])
+            tree = tree[:-3] + [substitute]
+
+        print ("TREE:", tree)
+        print ("\n".join([node.__str__() for node in tree]))
 
         #print ("PROC: ", tree)
-        return tree[0] #if len(tree) == 1 else tree
+        return tree[0]
 
     def process_sub(self, tree, expr=None):
         if type(tree) == list:
@@ -417,24 +440,6 @@ class ULFQuery(object):
         else:
             return expr if (tree == "*h" and expr is not None) else tree
 
-        '''       
-        if type(tree) != list:
-            return self.terminal_node(tree)
-        else:
-            old_tree = tree
-            tree = list(map(self.parse_tree, tree))            
-            print ("TOKEN_TREE:", old_tree, "\nSYMBOL_TREE:", tree, "\n:TREE_CONTENT:", " ".join([x.printable() for x in tree]),"\n")
-        if tree[0].get_type() == "TQ":
-            return NYesNo(tree[1])
-        elif len(tree) == 2:
-            if (tree[0].get_type(), tree[1].get_type()) in grammar:               
-                print("result:", grammar[(tree[0].get_type(), tree[1].get_type())](tree[0], tree[1]).printable())
-                return grammar[(tree[0].get_type(), tree[1].get_type())](tree[0], tree[1])
-        elif len(tree) == 3:
-            if (tree[0].get_type(), tree[1].get_type(), tree[2].get_type()) in grammar:
-                print("result:", grammar[(tree[0].get_type(), tree[1].get_type(), tree[2].get_type())](tree[0], tree[1], tree[2]).printable())
-                return grammar[(tree[0].get_type(), tree[1].get_type(), tree[2].get_type())](tree[0], tree[1], tree[2])'''
-        
     def lispify(self, input):
         stack = []
         current = []
@@ -457,71 +462,41 @@ class ULFQuery(object):
                     token = ""
             else:
                 token += char
-        return current[0]               
-             
-    def parse(self, input):
-        current = ""
-        nodes = []        
-        for char in input:
-            if char == '(':
-                pass
-            elif char == ' ':
-                if current != "":
-                    nodes += [TreeNode(current)]
-                    current = ""                    
+        return current[0]
+
+    def push_inward(ulf, token):
+        return [ulf[0]] + [[token [item]] for item in ulf[1:]]
+
+    def propagate_conj(self, ulf, prefix=[]):
+        if type(ulf) == str and ".cc" not in ulf:
+            return (ulf, False)
+        for item in ulf:
+            if ".cc" in item:
+                ulf.remove(item)
+                ret_val = [item]
+                for token in ulf:                    
+                    for pref_item in prefix:
+                        token = [pref_item, token]
+                    ret_val += [token]
+                return (ret_val, True)
+        
+        if (ulf[0][-2:] == ".a" or ulf[0][-2:] == ".d"):
+            ret_val, val = self.propagate_conj(ulf[1], [ulf[0]] + prefix)
+            if val == True:
+                return (ret_val, True)
             else:
-                current += char                
+                return (ulf, False)
 
-        if input[0] == '(':
-            nodes += [self.parse(input[1:])]
-        elif input[0] == ')':
-            return TreeNode(None, nodes)
-
-
-
-def lispify(input):
-        stack = []
-        current = []
-        token = ""
-        for char in input:
-            if char == '(':
-                stack.append(current)
-                current = []
-            elif char == ')':
-                if token != "":
-                    current += [token]
-                    token = ""                
-                if (len(stack) > 0):
-                    stack[-1].append(current)
-                    current = stack[-1]
-                    stack.pop()                    
-            elif char == ' ':
-                if token != "":
-                    current += [token]
-                    token = ""
-            else:
-                token += char
-        return current[0]               
-             
-
-'''
-str = "(? ((the.d (|SRI|.n block.n)) on.p (the.d (|Target|.n block.n))))"
-str = "(? ((some.d block.n) on.p (the.d (|Target|.n block.n))))"
-str = "((what.d block.n) on.p (the.d (|SRI|.n block.n)))"
-str = "((the.d (|SRI|.n block.n)) on.p what.pro)"
-str = "((coll-of |B1| |B2| |B3|) (semval (what.d shape-pred.n)))"
-query = ULFQuery(str)
-print (query.query)
-'''
+        return ([self.propagate_conj(item, prefix)[0] for item in ulf], False)
+                     
 f = open("sqa_input.bw")
-for ulf in f.readlines()[:10]:
+test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
+for ulf in f.readlines():
     #print (ulf)
     ulf = ulf.lower().strip().replace("{", "").replace("}", "")
     if ";;" not in ulf and ulf != "":
         #print (ulf)
         query = ULFQuery(ulf)
         print (query.query_tree)
-        #break
-
-#det = Det("test", ["children"])
-#print(det.printable())
+        #print (query.propagate_conj(test, [])[0])
+        input("Press Enter to continue...")
