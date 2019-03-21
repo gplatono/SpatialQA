@@ -38,11 +38,12 @@ grammar['touching.p'] = lambda x: TPrep(x)
 grammar['at.p'] = lambda x: TPrep(x)
 grammar['in.p'] = lambda x: TPrep(x)
 grammar['between.p'] = lambda x: TPrep(x)
-grammar['side-by-side-with.p'] = lambda x: TPrep(x)
+grammar['side_by_side_with.p'] = lambda x: TPrep(x)
 grammar['on_top_of.p'] = lambda x: TPrep(x)
 
 grammar['touch.v'] = lambda x: TPrep(x)
 grammar['face.v'] = lambda x: TPrep(x)
+grammar['color.n'] = lambda x: TPrep(x)
 
 grammar['halfway.adv-a'] = lambda x: TAdv(x)
 grammar['slightly.adv-a'] = lambda x: TAdv(x)
@@ -62,8 +63,20 @@ grammar['what.pro'] = lambda x: NArg()
 grammar['corner-of.n'] = lambda x: TRelNoun(x)
 grammar['edge-of.n'] = lambda x: TRelNoun(x)
 grammar['side-of.n'] = lambda x: TRelNoun(x)
+grammar['center-of.n'] = lambda x: TRelNoun(x)
+grammar['middle-of.n'] = lambda x: TRelNoun(x)
+grammar['part-of.n'] = lambda x: TRelNoun(x)
+grammar['height-of.n'] = lambda x: TRelNoun(x)
+grammar['length-of.n'] = lambda x: TRelNoun(x)
+
+
 
 grammar['how.mod-a'] = lambda x: TAdvAdjMod(x)
+grammar['very.mod-a'] = lambda x: TAdvAdjMod(x)
+grammar['halfway.mod-a'] = lambda x: TAdvAdjMod(x)
+grammar['slightly.mod-a'] = lambda x: TAdvAdjMod(x)
+grammar['directly.mod-a'] = lambda x: TAdvAdjMod(x)
+
 
 grammar['red.a'] = lambda x: TAdj(x)
 grammar['green.a'] = lambda x: TAdj(x)
@@ -73,6 +86,8 @@ grammar['clear.a'] = lambda x: TAdj(x)
 grammar['left.a'] = lambda x: TAdj(x)
 grammar['right.a'] = lambda x: TAdj(x)
 grammar['top.a'] = lambda x: TAdj(x)
+grammar['front.a'] = lambda x: TAdj(x)
+grammar['back.a'] = lambda x: TAdj(x)
 grammar['high.a'] = lambda x: TAdj(x)
 grammar['low.a'] = lambda x: TAdj(x)
 grammar['last.a'] = lambda x: TAdj(x)
@@ -82,11 +97,14 @@ grammar['long.a'] = lambda x: TAdj(x)
 grammar['middle.a'] = lambda x: TAdj(x)
 grammar['tall.a'] = lambda x: TAdj(x)
 grammar['many.a'] = lambda x: TAdj(x)
-
+grammar['far.a'] = lambda x: TAdj(x)
 
 grammar['one.a'] = lambda x: TNumber(x)
+grammar['one.d'] = lambda x: TNumber(x)
 grammar['two.a'] = lambda x: TNumber(x)
+grammar['two.d'] = lambda x: TNumber(x)
 grammar['three.a'] = lambda x: TNumber(x)
+grammar['three.d'] = lambda x: TNumber(x)
 grammar['few.a'] = lambda x: TNumber(x)
 grammar['several.a'] = lambda x: TNumber(x)
 
@@ -104,13 +122,21 @@ grammar['n+preds'] = lambda x: TNModMarker()
 grammar['prog'] = lambda x: TAspectMarker(prog=True, perf=False)
 grammar['perf'] = lambda x: TAspectMarker(prog=False, perf=True)
 grammar['k'] = lambda x: TNReifierMarker()
+grammar['='] = lambda x: TEqualsMarker()
+
+
+grammar['that.rel'] = lambda x: TRelativizer(content=x)
 
 grammar['which.d'] = lambda x: TDet(x)
 grammar['the.d'] = lambda x: TDet(x)
 grammar['a.d'] = lambda x: TDet(x)
 grammar['other.d'] = lambda x: TDet(x)
+grammar['every.d'] = lambda x: TDet(x)
+grammar['other.a'] = lambda x: TDet(x)
 grammar['any.d'] = lambda x: TDet(x)
 grammar['some.d'] = lambda x: TDet(x)
+grammar['what.d'] = lambda x: TDet(x)
+grammar['all.d'] = lambda x: TDet(x)
 
 grammar['|Nvidia|'] = lambda x: TName(x)
 grammar['|Toyota|'] = lambda x: TName(x)
@@ -118,19 +144,21 @@ grammar['|McDonalds|'] = lambda x: TName(x)
 grammar['|SRI|'] = lambda x: TName(x)
 grammar['|Starbucks|'] = lambda x: TName(x)
 grammar['|Texaco|'] = lambda x: TName(x)
-
+grammar['|Target|'] = lambda x: TName(x)
 grammar['|nvidia|'] = lambda x: TName(x)
 grammar['|toyota|'] = lambda x: TName(x)
 grammar['|mcdonalds|'] = lambda x: TName(x)
 grammar['|sri|'] = lambda x: TName(x)
 grammar['|starbucks|'] = lambda x: TName(x)
 grammar['|texaco|'] = lambda x: TName(x)
+grammar['|target|'] = lambda x: TName(x)
 grammar['|nvidia|.n'] = lambda x: TName(x)
 grammar['|toyota|.n'] = lambda x: TName(x)
 grammar['|mcdonalds|.n'] = lambda x: TName(x)
 grammar['|sri|.n'] = lambda x: TName(x)
 grammar['|starbucks|.n'] = lambda x: TName(x)
 grammar['|texaco|.n'] = lambda x: TName(x)
+grammar['|target|.n'] = lambda x: TName(x)
 
 
 grammar['not.adv-s'] = lambda x: TNeg()
@@ -176,6 +204,8 @@ grammar[("NArg", "TConj")] = lambda x, y: NConjArg(y, children = [x])
 grammar[("Narg", "NConjArg")] = lambda x, y: NConjArg(y.content, children = y.children + [x])
 grammar[("NConjArg", "NArg")] = lambda x, y: NConjArg(x.content, children = x.children + [y])
 
+grammar[("TEqualsMarker", "NArg")] = lambda x, y: y
+
 
 #Relational rules
 grammar[("TPrep", "NArg")] = lambda x, y: NRel(x, children=[y])
@@ -189,9 +219,20 @@ grammar[("NVerbParams", "NRel")] = lambda x, y: y
 
 grammar[("NVP", "TAdj")] = lambda x, y: NRel(y, children=[])
 
+grammar[("TAdv", "NRel")] = lambda x, y: NRel(y.content, y.children, y.neg, y.mods + [x])
+
+grammar[("TDet", "TPrep")] = lambda x, y: y
+grammar[("TAdj", "TPrep")] = lambda x, y: y
+
+
+
 
 #Sentence-level rules
 grammar[("NRel", "TQMarker")] = lambda x, y: NSentence(x, True)
+class TRelativizer(TreeNode):
+    __name__ = "TRelativizer"
+    def __init__(self, content=None):
+        super().__init__(content, None)
 
 
 class TCopulaBe(TreeNode):
@@ -233,6 +274,11 @@ class TSubMarker(TreeNode):
     __name__ = "TSubMarker"
     def __init__(self):
         super().__init__(content, None)
+
+class TEqualsMarker(TreeNode):
+    __name__ = "TEqualsMarker"
+    def __init__(self):
+        super().__init__(None, None)
 
 class TNeg(TreeNode):
     __name__ = "TNeg"
@@ -352,11 +398,25 @@ class NVP(TreeNode):
 
 class NRel(TreeNode):
     __name__ = "NRel"
-    def __init__(self, content, children=None, neg=False):
+    def __init__(self, content, children=None, neg=False, mods=[]):
         super().__init__(content, None)
         self.content = content
         self.children = children
         self.neg = neg
+        self.mods = mods
+
+    def __str__(self):
+        output = "RELATION={"
+        if self.neg == True:
+            output += "NOT "
+        for mod in self.mods:
+            output += ": " + mod.__str__()
+        output += self.content.__str__()
+        for idx in range(len(self.children)):
+            output += "\nARG" + str(idx) + " " + self.children[idx].__str__()
+        output += "\n}"
+        return output
+        
 
 class NConjArg(TreeNode):
     __name__ = "NConjArg"
@@ -376,8 +436,11 @@ class NArg(TreeNode):
         self.plur = plur
 
     def __str__(self):
-        return "ARG: " + str(self.obj_type)+"; " + str(self.obj_id) + "; "+ str(self.mods) + "; " +\
-            str(self.det) + "; " + str(self.plur)
+        output = "ARGUMENT={" + str(self.obj_type)+"; " + str(self.obj_id) + "; " + str(self.det) + "; " + str(self.plur) + "; ["
+        for mod in self.mods:
+            output += mod.__str__() + ", "
+        output+= "]}"
+        return output
     
 
 class NSentence(TreeNode):
@@ -390,15 +453,13 @@ class NSentence(TreeNode):
        
 class ULFQuery(object):
     def __init__(self, input):
-        #self.lispified = self.lispify(input)
-        #self.preprocessed = self.process_sub(self.lispified)
         input = self.preprocess(input)
         self.query_tree = self.parse_tree(input)
 
     def preprocess(self, ulf):
         ulf = self.lispify(ulf)
-        print ("\nQUERY: ", ulf)
-        ulf = self.process_sub(ulf)
+        print ("QUERY: ", ulf)
+        ulf = self.process_sub_rep(ulf)
         print ("PRECONJPROP QUERY: ", ulf)
         ulf = self.propagate_conj(ulf, [])[0]
         print ("PREPROC QUERY: ", ulf, "\n")        
@@ -409,6 +470,7 @@ class ULFQuery(object):
             if tree in grammar:
                 return grammar[tree](tree)
             else:
+                print ("UNKNOWN!!! - " + tree)
                 return TUnknown(tree)
 
         tree = [self.parse_tree(node) for node in tree]
@@ -431,14 +493,26 @@ class ULFQuery(object):
         #print ("PROC: ", tree)
         return tree[0]
 
-    def process_sub(self, tree, expr=None):
+    def process_sub(self, tree, sub_expr=None):
         if type(tree) == list:
             if tree[0] == 'sub':
                 return self.process_sub(tree[2], tree[1])
             else:
-                return [self.process_sub(branch, expr) for branch in tree]
+                return [self.process_sub(branch, sub_expr) for branch in tree]
         else:
-            return expr if (tree == "*h" and expr is not None) else tree
+            return sub_expr if (tree == "*h" and sub_expr is not None) else tree
+
+    def process_sub_rep(self, tree, sub_expr=None, rep_expr=None):
+        if type(tree) == list:
+            if tree[0] == 'sub':
+                return self.process_sub_rep(tree[2], tree[1], rep_expr)
+            elif tree[0] == "rep":
+                return self.process_sub_rep(tree[1], sub_expr, tree[2])
+            else:
+                return [self.process_sub_rep(branch, sub_expr, rep_expr) for branch in tree]
+        else:
+            return sub_expr if (tree == "*h" and sub_expr is not None) else \
+                rep_expr if (tree == "*p" and rep_expr is not None) else tree
 
     def lispify(self, input):
         stack = []
@@ -464,9 +538,6 @@ class ULFQuery(object):
                 token += char
         return current[0]
 
-    def push_inward(ulf, token):
-        return [ulf[0]] + [[token [item]] for item in ulf[1:]]
-
     def propagate_conj(self, ulf, prefix=[]):
         if type(ulf) == str and ".cc" not in ulf:
             return (ulf, False)
@@ -491,12 +562,15 @@ class ULFQuery(object):
                      
 f = open("sqa_input.bw")
 test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
-for ulf in f.readlines():
+test2 = ["sub", ["what.d", "color.n"], [["pres", "be.v"], ["rep", [["farthest.a", "*p"], "block.n"], ["to.p", ["the.d", "right.n"]]], "*h"]]
+ulfs = f.readlines()
+for ulf in ulfs:
     #print (ulf)
+    print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
     ulf = ulf.lower().strip().replace("{", "").replace("}", "")
     if ";;" not in ulf and ulf != "":
         #print (ulf)
         query = ULFQuery(ulf)
         print (query.query_tree)
-        #print (query.propagate_conj(test, [])[0])
+        #print (query.process_sub_rep(test2))
         input("Press Enter to continue...")
