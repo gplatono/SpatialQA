@@ -42,6 +42,7 @@ grammar['side_by_side_with.p'] = lambda x: TPrep(x)
 grammar['on_top_of.p'] = lambda x: TPrep(x)
 
 grammar['touch.v'] = lambda x: TPrep(x)
+grammar['contain.v'] = lambda x: TPrep(x)
 grammar['face.v'] = lambda x: TPrep(x)
 grammar['color.n'] = lambda x: TPrep(x)
 
@@ -436,6 +437,11 @@ class NArg(TreeNode):
         self.plur = plur
 
     def __str__(self):
+        if self.mods is not None:
+            for item in self.mods:
+                if item is not None and hasattr(item, "children") and item.children is not None and self in item.children:
+                    print ("ERROR!!!: ", self.content, item.content)
+                    return ""
         output = "ARGUMENT={" + str(self.obj_type)+"; " + str(self.obj_id) + "; " + str(self.det) + "; " + str(self.plur) + "; ["
         for mod in self.mods:
             output += mod.__str__() + ", "
@@ -473,6 +479,7 @@ class ULFQuery(object):
                 print ("UNKNOWN!!! - " + tree)
                 return TUnknown(tree)
 
+        #print ("INITIAL TREE: ", tree)
         tree = [self.parse_tree(node) for node in tree]
         
         if type(tree[0]) == TNModMarker:
@@ -480,6 +487,8 @@ class ULFQuery(object):
             return tree[1]
 
         while len(tree) >= 2 and (tree[0].__name__, tree[1].__name__) in grammar:
+           # if tree[0].__name__ == "NArg" and tree[1].__name__ == "NRel" and tree[1] in tree[0].mods:
+           #     print ("ERROR!!!: ",tree[0],tree[1])
             substitute = grammar[(tree[0].__name__, tree[1].__name__)](tree[0], tree[1])
             tree = [substitute] + tree[2:]
 
