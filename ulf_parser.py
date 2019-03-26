@@ -484,6 +484,7 @@ class ULFQuery(object):
         
         if type(tree[0]) == TNModMarker:
             tree[1].mods += tree[2:]
+            print ("MODS: ", tree[2:])
             return tree[1]
 
         while len(tree) >= 2 and (tree[0].__name__, tree[1].__name__) in grammar:
