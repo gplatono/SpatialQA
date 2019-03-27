@@ -1,4 +1,5 @@
 from collections import defaultdict
+import copy
 
 class TreeNode(object):
     __name__ = "TreeNode"
@@ -161,7 +162,6 @@ grammar['|starbucks|.n'] = lambda x: TName(x)
 grammar['|texaco|.n'] = lambda x: TName(x)
 grammar['|target|.n'] = lambda x: TName(x)
 
-
 grammar['not.adv-s'] = lambda x: TNeg()
 
 grammar['or.cc'] = lambda x: TConj(x)
@@ -197,7 +197,6 @@ grammar[("TNReifierMarker", "NArg")] = lambda x, y: y
 
 grammar[("TRelNoun", "NArg")] = lambda x, y: NArg(obj_type = x.content[:-5], obj_id = x.content[:-5].upper(), mods = [y])
 
-
 grammar[("TNumber", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = y.plur)
 
 grammar[("TConj", "NArg")] = lambda x, y: NConjArg(x, children = [y])
@@ -226,10 +225,14 @@ grammar[("TDet", "TPrep")] = lambda x, y: y
 grammar[("TAdj", "TPrep")] = lambda x, y: y
 
 
+grammar[("NVP", "NArg")] = lambda x, y: NPred(content = x, children = [y])
+grammar[("NArg", "NPred")] = lambda x, y: x.update(mods=[y])
 
 
 #Sentence-level rules
 grammar[("NRel", "TQMarker")] = lambda x, y: NSentence(x, True)
+grammar[("NArg", "TQMarker")] = lambda x, y: NSentence(x, True)
+
 class TRelativizer(TreeNode):
     __name__ = "TRelativizer"
     def __init__(self, content=None):
@@ -396,11 +399,10 @@ class NVP(TreeNode):
         self.content = content
         self.children = children
         
-
 class NRel(TreeNode):
     __name__ = "NRel"
     def __init__(self, content, children=None, neg=False, mods=[]):
-        super().__init__(content, None)
+        #super().__init__(content, children)
         self.content = content
         self.children = children
         self.neg = neg
@@ -417,7 +419,28 @@ class NRel(TreeNode):
             output += "\nARG" + str(idx) + " " + self.children[idx].__str__()
         output += "\n}"
         return output
-        
+
+class NPred(TreeNode):
+    __name__ = "NPred"
+    def __init__(self, content, children=None, neg=False, mods=[]):
+        #super().__init__(content, children)
+        self.content = content
+        self.children = children
+        self.neg = neg
+        self.mods = mods
+
+    def __str__(self):
+        output = "PRED={"
+        if self.neg == True:
+            output += "NOT "
+        for mod in self.mods:
+            output += ": " + mod.__str__()
+        output += self.content.__str__()
+        for idx in range(len(self.children)):
+            output += "\nARG" + str(idx) + " " + self.children[idx].__str__()
+        output += "\n}"
+        return output
+
 
 class NConjArg(TreeNode):
     __name__ = "NConjArg"
@@ -429,25 +452,50 @@ class NConjArg(TreeNode):
 class NArg(TreeNode):
     __name__ = "NArg"
     def __init__(self, obj_type=None, obj_id=None, mods=[], det=None, plur=False):
-        super(NArg, self).__init__(None, None)
+        #super().__init__(None, None)
         self.obj_type = obj_type
         self.obj_id = obj_id
         self.mods = mods
         self.det = det
         self.plur = plur
 
-    def __str__(self):
+    def update(self, narg=None, obj_type=None, obj_id=None, mods=None, det=None, plur=None):
+        if obj_type is not None:
+            self.obj_type = obj_type
+        elif narg is not None:
+            self.obj_type = narg.obj_type
+        if obj_id is not None:
+            self.obj_id = obj_id
+        elif narg is not None:
+            self.obj_id = narg.obj_id
+        if mods is not None:
+            for item in mods:
+                self.mods.append(copy.copy(item))
+        elif narg is not None:
+            self.mods += narg.mods
+        if det is not None:
+            self.det = det
+        elif narg is not None:
+            self.det = narg.det
+        if plur is not None:
+            self.plur = plur
+        elif narg is not None:
+            self.plur = narg.plur
+        return self
+
+    def __str__(self):        
         if self.mods is not None:
             for item in self.mods:
                 if item is not None and hasattr(item, "children") and item.children is not None and self in item.children:
-                    print ("ERROR!!!: ", self.content, item.content)
+                    print ("ERROR!!!: ", self.obj_type, item.content)
                     return ""
         output = "ARGUMENT={" + str(self.obj_type)+"; " + str(self.obj_id) + "; " + str(self.det) + "; " + str(self.plur) + "; ["
         for mod in self.mods:
-            output += mod.__str__() + ", "
+            #output += mod.__str__() + ", "
+            output += str(mod) + ", "
         output+= "]}"
         return output
-    
+
 
 class NSentence(TreeNode):
     __name__ = "NSentence"
@@ -456,7 +504,6 @@ class NSentence(TreeNode):
         self.content = content
         self.is_question = is_question
   
-       
 class ULFQuery(object):
     def __init__(self, input):
         input = self.preprocess(input)
@@ -481,11 +528,17 @@ class ULFQuery(object):
 
         #print ("INITIAL TREE: ", tree)
         tree = [self.parse_tree(node) for node in tree]
+        print ("TREE BEFORE COLLAPSING: \n" + "\n".join([node.__str__() for node in tree]))
         
         if type(tree[0]) == TNModMarker:
-            tree[1].mods += tree[2:]
-            print ("MODS: ", tree[2:])
-            return tree[1]
+            print ("CURRENT TREE: ", tree)
+            ret = tree[1].update(mods=tree[2:])
+            print ("POSTNOM MODS: ", ret.__str__())
+            #return NArg(obj_type=tree[1].obj_type, obj_id=tree[1].obj_id, mods=tree[1].mods + tree[2:], det=tree[1].det, plur=tree[1].plur)
+            return ret
+            #tree[1].mods += tree[2:]
+            #print ("MODS: ", tree[2:])
+            #return tree[1]
 
         while len(tree) >= 2 and (tree[0].__name__, tree[1].__name__) in grammar:
            # if tree[0].__name__ == "NArg" and tree[1].__name__ == "NRel" and tree[1] in tree[0].mods:
@@ -497,7 +550,7 @@ class ULFQuery(object):
             substitute = grammar[(tree[-2].__name__, tree[-1].__name__)](tree[-2], tree[-1])
             tree = tree[:-3] + [substitute]
 
-        print ("TREE:", tree)
+        print ("TREE AFTER COLLAPSING: ", tree)
         print ("\n".join([node.__str__() for node in tree]))
 
         #print ("PROC: ", tree)
@@ -569,12 +622,13 @@ class ULFQuery(object):
                 return (ulf, False)
 
         return ([self.propagate_conj(item, prefix)[0] for item in ulf], False)
-                     
+
+
 f = open("sqa_input.bw")
 test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
 test2 = ["sub", ["what.d", "color.n"], [["pres", "be.v"], ["rep", [["farthest.a", "*p"], "block.n"], ["to.p", ["the.d", "right.n"]]], "*h"]]
 ulfs = f.readlines()
-for ulf in ulfs:
+for ulf in ulfs[10:]:
     #print (ulf)
     print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
     ulf = ulf.lower().strip().replace("{", "").replace("}", "")
