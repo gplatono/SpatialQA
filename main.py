@@ -20,8 +20,9 @@ sys.path.insert(0, filepath)
 from entity import Entity
 from geometry_utils import *
 from annot_parser import *
-from spatial import *
-from ulf_parser import *
+#from spatial import *
+#from ulf_parser import *
+from query_proc import *
 
 link = False
 #The current scene
@@ -66,7 +67,6 @@ types_ids = {
     'ceiling': 'world.plane.ceiling',
     'wall': 'world.plane.wall'
 }
-    
 
 #The list of entities
 entities = []
@@ -119,33 +119,6 @@ def compute_over(entities):
     return "\n".join(", ".join(y.name for y in x[1]) + " is over the " + x[0].name for x in obj if x[1] != [])
 
 #
-
-'''
-def gen_data(func_name):
-    pos = 100.0
-    neg = 100.0
-    data = open(func_name + ".train", "w")
-    index = 0
-    for pair in itertools.permutations(entities, r = 2):
-        if index < 1000:
-            a, b = pair
-            if a.name != 'plane' and b.name != 'plane':
-                a_bbox_str = " ".join([" ".join([str(x) for x in y]) for y in a.get_bbox()])
-                b_bbox_str = " ".join([" ".join([str(x) for x in y]) for y in b.get_bbox()])
-                a_cen = a.get_bbox_centroid()
-                b_cen = b.get_bbox_centroid()
-                outstr = a_bbox_str + " " + b_bbox_str #" ".join([str(x) for x in a_cen]) + " " + " ".join([str(x) for x in b_cen])            
-                if globals()[func_name](a, b) > 0.7: # and float(pos) / (pos + neg) <= 0.6:
-                    outstr = outstr + " 1\n"
-                    #pos = pos + 1
-                    data.write(outstr)
-                else: #if neg / (pos + neg) <= 0.6:
-                    outstr = outstr + " -1\n"
-                    #neg = neg + 1
-                    data.write(outstr)
-                index = index + 1
-    data.close()
-''' 
 
 #Creates and configures the special "observer" object
 #(which is just a camera). Needed for deictic relations as
@@ -290,23 +263,6 @@ def save_screenshot():
     scene.render.filepath = filepath + current_scene + ".jpg"
     bpy.ops.render.render(write_still=True)
 
-#Given the relations argument specification, returns the entities that
-#satisfy that specification
-#Inputs: arg - argument object
-#Return value: the list of entities
-def get_argument_entities(arg):
-    ret_val = [get_entity_by_name(arg.token)]
-    if ret_val == [None]:
-        ret_val = []
-        for entity in entities:            
-            #print ("TYPE_STR: {} {}".format(entity.name, entity.type_structure))
-            if (entity.type_structure is None):
-                print ("NONE STRUCTURE", entity.name)                
-            if (arg.token in entity.type_structure or arg.token in entity.name.lower() or arg.token == "block" and "cube" in entity.type_structure) \
-               and (arg.mod is None or arg.mod.adj is None or arg.mod.adj == "" or entity.color_mod == arg.mod.adj or arg.mod.adj in entity.type_structure[-1].lower()):
-                ret_val += [entity]    
-    return ret_val
-
 #Computes the projection of an entity onto the observer's visual plane
 #Inputs: entity - entity, observer - object, representing observer's position
 #and orientation
@@ -319,86 +275,6 @@ def vp_project(entity, observer):
     pixel_coords = [(round(point.x * render_size[0]),round(point.y * render_size[1]),) for point in co_2d]
     return pixel_coords
 
-
-#Filters the entities list according to the set of constraints, i.e.,
-#returns the list of entities satisfying certain criteria
-#Inputs: entities - list of entities; constaints - list of constraints in the
-#form (type, value), e.g., (color_mod, 'black')
-#Return value: list of entities
-def filter(entities, constraints):
-    result = []
-    for entity in entities:
-        isPass = True
-        for cons in constraints:
-            #print("TYPE_STR:", entity.name, entity.get_type_structure())
-            if cons[0] == 'type' and entity.get_type_structure()[-2] != cons[1]:
-                isPass = False
-            elif cons[0] == 'color_mod' and entity.color_mod != cons[1]:
-                isPass = False
-        if isPass:
-            result.append(entity)
-    return result
-
-
-#For a description task, finds the best candiadate entity
-#Inputs: relation - relation name (string), rel_constraints - the list of constraints
-#imposed on the relatum, referents - the list of referent entities
-#Return value: the best candidate entity
-def eval_find(relation, rel_constraints, referents):
-    candidates = filter(entities, rel_constraints)
-    print ("CANDIDATES: {}".format(candidates))
-    scores = []
-    if len(referents[0]) == 1 or relation == "between":
-        scores = [(cand, cand.name, max([globals()[rf_mapping[relation]](cand, *ref) for ref in referents if cand not in ref])) for cand in candidates]
-    else:
-        scores = [(cand, cand.name, max([np.mean([globals()[rf_mapping[relation]](cand, ref) for ref in refset]) for refset in referents if cand not in refset])) for cand in candidates]
-    print ("SCORES: {}".format(scores))
-    max_score = 0
-    best_candidate = None
-    for ev in scores:
-        if ev[2] > max_score:
-            max_score = ev[2]
-            best_candidate = ev[0]
-    return best_candidate
-
-#Processes a truth-judgement annotation
-#Inputs: relation, relatum, referent1, referent2 - strings, representing
-#the relation and its arguments; response - user's response for the test
-#Return value: the value of the corresponding relation function
-def process_truthjudg(relation, relatum, referent1, referent2, response):
-    relatum = get_entity_by_name(relatum)
-    referent1 = get_entity_by_name(referent1)
-    referent2 = get_entity_by_name(referent2)
-    print (relatum, referent1, referent2)
-    if relation != "between":
-        return globals()[rf_mapping[relation]](relatum, referent1)
-    else: return globals()[rf_mapping[relation]](relatum, referent1, referent2)
-
-#Extracts the constraints (type and color) for the relatum argument
-#from the parsing result.
-#Inputs: relatum - string, representing the relation argument;
-#rel_constraints - the type and color properties of the relatum
-#Return value: The list of pairs ('constraint_name', 'constraint_value')
-def get_relatum_constraints(relatum, rel_constraints):
-    ret_val = [('type', relatum.get_type_structure()[-2]), ('color_mod', relatum.color_mod)]
-    return ret_val
-
-#Processes a description-tast annotation
-#Inputs: relatum - string, representing the relation argument;
-#response - user's response for the test
-#Return value: the best-candidate entity fo the given description
-def process_descr(relatum, response):
-    rel_constraint = parse(response)
-    if rel_constraint is None:
-        return None
-    relatum = get_entity_by_name(relatum)
-    #print ("REF: {}".format(rel_constraint.referents))
-    if rel_constraint is None:
-        return "*RESULT: NO RELATIONS*"
-    referents = list(itertools.product(*[get_argument_entities(ref) for ref in rel_constraint.referents]))
-    print("REFS:", referents)
-    relation = rel_constraint.token
-    return eval_find(relation, get_relatum_constraints(relatum, rel_constraint), referents)
 
 def scaled_axial_distance(a_bbox, b_bbox):
     a_span = (a_bbox[1] - a_bbox[0], a_bbox[3] - a_bbox[2])
@@ -420,7 +296,6 @@ def get_weighted_measure(a, b, observer):
     return 0.5 * horizontal_component + 0.3 * vertical_component + 0.2 * distance_factor
 
 
-
 def fix_ids():
     for ob in scene.objects:
         if ob.get('main') is not None:# and ob.get('id') is None:
@@ -435,7 +310,7 @@ def fix_ids():
 
 def get_similar_entities(relatum):
     ret_val = []
-    relatum = get_entity_by_name(relatum)
+    relatum = get_entity_by_name(relatum, entities)
     for entity in entities:
         if relatum.type_structure[-2] == entity.type_structure[-2] and (relatum.color_mod is None \
            and entity.color_mod is None or relatum.color_mod == entity.color_mod):
@@ -444,7 +319,7 @@ def get_similar_entities(relatum):
 
 def pick_descriptions(relatum):
     candidates = get_similar_entities(relatum)
-    relatum = get_entity_by_name(relatum)
+    relatum = get_entity_by_name(relatum, entities)
     max_vals = []
     for relation in relations:
         max_val = 0
@@ -499,12 +374,12 @@ def main():
             print ("ANNOTATION PARAMS: {}, {}, {}, {}, {}, {}".format(task_type, relatum, relation, referent1, referent2, response))
         
             if task_type == "1":
-                best_cand = process_descr(relatum, response)
+                best_cand = process_descr(relatum, response, entities)
                 if best_cand != None:
-                    print(process_descr(relatum, response).name, "==?", relatum)
-                print("RESULT:", int(get_entity_by_name(relatum) == best_cand))
+                    print(process_descr(relatum, response, entities).name, "==?", relatum)
+                print("RESULT:", int(get_entity_by_name(relatum, entities) == best_cand))
             elif task_type == "0":
-                print("RESULT:", process_truthjudg(relation, relatum, referent1, referent2, response))
+                print("RESULT:", process_truthjudg(relation, relatum, referent1, referent2, response, entities))
             elif task_type == "2":
                 descr = pick_descriptions(relatum)
                 print("RESULT: {}".format("#".join(descr)))
