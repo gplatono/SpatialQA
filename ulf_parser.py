@@ -128,6 +128,10 @@ grammar['prog'] = lambda x: TAspectMarker(prog=True, perf=False)
 grammar['perf'] = lambda x: TAspectMarker(prog=False, perf=True)
 grammar['k'] = lambda x: TNReifierMarker()
 grammar['='] = lambda x: TEqualsMarker()
+grammar['adv-a'] = lambda x: TAdvTransformMarker(x)
+grammar['adv-s'] = lambda x: TAdvTransformMarker(x)
+grammar['adv-e'] = lambda x: TAdvTransformMarker(x)
+grammar['adv-f'] = lambda x: TAdvTransformMarker(x)
 
 
 grammar['that.rel'] = lambda x: TRelativizer(content=x)
@@ -288,6 +292,12 @@ class TEqualsMarker(TreeNode):
     __name__ = "TEqualsMarker"
     def __init__(self):
         super().__init__(None, None)
+
+class TAdvTransformMarker(TreeNode):
+    __name__ = "TAdvTransformMarker"
+    def __init__(self, content):
+        super().__init__(content, None)
+
 
 class TNeg(TreeNode):
     __name__ = "TNeg"
@@ -623,19 +633,3 @@ class ULFQuery(object):
                 return (ulf, False)
 
         return ([self.propagate_conj(item, prefix)[0] for item in ulf], False)
-
-
-f = open("sqa_input.bw")
-test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
-test2 = ["sub", ["what.d", "color.n"], [["pres", "be.v"], ["rep", [["farthest.a", "*p"], "block.n"], ["to.p", ["the.d", "right.n"]]], "*h"]]
-ulfs = f.readlines()
-for ulf in ulfs[25:]:
-    #print (ulf)
-    print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
-    ulf = ulf.lower().strip().replace("{", "").replace("}", "")
-    if ";;" not in ulf and ulf != "":
-        #print (ulf)
-        query = ULFQuery(ulf)
-        print (query.query_tree)
-        #print (query.process_sub_rep(test2))
-        input("Press Enter to continue...")

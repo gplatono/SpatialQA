@@ -19,8 +19,8 @@ sys.path.insert(0, filepath)
 
 from entity import Entity
 from geometry_utils import *
-from annot_parser import *
-#from spatial import *
+#from annot_parser import *
+from spatial import *
 from ulf_parser import *
 from constraint_solver import *
 #from query_proc import *
@@ -386,13 +386,19 @@ def main():
                 print("RESULT: {}".format("#".join(descr)))
         return
 
+    f = open("sqa_input.bw")
+    test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
+    test2 = ["sub", ["what.d", "color.n"], [["pres", "be.v"], ["rep", [["farthest.a", "*p"], "block.n"], ["to.p", ["the.d", "right.n"]]], "*h"]]
+    ulfs = f.readlines()
+    for ulf in ulfs[25:]:
+        #print (ulf)
+        print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
+        ulf = ulf.lower().strip().replace("{", "").replace("}", "")
+        if ";;" not in ulf and ulf != "":
+            query = ULFQuery(ulf)
+            print (query.query_tree)
+            input("Press Enter to continue...")
 
-    lines = open("ulf_tests").readlines()
-    line = lines[3]
-    query = ULFQuery(line).query
-    print (line)
-    print (query)
-    print (query.printable())    
     #bl4 = get_entity_by_name("Block 4")
     #bl9 = get_entity_by_name("Block 9")
     #bl11 = get_entity_by_name("Block 11")

@@ -8,7 +8,7 @@ def get_entities_of_type(entities, type_id):
 
 def process_query(query, entities):
 	arg = query.content
-	if !query.is_question or arg == None:
+	if (not query.is_question) or arg == None:
 		return None
 	ret_set = entities
 	if arg.obj_type is not None:
