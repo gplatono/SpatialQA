@@ -21,8 +21,9 @@ from entity import Entity
 from geometry_utils import *
 from annot_parser import *
 #from spatial import *
-#from ulf_parser import *
-from query_proc import *
+from ulf_parser import *
+from constraint_solver import *
+#from query_proc import *
 
 link = False
 #The current scene

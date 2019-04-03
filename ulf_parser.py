@@ -41,9 +41,13 @@ grammar['in.p'] = lambda x: TPrep(x)
 grammar['between.p'] = lambda x: TPrep(x)
 grammar['side_by_side_with.p'] = lambda x: TPrep(x)
 grammar['on_top_of.p'] = lambda x: TPrep(x)
+grammar['close_to.p'] = lambda x: TPrep(x)
+grammar['near_to.p'] = lambda x: TPrep(x)
+grammar['far_from.p'] = lambda x: TPrep(x)
 
 grammar['touch.v'] = lambda x: TPrep(x)
 grammar['contain.v'] = lambda x: TPrep(x)
+grammar['consist_of.v'] = lambda x: NPred(x)
 grammar['face.v'] = lambda x: TPrep(x)
 grammar['color.n'] = lambda x: TPrep(x)
 
@@ -70,7 +74,6 @@ grammar['middle-of.n'] = lambda x: TRelNoun(x)
 grammar['part-of.n'] = lambda x: TRelNoun(x)
 grammar['height-of.n'] = lambda x: TRelNoun(x)
 grammar['length-of.n'] = lambda x: TRelNoun(x)
-
 
 
 grammar['how.mod-a'] = lambda x: TAdvAdjMod(x)
@@ -184,7 +187,6 @@ grammar[("TAdvAdjMod", "TAdj")] = lambda x, y: TAdj(content = y.content, mod = x
 #Determiner rules
 grammar[("TQuanMarker", "TAdj")] = lambda x, y: NDet(y) if (y.content != "many.a" or y.mod is None or y.mod.content != "how.mod-a") else NCardDet()
 
-
 #Argument + modifier rules
 grammar[("TName", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = x.content)
 grammar[("TDet", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods, det = x, plur = y.plur)
@@ -226,8 +228,11 @@ grammar[("TAdj", "TPrep")] = lambda x, y: y
 
 
 grammar[("NVP", "NArg")] = lambda x, y: NPred(content = x, children = [y])
-grammar[("NArg", "NPred")] = lambda x, y: x.update(mods=[y])
+grammar[("NArg", "NPred")] = lambda x, y: NArg(obj_type = x.obj_type, obj_id = x.obj_id, mods = x.mods + [y], det = x.det, plur = x.plur)
 
+
+grammar[("TRelativizer", "NPred")] = lambda x, y: y
+grammar[("TRelativizer", "NRel")] = lambda x, y: y
 
 #Sentence-level rules
 grammar[("NRel", "TQMarker")] = lambda x, y: NSentence(x, True)
@@ -441,7 +446,6 @@ class NPred(TreeNode):
         output += "\n}"
         return output
 
-
 class NConjArg(TreeNode):
     __name__ = "NConjArg"
     def __init__(self, content, children=None):
@@ -531,14 +535,11 @@ class ULFQuery(object):
         print ("TREE BEFORE COLLAPSING: \n" + "\n".join([node.__str__() for node in tree]))
         
         if type(tree[0]) == TNModMarker:
-            print ("CURRENT TREE: ", tree)
-            ret = tree[1].update(mods=tree[2:])
-            print ("POSTNOM MODS: ", ret.__str__())
-            #return NArg(obj_type=tree[1].obj_type, obj_id=tree[1].obj_id, mods=tree[1].mods + tree[2:], det=tree[1].det, plur=tree[1].plur)
-            return ret
-            #tree[1].mods += tree[2:]
-            #print ("MODS: ", tree[2:])
-            #return tree[1]
+            #print ("CURRENT TREE: ", tree)
+            ret = NArg(obj_type=tree[1].obj_type, obj_id=tree[1].obj_id, mods = tree[1].mods + tree[2:], det=tree[1].det, plur=tree[1].plur)
+            #ret = tree[1].update(mods=tree[2:])
+            #print ("POSTNOM MODS: ", ret.__str__())
+            return ret            
 
         while len(tree) >= 2 and (tree[0].__name__, tree[1].__name__) in grammar:
            # if tree[0].__name__ == "NArg" and tree[1].__name__ == "NRel" and tree[1] in tree[0].mods:
@@ -551,7 +552,7 @@ class ULFQuery(object):
             tree = tree[:-3] + [substitute]
 
         print ("TREE AFTER COLLAPSING: ", tree)
-        print ("\n".join([node.__str__() for node in tree]))
+        #print ("\n".join([node.__str__() for node in tree]))
 
         #print ("PROC: ", tree)
         return tree[0]
@@ -628,7 +629,7 @@ f = open("sqa_input.bw")
 test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
 test2 = ["sub", ["what.d", "color.n"], [["pres", "be.v"], ["rep", [["farthest.a", "*p"], "block.n"], ["to.p", ["the.d", "right.n"]]], "*h"]]
 ulfs = f.readlines()
-for ulf in ulfs[10:]:
+for ulf in ulfs[25:]:
     #print (ulf)
     print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
     ulf = ulf.lower().strip().replace("{", "").replace("}", "")
