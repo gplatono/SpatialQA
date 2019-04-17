@@ -234,7 +234,6 @@ grammar[("TAdj", "TPrep")] = lambda x, y: y
 grammar[("NVP", "NArg")] = lambda x, y: NPred(content = x, children = [y])
 grammar[("NArg", "NPred")] = lambda x, y: NArg(obj_type = x.obj_type, obj_id = x.obj_id, mods = x.mods + [y], det = x.det, plur = x.plur)
 
-
 grammar[("TRelativizer", "NPred")] = lambda x, y: y
 grammar[("TRelativizer", "NRel")] = lambda x, y: y
 
@@ -529,7 +528,8 @@ class ULFQuery(object):
         ulf = self.process_sub_rep(ulf)
         print ("PRECONJPROP QUERY: ", ulf)
         ulf = self.propagate_conj(ulf, [])[0]
-        print ("PREPROC QUERY: ", ulf, "\n")        
+        ulf = self.add_brackets(ulf)
+        print ("PREPROC QUERY: ", ulf, "\n")
         return ulf
 
     def parse_tree(self, tree):
@@ -567,7 +567,20 @@ class ULFQuery(object):
         #print ("PROC: ", tree)
         return tree[0]
 
-    def process_sub(self, tree, sub_expr=None):
+    def add_brackets(self, ulf):
+        '''Adds brackets in different places in ulf if missing
+
+        '''
+        if type(ulf) == list:
+            if len(ulf) > 2 and ulf[0] == "most-n":
+                return [[ulf[0], ulf[1]], self.add_brakets(ulf[2:])]
+            else:
+                return [self.add_brackets(item) for item in ulf]
+        else:
+            return ulf
+               
+'''
+def process_sub(self, tree, sub_expr=None):
         if type(tree) == list:
             if tree[0] == 'sub':
                 return self.process_sub(tree[2], tree[1])
@@ -575,7 +588,7 @@ class ULFQuery(object):
                 return [self.process_sub(branch, sub_expr) for branch in tree]
         else:
             return sub_expr if (tree == "*h" and sub_expr is not None) else tree
-
+'''
     def process_sub_rep(self, tree, sub_expr=None, rep_expr=None):
         if type(tree) == list:
             if tree[0] == 'sub':

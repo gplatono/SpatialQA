@@ -185,7 +185,7 @@ def get_entity_by_name(name):
         if entity.name.lower() == name.lower():
             return entity
     return None
-
+'''
 #Places the entity at a specified location and with specified orientation
 #Inputs: entity, position - triple of point coordinates, rotation - triple of Euler angles
 #Return value: none
@@ -215,7 +215,10 @@ def arrange_entities(reg, collection):
                 else:
                     pos = (random.uniform(reg[0], reg[1]), random.uniform(reg[2], reg[3]), random.uniform(reg[4], reg[5]))
                 place_entity(entity, pos, (math.pi,0,0))
+'''
 
+
+'''
 #Checks if the projections of two entities onto a coordinate axis "collide" (overlap)
 #Inputs: int_a, int_b - the projections of two entities as intervals (pairs of numbers)
 #Return value: Boolean value                
@@ -224,14 +227,14 @@ def axis_collision(int_a, int_b):
 int_a[0] >= int_b[0] and int_a[0] <= int_b[1] or \
 int_b[0] >= int_a[0] and int_b[0] <= int_a[1] or \
 int_b[1] >= int_a[0] and int_b[1] <= int_a[1]
+'''
 
 #Checks if the entity "collides" (overlaps) with some other entity along any coordinate axis
 #Inputs: a - entity
 #Return value: Boolean value                
-def check_collisions(a):
+def check_collisions_for_entity(a):
     for entity in entities:
-        if entity != a and check_collision(a, entity):
-            print (entity.name, a.name)
+        if entity != a and check_collision(a, entity):            
             return True
     return False            
 
@@ -241,9 +244,24 @@ def check_collisions(a):
 def check_collision(a, b):
     span_a = a.get_span()
     span_b = b.get_span()
-    return axis_collision((span_a[0], span_a[1]), (span_b[0], span_b[1])) and \
-                          axis_collision((span_a[2], span_a[3]), (span_b[2], span_b[3])) and \
-                          axis_collision((span_a[4], span_a[5]), (span_b[4], span_b[5]))
+    ax_1 = span_a[0][0]
+    ax_2 = span_a[0][1]
+    ay_1 = span_a[1][0]
+    ay_2 = span_a[1][1]
+    az_1 = span_a[2][0]
+    az_2 = span_a[2][1]
+    bx_1 = span_b[0][0]
+    bx_2 = span_b[0][1]
+    by_1 = span_b[1][0]
+    by_2 = span_b[1][1]
+    bz_1 = span_b[2][0]
+    bz_2 = span_b[2][1]
+    return (ax_1 <= bx_1 and bx_1 < ax_2 or bx_1 <= ax_1 and ax_1 < bx_2) or \
+    (ay_1 <= by_1 and by_1 < ay_2 or by_1 <= ay_1 and ay_1 < by_2) or \
+    (az_1 <= bz_1 and bz_1 < az_2 or bz_1 <= az_1 and az_1 < bz_2)
+    #return axis_collision((span_a[0], span_a[1]), (span_b[0], span_b[1])) and \
+    #                      axis_collision((span_a[2], span_a[3]), (span_b[2], span_b[3])) and \
+    #                      axis_collision((span_a[4], span_a[5]), (span_b[4], span_b[5]))
 
 #STUB
 def put_on_top(a, b):
@@ -390,7 +408,7 @@ def main():
     test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
     test2 = ["sub", ["what.d", "color.n"], [["pres", "be.v"], ["rep", [["farthest.a", "*p"], "block.n"], ["to.p", ["the.d", "right.n"]]], "*h"]]
     ulfs = f.readlines()
-    for ulf in ulfs[25:]:
+    for ulf in ulfs[20:]:
         #print (ulf)
         print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
         ulf = ulf.lower().strip().replace("{", "").replace("}", "")
