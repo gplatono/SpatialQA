@@ -24,7 +24,7 @@
 (((What.d block.n) ((pres be.v) (halfway.adv-a (on_top_of.p (any.d (other.a block.n)))))) ?)
 (((Which.d block.n) ((pres be.v) (side_by_side_with.p (the.d (|Texaco|.n block.n))))) ?)
 ((What.pro ((pres be.v) (the.d (most-n (far_from.p (the.d (center-of.n (the.d table.n)))) block.n)))) ?)
-((sub (Which.d block.n) ((pres be.v) (the.d (|Nvidia|.n block.n)) (on_top_of.p *h))) ?)
+((sub (Which.d block.n) ((the.d (|Nvidia|.n block.n)) ((pres be.v) (on_top_of.p *h)))) ?)
 (((Which.d block.n) ((pres be.v) (adv-a (very.mod-a (close_to.p (the.d (front.a (edge-of.n (the.d table.n))))))))) ?)
 ((What.pro ((pres be.v) (in.p (the.d (middle-of.n (the.d table.n)))))) ?)
 (((Which.d (red.a block.n)) ((pres be.v) (the.d (most-n (close_to.p (the.d (|Toyota|.n block.n))) ({red}.a {block}.n))))) ?)

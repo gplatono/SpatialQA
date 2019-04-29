@@ -51,17 +51,13 @@ grammar['consist_of.v'] = lambda x: NPred(x)
 grammar['face.v'] = lambda x: TPrep(x)
 grammar['color.n'] = lambda x: TPrep(x)
 
-grammar['halfway.adv-a'] = lambda x: TAdv(x)
-grammar['slightly.adv-a'] = lambda x: TAdv(x)
-grammar['directly.adv-a'] = lambda x: TAdv(x)
-
 #grammar['block.n'] = lambda x: TNoun(x)
 #grammar['{block}.n'] = lambda x: TNoun(x)
 grammar['block.n'] = lambda x: NArg(obj_type = x)
 grammar['{block}.n'] = lambda x: NArg(obj_type = x)
 grammar['table.n'] = lambda x: NArg(obj_type = x, obj_id = "TABLE")
 grammar['stack.n'] = lambda x: NArg(obj_type = x, obj_id = "STACK")
-grammar['row.n'] = lambda x: NArg(obj_type = x, obj_id = "STACK")
+grammar['row.n'] = lambda x: NArg(obj_type = x, obj_id = "ROW")
 grammar['thing.n'] = lambda x: NArg(obj_type = x, obj_id = None)
 grammar['{thing}.n'] = lambda x: NArg(obj_type = x, obj_id = None)
 grammar['what.pro'] = lambda x: NArg()
@@ -75,13 +71,16 @@ grammar['part-of.n'] = lambda x: TRelNoun(x)
 grammar['height-of.n'] = lambda x: TRelNoun(x)
 grammar['length-of.n'] = lambda x: TRelNoun(x)
 
+grammar['halfway.adv-a'] = lambda x: TAdv(x)
+grammar['slightly.adv-a'] = lambda x: TAdv(x)
+grammar['directly.adv-a'] = lambda x: TAdv(x)
+grammar['fully.adv-a'] = lambda x: TAdv(x)
 
 grammar['how.mod-a'] = lambda x: TAdvAdjMod(x)
 grammar['very.mod-a'] = lambda x: TAdvAdjMod(x)
 grammar['halfway.mod-a'] = lambda x: TAdvAdjMod(x)
 grammar['slightly.mod-a'] = lambda x: TAdvAdjMod(x)
 grammar['directly.mod-a'] = lambda x: TAdvAdjMod(x)
-
 
 grammar['red.a'] = lambda x: TAdj(x)
 grammar['green.a'] = lambda x: TAdj(x)
@@ -113,10 +112,10 @@ grammar['three.d'] = lambda x: TNumber(x)
 grammar['few.a'] = lambda x: TNumber(x)
 grammar['several.a'] = lambda x: TNumber(x)
 
-
+grammar['do.aux-s'] = lambda x: TAuxSDo()
+grammar['be.v'] = lambda x: TCopulaBe()
 grammar['plur'] = lambda x: TPlurMarker()
 grammar['pres'] = lambda x: TTenseMarker()
-grammar['be.v'] = lambda x: TCopulaBe()
 grammar['nquan'] = lambda x: TQuanMarker()
 grammar['fquan'] = lambda x: TQuanMarker()
 grammar['most-n'] = lambda x: TSuperMarker()
@@ -179,6 +178,8 @@ grammar[("TTenseMarker", "TCopulaBe")] = lambda x, y: NVP(content=y, children=[N
 grammar[("NVerbParams", "TCopulaBe")] = lambda x, y: NVP(content=y, children=[x])
 grammar[("TTenseMarker", "TVerb")] = lambda x, y: NVP(content=y, children=[NVerbParams(tense=x)] + y.children)
 grammar[("NVerbParams", "TVerb")] = lambda x, y: NVP(content=y, children=[x] + y.children)
+grammar[("TTenseMarker", "TAuxSDo")] = lambda x, y: NVP(content=y, children=[NVerbParams(tense=x)])
+grammar[("NVerbParams", "TAuxSDo")] = lambda x, y: NVP(content=y, children=[x] + y.children)
 
 grammar[("TAspectMarker", "TAspectMarker")] = lambda x, y: TAspectMarker(prog = x.prog or y.prog, perf = x.perf or y.perf)
 grammar[("TTenseMarker", "TAspectMarker")] = lambda x, y: NVerbParams(tense = x, aspect = y)
@@ -211,7 +212,7 @@ grammar[("Narg", "NConjArg")] = lambda x, y: NConjArg(y.content, children = y.ch
 grammar[("NConjArg", "NArg")] = lambda x, y: NConjArg(x.content, children = x.children + [y])
 
 grammar[("TEqualsMarker", "NArg")] = lambda x, y: y
-
+grammar[("NRel", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = y.plur)
 
 #Relational rules
 grammar[("TPrep", "NArg")] = lambda x, y: NRel(x, children=[y])
@@ -230,28 +231,41 @@ grammar[("TAdv", "NRel")] = lambda x, y: NRel(y.content, y.children, y.neg, y.mo
 grammar[("TDet", "TPrep")] = lambda x, y: y
 grammar[("TAdj", "TPrep")] = lambda x, y: y
 
-
 grammar[("NVP", "NArg")] = lambda x, y: NPred(content = x, children = [y])
 grammar[("NArg", "NPred")] = lambda x, y: NArg(obj_type = x.obj_type, obj_id = x.obj_id, mods = x.mods + [y], det = x.det, plur = x.plur)
+
+grammar[("NPred", "NArg")] = lambda x, y: NPred(content = x.content, children = x.children + [y])
 
 grammar[("TRelativizer", "NPred")] = lambda x, y: y
 grammar[("TRelativizer", "NRel")] = lambda x, y: y
 
+grammar[("TSuperMarker", "NRel")] = lambda x, y: NRel(content = y.content, children = y.children, neg = y.neg, mods = y.mods + [x])
+
+grammar[("TAdvTransformMarker", "NRel")] = lambda x, y: y
+grammar[("TAdvAdjMod", "NRel")] = lambda x, y: NRel(content = y.content, children = y.children, neg = y.neg, mods = y.mods + [x])
+
+grammar[("NPred", "NRel")] = lambda x, y : NPred(content = y.content, children = x.children + y.children, neg = y.neg, mods = y.mods)
+
 #Sentence-level rules
 grammar[("NRel", "TQMarker")] = lambda x, y: NSentence(x, True)
 grammar[("NArg", "TQMarker")] = lambda x, y: NSentence(x, True)
+grammar[("NPred", "TQMarker")] = lambda x, y: NSentence(x, True)
 
 class TRelativizer(TreeNode):
     __name__ = "TRelativizer"
     def __init__(self, content=None):
         super().__init__(content, None)
 
-
 class TCopulaBe(TreeNode):
     __name__ = "TCopulaBe"
     def __init__(self, content=None):
-        super(TCopulaBe, self).__init__(content, None)
+        super().__init__(content, None)
 
+class TAuxSDo(TreeNode):
+    __name__ = "TAuxSDo"
+    def __init__(self):
+        super().__init__(None, None)
+        
 class TPlurMarker(TreeNode):
     __name__ = "TPlurMarker"
     def __init__(self):
@@ -370,6 +384,9 @@ class TAdj(TreeNode):
         super(TAdj, self).__init__(content, None)
         self.mod = mod
 
+    def __str__(self):
+        return self.content if self.mod is None else self.content + "; MOD=" + self.mod.__str__()
+
 class TAdv(TreeNode):
     __name__ = "TAdv"
     def __init__(self, content=None):
@@ -448,7 +465,7 @@ class NPred(TreeNode):
         if self.neg == True:
             output += "NOT "
         for mod in self.mods:
-            output += ": " + mod.__str__()
+            output += ": " + mod.__str__() + " "
         output += self.content.__str__()
         for idx in range(len(self.children)):
             output += "\nARG" + str(idx) + " " + self.children[idx].__str__()
@@ -572,23 +589,24 @@ class ULFQuery(object):
 
         '''
         if type(ulf) == list:
-            if len(ulf) > 2 and ulf[0] == "most-n":
-                return [[ulf[0], ulf[1]], self.add_brakets(ulf[2:])]
+            if len(ulf) == 3 and ulf[0] == "most-n":
+                print ("MOSTNNN:", ulf)
+                return [[ulf[0], ulf[1]], self.add_brackets(ulf[2])]
             else:
                 return [self.add_brackets(item) for item in ulf]
         else:
             return ulf
-               
-'''
-def process_sub(self, tree, sub_expr=None):
+
+
+    '''def process_sub(self, tree, sub_expr=None):
         if type(tree) == list:
             if tree[0] == 'sub':
                 return self.process_sub(tree[2], tree[1])
             else:
                 return [self.process_sub(branch, sub_expr) for branch in tree]
         else:
-            return sub_expr if (tree == "*h" and sub_expr is not None) else tree
-'''
+            return sub_expr if (tree == "*h" and sub_expr is not None) else tree'''
+    
     def process_sub_rep(self, tree, sub_expr=None, rep_expr=None):
         if type(tree) == list:
             if tree[0] == 'sub':

@@ -408,7 +408,7 @@ def main():
     test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
     test2 = ["sub", ["what.d", "color.n"], [["pres", "be.v"], ["rep", [["farthest.a", "*p"], "block.n"], ["to.p", ["the.d", "right.n"]]], "*h"]]
     ulfs = f.readlines()
-    for ulf in ulfs[20:]:
+    for ulf in ulfs[35:]:
         #print (ulf)
         print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
         ulf = ulf.lower().strip().replace("{", "").replace("}", "")
