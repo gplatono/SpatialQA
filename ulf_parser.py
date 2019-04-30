@@ -49,7 +49,8 @@ grammar['touch.v'] = lambda x: TPrep(x)
 grammar['contain.v'] = lambda x: TPrep(x)
 grammar['consist_of.v'] = lambda x: NPred(x)
 grammar['face.v'] = lambda x: TPrep(x)
-grammar['color.n'] = lambda x: TPrep(x)
+grammar['have.v'] = lambda x: TPrep(x)
+grammar['side_by_side.a'] = lambda x: TPrep(x)
 
 #grammar['block.n'] = lambda x: TNoun(x)
 #grammar['{block}.n'] = lambda x: TNoun(x)
@@ -61,6 +62,14 @@ grammar['row.n'] = lambda x: NArg(obj_type = x, obj_id = "ROW")
 grammar['thing.n'] = lambda x: NArg(obj_type = x, obj_id = None)
 grammar['{thing}.n'] = lambda x: NArg(obj_type = x, obj_id = None)
 grammar['what.pro'] = lambda x: NArg()
+grammar['anything.pro'] = lambda x: NArg()
+grammar['each_other.pro'] = lambda x: NArg(obj_type="EACHOTHER")
+
+grammar['color.n'] = lambda x: NArg(obj_type = "PROPERTY", obj_id = "color")
+grammar['direction.n'] = lambda x: NArg(obj_type = "PROPERTY", obj_id = "direction")
+grammar['*ref'] = lambda x: NArg(obj_type = "REF", obj_id = "*ref")
+grammar['it.pro'] = lambda x: NArg(obj_type = "REF", obj_id = x)
+
 
 grammar['corner-of.n'] = lambda x: TRelNoun(x)
 grammar['edge-of.n'] = lambda x: TRelNoun(x)
@@ -102,6 +111,7 @@ grammar['middle.a'] = lambda x: TAdj(x)
 grammar['tall.a'] = lambda x: TAdj(x)
 grammar['many.a'] = lambda x: TAdj(x)
 grammar['far.a'] = lambda x: TAdj(x)
+grammar['same.a'] = lambda x: TAdj(x)
 
 grammar['one.a'] = lambda x: TNumber(x)
 grammar['one.d'] = lambda x: TNumber(x)
@@ -220,6 +230,8 @@ grammar[("TPrep", "NConjArg")] = lambda x, y: NRel(x, children=[y])
 grammar[("TNeg", "NRel")] = lambda x, y: NRel(y.content, y.children, neg=True)
 grammar[("NArg", "NRel")] = lambda x, y: NRel(content=y.content, children=[x]+y.children, neg = y.neg)
 grammar[("NConjArg", "NRel")] = lambda x, y: NRel(content=y.content, children=[x]+y.children, neg = y.neg)
+grammar[("NConjArg", "TPrep")] = lambda x, y: NRel(content=y, children=[x])
+
 
 grammar[("NVP", "NRel")] = lambda x, y: y
 grammar[("NVerbParams", "NRel")] = lambda x, y: y
@@ -245,11 +257,17 @@ grammar[("TAdvTransformMarker", "NRel")] = lambda x, y: y
 grammar[("TAdvAdjMod", "NRel")] = lambda x, y: NRel(content = y.content, children = y.children, neg = y.neg, mods = y.mods + [x])
 
 grammar[("NPred", "NRel")] = lambda x, y : NPred(content = y.content, children = x.children + y.children, neg = y.neg, mods = y.mods)
+grammar[("NPred", "NPred")] = lambda x, y : NPred(content = y.content, children = x.children + y.children, neg = y.neg, mods = y.mods)
+grammar[("NArg", "TPrep")] = lambda x, y : NPred(content = y, children = [x])
+
+grammar[("NRel", "NRel")] = lambda x, y : NPred(content = x.content, children = x.children, neg = x.neg, mods = x.mods + [y])
 
 #Sentence-level rules
+grammar[("NVerbParams", "NRel")] = lambda x, y : NSentence(content = y, is_question = False, tense = NVerbParams)
 grammar[("NRel", "TQMarker")] = lambda x, y: NSentence(x, True)
 grammar[("NArg", "TQMarker")] = lambda x, y: NSentence(x, True)
 grammar[("NPred", "TQMarker")] = lambda x, y: NSentence(x, True)
+grammar[("NSentence", "TQMarker")] = lambda x, y: NSentence(content = x.content, is_question = True, tense = x.tense)
 
 class TRelativizer(TreeNode):
     __name__ = "TRelativizer"
@@ -464,9 +482,10 @@ class NPred(TreeNode):
         output = "PRED={"
         if self.neg == True:
             output += "NOT "
+        output += "MODS: {"
         for mod in self.mods:
-            output += ": " + mod.__str__() + " "
-        output += self.content.__str__()
+            output += mod.__str__() + "; "
+        output += "}\nCONTENT: " + self.content.__str__()
         for idx in range(len(self.children)):
             output += "\nARG" + str(idx) + " " + self.children[idx].__str__()
         output += "\n}"
@@ -529,10 +548,11 @@ class NArg(TreeNode):
 
 class NSentence(TreeNode):
     __name__ = "NSentence"
-    def __init__(self, content, is_question=True):
+    def __init__(self, content, is_question=True, tense=None):
         super().__init__(content, None)
         self.content = content
         self.is_question = is_question
+        self.tense = tense
   
 class ULFQuery(object):
     def __init__(self, input):
@@ -664,3 +684,27 @@ class ULFQuery(object):
                 return (ulf, False)
 
         return ([self.propagate_conj(item, prefix)[0] for item in ulf], False)
+
+    def propagate_conj1(self, ulf):
+        if type(ulf) == str:
+            if ".cc" not in ulf:
+                return (ulf, False)
+            else:
+                return (ulf, True)
+        ulf = list(map(propagate_conj1, ulf))
+        for item in ulf:
+            content, is_conj = item
+            if is_conj == True:
+                ulf.remove(item)
+                ret_val = [item[0]] + list(map(lambda x: [x[0]], ulf))
+                return ([item] + list(map(lambda x: [x], ulf)), True)
+        
+        if (ulf[0] == "k" or ulf[0][-2:] == ".d"):
+            ret_val, val = self.propagate_conj(ulf[1], [ulf[0]] + prefix)
+            if val == True:
+                return (ret_val, True)
+            else:
+                return (ulf, False)
+
+        return ([self.propagate_conj(item, prefix)[0] for item in ulf], False)
+

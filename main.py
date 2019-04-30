@@ -408,8 +408,16 @@ def main():
     test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
     test2 = ["sub", ["what.d", "color.n"], [["pres", "be.v"], ["rep", [["farthest.a", "*p"], "block.n"], ["to.p", ["the.d", "right.n"]]], "*h"]]
     ulfs = f.readlines()
-    for ulf in ulfs[35:]:
+
+
+
+    testt = [[['pres', 'be.v'], ['the.d', [['|nvidia|', 'and.cc', '|sri|'], ['plur', 'block.n']]], ['in.p', ['the.d', ['same.a', 'stack.n']]]], '?']
+    print (memberof("and.cc", testt))
+
+    for ulf in ulfs[45:]:
         #print (ulf)
+        if "and.cc" not in ulf:
+            continue        
         print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
         ulf = ulf.lower().strip().replace("{", "").replace("}", "")
         if ";;" not in ulf and ulf != "":
@@ -427,7 +435,11 @@ def main():
     #print (entities)
     #spatial.entities = get_entities()
     #print (superlative("behind",None, [e for e in entities if e.name != "Table"]).name)
-	
+
+def memberof (item, lst):
+    if type(lst) != list:
+        return item == lst
+    return reduce(lambda x, y: x or y, list(map(lambda x: memberof(item, x), lst)))
 
 if __name__ == "__main__":
     #save_screenshot()
