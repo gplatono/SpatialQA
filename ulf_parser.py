@@ -384,7 +384,7 @@ class TAdvAdjMod(TreeNode):
 class TName(TreeNode):
     __name__ = "TName"
     def __init__(self, content=None):
-        super(TName, self).__init__(content, None)
+        super().__init__(content.replace("|", "").replace(".n", ""))        
 
 class TPro(TreeNode):
     __name__ = "TPro"
@@ -471,7 +471,7 @@ class NRel(TreeNode):
 
 class NPred(TreeNode):
     __name__ = "NPred"
-    def __init__(self, content, children=None, neg=False, mods=[]):
+    def __init__(self, content, children=[], neg=False, mods=[]):
         #super().__init__(content, children)
         self.content = content
         self.children = children
@@ -501,8 +501,10 @@ class NConjArg(TreeNode):
 class NArg(TreeNode):
     __name__ = "NArg"
     def __init__(self, obj_type=None, obj_id=None, mods=[], det=None, plur=False):
-        #super().__init__(None, None)
-        self.obj_type = obj_type
+        #super().__init__(None, None)        
+        self.obj_type = obj_type if obj_type is None else obj_type.replace(".n", "").replace("{", "").replace("}", "")
+        if obj_type == "stack.n":
+            print (".N CHECK!!!: ", obj_type, self.obj_type)
         self.obj_id = obj_id
         self.mods = mods
         self.det = det
@@ -610,7 +612,7 @@ class ULFQuery(object):
         '''
         if type(ulf) == list:
             if len(ulf) == 3 and ulf[0] == "most-n":
-                print ("MOSTNNN:", ulf)
+                #print ("MOSTNNN:", ulf)
                 return [[ulf[0], ulf[1]], self.add_brackets(ulf[2])]
             else:
                 return [self.add_brackets(item) for item in ulf]
@@ -628,11 +630,12 @@ class ULFQuery(object):
             return sub_expr if (tree == "*h" and sub_expr is not None) else tree'''
     
     def process_sub_rep(self, tree, sub_expr=None, rep_expr=None):
+        #print ("SUB_REP:", tree, sub_expr, rep_expr)
         if type(tree) == list:
             if tree[0] == 'sub':
-                return self.process_sub_rep(tree[2], tree[1], rep_expr)
+                return self.process_sub_rep(tree[2], self.process_sub_rep(tree[1], sub_expr, rep_expr), rep_expr)
             elif tree[0] == "rep":
-                return self.process_sub_rep(tree[1], sub_expr, tree[2])
+                return self.process_sub_rep(tree[1], sub_expr, self.process_sub_rep(tree[2], sub_expr, rep_expr))
             else:
                 return [self.process_sub_rep(branch, sub_expr, rep_expr) for branch in tree]
         else:

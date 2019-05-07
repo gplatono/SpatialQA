@@ -1,7 +1,8 @@
 import numpy as np
 import math
+from entity import Entity
 from geometry_utils import *
-from main import *
+#from main import *
 
 #Dictionary that maps the relation names to the names of the functions that implement them
 rf_mapping = {'to the left of': 'to_the_left_of_deic',
@@ -24,6 +25,8 @@ rf_mapping = {'to the left of': 'to_the_left_of_deic',
               'between': 'between',
               'next to': 'at' 
 }
+
+entities = []
 
 def dist_obj(a, b):
     if type(a) is not Entity or type(b) is not Entity:
@@ -86,7 +89,6 @@ def get_planar_orientation(a):
     elif dims[1] == min(dims):
         return (0, 1, 0)
     else: return (0, 0, 1)
-
 
 
 #Returns the frame size of the current scene
@@ -173,7 +175,7 @@ def near_raw(a, b):
         dist = min(dist, closest_mesh_distance_scaled(a, b))
 
     fr_size = get_frame_size(entities)
-    raw_metric = e ** (- 0.05 * dist)
+    raw_metric = math.e ** (- 0.05 * dist)
     '''0.5 * (1 - min(1, dist / avg_dist + 0.01) +'''    
     return raw_metric * (1 - raw_metric / fr_size)
 

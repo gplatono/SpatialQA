@@ -1,4 +1,5 @@
-from spatial import *
+import spatial
+from ulf_parser import *
 
 #Dictionary that maps the relation names to the names of the functions that implement them
 rel_to_func_dict = {'to_the_left_of.p': 'to_the_left_of_deic',
@@ -25,11 +26,34 @@ rel_to_func_dict = {'to_the_left_of.p': 'to_the_left_of_deic',
 
 #Returns the sublist of the entity list having the specified color
 def filter_by_color(entities, color):
-	return [entity for entity in entities if entity.color_mod == color]
+	ret_val = [] if entities == [] or entities is None \
+			else [entity for entity in entities if entity.color_mod == color]
+	return ret_val
+	#return [entity for entity in entities if entity.color_mod == color]
 
 #Returns the list of entities having the specified type
 def filter_by_type(entities, type_id):
-	return [entity for entity in entities if type_id in entity.type_structure]
+	print ("TYPE PROCESSING: ", type_id)
+	ret_val = [] if entities == [] or entities is None \
+			else [entity for entity in entities if type_id in entity.type_structure]
+	return ret_val
+	# # for entity in entities:
+	# # 	print (entity.type_structure)
+	# if entities == [] or entities is None:
+	# 	return []
+	# else:
+	# 	return [entity for entity in entities if type_id in entity.type_structure]
+
+#Returns the list of entities having the specified type
+def filter_by_name(entities, name):
+	ret_val = [] if entities == [] or entities is None \
+			else [entity for entity in entities if entity.type_structure[-1].lower() == name.lower()]
+	return ret_val
+	# if entities == [] or entities is None:
+	# 	return []
+	# 	#print ("NAME:", entities[0].type_structure, type(name))
+	# else:
+	# 	return [entity for entity in entities if entity.type_structure[-1].lower() == name.lower()]
 
 #Returns the list of pairs (relatum, referent) such that the given relation holds
 #between them (above the threshold)
@@ -41,19 +65,94 @@ def filter_by_relation(relatums, relation, referents, threshold):
                                 ret_val += [(rel, ref)]
         return ret_val
 
-def filter_by_relation_modifier(arg_pairs, relation, modifier):
-        ret_val = []
-        for pair in arg_pairs:
-                pass
-                
+def filter_by_relation_modifier(relatums, relation, referents, modifier=None):
+	ret_val = []
+	if modifier in ['fully.adv-a', 'directly.adv-a', 'very.adv-a', 'fully.mod-a', 'directly.mod-a', 'very.mod-a']:
+		return filter_by_relation(relatums, relation, referents, 0.9)
+	elif modifier in ['slightly.adv-a', 'slightly.mod-a', 'marginally.adv-a']:
+		return filter_by_relation(relatums, relation, referents, 0.5)
+	elif modifier in ['halfway.adv-a', 'halfway.mod-a']:
+		return filter_by_relation(relatums, relation, referents, 0.7)
+	else:
+		return filter_by_relation(relatums, relation, referents, 0.5)
         
+def resolve_argument(arg_object, entities):
+	ret_args = entities
 
+	arg_type = arg_object.obj_type
+	arg_id = arg_object.obj_id
+	arg_det = arg_object.det
+	arg_mods = arg_object.mods
+
+	#print (arg_object)
+
+	print ("BEFORE TYPE:", ret_args)
+
+	if arg_type is not None:
+		ret_args = filter_by_type(ret_args, arg_type)
+
+	print ("BEFORE NAME:", ret_args)
+
+	if arg_id is not None:
+		ret_args = filter_by_name(ret_args, arg_id)
+
+	print ("RESOLVED ARGS:", ret_args, [arg.name for arg in ret_args])
+
+	return ret_args
+
+def resolve_relation(relation_object):
+	#print ("REL:", rel_to_func_dict[relation_object.content.content])
+	rel_to_func_map = {
+	'on.p': spatial.on,
+	'on': spatial.on,
+	'to_the_left_of.p': spatial.to_the_left_of_deic,
+	'to_the_right_of.p': spatial.to_the_right_of_deic,
+	'near.p': spatial.near,
+	'close_to.p': spatial.near,
+	'close.a': spatial.near,
+	'on.p': spatial.on,
+	'above.p': spatial.above,
+    'below.p': spatial.below,
+    'over.p': spatial.over,
+    'under.p': spatial.under,
+    'in.p': spatial.inside,
+    'in': spatial.inside,    
+    'inside.p': spatial.inside,
+    'touch.v': spatial.touching,
+    'right.p': spatial.to_the_right_of_deic,
+    'left.p': spatial.to_the_left_of_deic,
+    'at.p': spatial.at,
+    'in_front_of.p': spatial.in_front_of_deic,
+    'front.p': spatial.in_front_of_deic,
+    'behind.p': spatial.behind_deic,
+    'between.p': spatial.between,
+    'next_to.p': spatial.at
+    }
+	#for key in globals():
+	#	print (globals()[key])
+	#print (type(rel_to_func_map[relation_object.content.content]))
+	return rel_to_func_map[relation_object.content.content]
+
+                
 def process_query(query, entities):
-	arg = query.content
-	if (not query.is_question) or arg == None:
+	print ("ENTERING THE QUERY PROCESSING:")
+	#print (entities)
+	if type(query) != NSentence or (not query.is_question) or query.content == None:
 		return None
+	arg = query.content	
+	if type(arg) == NRel or type(arg) == NPred:
+		relation = resolve_relation(arg)
+		print ("RELATION:", relation)
+		res = spatial.near_raw(entities[0], entities[1])
+		relata = resolve_argument(arg.children[0], entities) if len(arg.children) > 0 else None
+		referents = resolve_argument(arg.children[1], entities) if len(arg.children) > 1 else None
+		return "NPRED"
+	elif type(arg) == NArg:
+		relata = resolve_argument(arg, entities)
+		print (relata)
+	else:
+		return "FAIL"
 	ret_set = entities
 	if arg.obj_type is not None:
 		ret_set = [entity for entity in ret_set if arg.obj_type in entity.type_structure]
-
 	return ret_set

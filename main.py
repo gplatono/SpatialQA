@@ -377,6 +377,8 @@ def main():
             avg_dist += dist_obj(pair[0], pair[1])
         avg_dist = avg_dist * 2 / (len(entities) * (len(entities) - 1))
 
+    spatial.entities = entities
+
     #print (filepath, sys.path)
     if "--" in sys.argv:
         args = sys.argv[sys.argv.index("--") + 1:]
@@ -411,18 +413,22 @@ def main():
 
 
 
-    testt = [[['pres', 'be.v'], ['the.d', [['|nvidia|', 'and.cc', '|sri|'], ['plur', 'block.n']]], ['in.p', ['the.d', ['same.a', 'stack.n']]]], '?']
-    print (memberof("and.cc", testt))
+    #testt = [[['pres', 'be.v'], ['the.d', [['|nvidia|', 'and.cc', '|sri|'], ['plur', 'block.n']]], ['in.p', ['the.d', ['same.a', 'stack.n']]]], '?']
+    #print (memberof("and.cc", testt))
 
-    for ulf in ulfs[45:]:
+    print (entities)
+    for ulf in ulfs:
         #print (ulf)
-        if "and.cc" not in ulf:
-            continue        
+        #if "and.cc" not in ulf:
+        #    continue
+        #if "sub" not in ulf and "rep" not in ulf:
+        #    continue        
         print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
         ulf = ulf.lower().strip().replace("{", "").replace("}", "")
         if ";;" not in ulf and ulf != "":
             query = ULFQuery(ulf)
             print (query.query_tree)
+            print (process_query(query.query_tree, entities))
             input("Press Enter to continue...")
 
     #bl4 = get_entity_by_name("Block 4")
