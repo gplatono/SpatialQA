@@ -430,6 +430,9 @@ def in_front_of_intr(a, b):
 def behind_intr(a, b):
     in_front_of_intr(b, a)
 
+def clear(obj):
+    ent_on = [on(entity, obj) for entity in entities if entity is not obj]
+    return 1 - max(ent_on)
 
 def superlative(relation, arg, entities):
     func = globals()[rf_mapping[relation]]
@@ -442,3 +445,4 @@ def superlative(relation, arg, entities):
                 if func(e, result) > func(result, e):
                     result = e
     return result
+

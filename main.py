@@ -368,6 +368,7 @@ def get_entities():
 #Implementation of the evaluation pipeline
 def main():
     global entities
+    #print ("OBJECT TYPE: ", type(scene.objects[0]))
     for obj in scene.objects:
         if obj.get('main') is not None:
             entities.append(Entity(obj))
@@ -407,8 +408,8 @@ def main():
         return
 
     f = open("sqa_input.bw")
-    test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
-    test2 = ["sub", ["what.d", "color.n"], [["pres", "be.v"], ["rep", [["farthest.a", "*p"], "block.n"], ["to.p", ["the.d", "right.n"]]], "*h"]]
+    #test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
+    #test2 = ["sub", ["what.d", "color.n"], [["pres", "be.v"], ["rep", [["farthest.a", "*p"], "block.n"], ["to.p", ["the.d", "right.n"]]], "*h"]]
     ulfs = f.readlines()
 
 
@@ -417,7 +418,7 @@ def main():
     #print (memberof("and.cc", testt))
 
     print (entities)
-    for ulf in ulfs:
+    for ulf in ulfs[50:]:
         #print (ulf)
         #if "and.cc" not in ulf:
         #    continue
@@ -428,7 +429,7 @@ def main():
         if ";;" not in ulf and ulf != "":
             query = ULFQuery(ulf)
             print (query.query_tree)
-            print (process_query(query.query_tree, entities))
+            #print (process_query(query.query_tree, entities))
             input("Press Enter to continue...")
 
     #bl4 = get_entity_by_name("Block 4")

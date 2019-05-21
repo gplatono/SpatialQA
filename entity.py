@@ -15,17 +15,71 @@ from geometry_utils import *
 #
 class Entity:
     scene = bpy.context.scene
+
+    def __init__(self, components, name=None):
+        if type(components) == bpy_types.Object:
+            self.components = []
+            self.ent_type = "PRIMITIVE"
+            self.build_from_bpy_object(components)
+        elif type(components) == list and components != [] and type(components[0]) == Entity:
+            self.components = components
+            self.name = name
+            self.ent_type = "STRUCTURE"
+            self.build_from_entities(components)
+
+    def build_from_entities(self, components):
+        
+        #Constituent objects
+        #First object in the list is the parent or head object
+        #Defining the entity
+        self.constituents = [item for item in entity.constituents for entity in components]
+   
+        #Total mesh of the entity
+        self.total_mesh = self.get_total_mesh()
+
+        #The coordiante span of the entity. In other words,        
+        #the minimum and maximum coordinates of entity's points
+        self.span = self.get_span()
+
+        #The bounding box, stored as a list of triples of vertex coordinates
+        self.bbox = self.get_bbox()
+
+        #Bounding box's centroid
+        self.bbox_centroid = self.get_bbox_centroid()
+
+        #Entity's mesh centroid
+        self.centroid = self.get_centroid()
+
+        #Dimensions of the entity in the format
+        #[xmax - xmin, ymax - ymin, zmax - zmin]
+        self.dimensions = self.get_dimensions()
+
+        self.radius = self.get_radius()
+
+        #The faces of the mesh comrising the entity
+        self.faces = self.get_faces()
+
+        #The longitudinal vector
+        self.longitudinal = []
+
+        #The frontal vector
+        self.frontal = []
+
+        #The parent offset
+        self.parent_offset = self.get_parent_offset()
+
+        self.volume = self.get_volume()            
     
-    def __init__(self, main):
+    def build_from_bpy_object(self, main_object):
 
         #Constituent objects
         #First object in the list is the parent or head object
         #Defining the entity
-        self.constituents = [main]
+        self.constituents = [main_object]
         #print ("ENTITY_MAIN:", main)
 
         #Filling in the constituent objects starting with the parent
-        queue = [main]
+        queue = [main_object]
         while len(queue) != 0:
             par = queue[0]
             queue.pop(0)
@@ -35,7 +89,7 @@ class Entity:
                     queue.append(ob)
 
         #Name of the entity
-        self.name = main.name
+        self.name = main_object.name
 
         #Color of the entity
         self.color_mod = self.get_color_mod()
@@ -82,8 +136,11 @@ class Entity:
         self.parent_offset = self.get_parent_offset()
 
         self.volume = self.get_volume()
+
+    def set_type_structure(self, type_structure):
+        self.type_structure = type_structure
         
-    #Sets the direction of the longitudinal axis of the entity
+    #Sets the direction of the longitudinal axis of the entity    
     def set_longitudinal(self, direction):
         self.longitudinal = direction
 
@@ -158,7 +215,6 @@ class Entity:
     #Checks if the entity has a given property
     def get(self, property):
         return self.constituents[0].get(property)
-
 
     #Coomputes the distance from a point to closest face of the entity
     def get_closest_face_distance(self, point):

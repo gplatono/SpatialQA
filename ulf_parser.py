@@ -69,6 +69,7 @@ grammar['color.n'] = lambda x: NArg(obj_type = "PROPERTY", obj_id = "color")
 grammar['direction.n'] = lambda x: NArg(obj_type = "PROPERTY", obj_id = "direction")
 grammar['*ref'] = lambda x: NArg(obj_type = "REF", obj_id = "*ref")
 grammar['it.pro'] = lambda x: NArg(obj_type = "REF", obj_id = x)
+grammar['there.pro'] = lambda x: TTherePro()
 
 
 grammar['corner-of.n'] = lambda x: TRelNoun(x)
@@ -234,6 +235,8 @@ grammar[("NConjArg", "TPrep")] = lambda x, y: NRel(content=y, children=[x])
 
 
 grammar[("NVP", "NRel")] = lambda x, y: y
+grammar[("NVP", "TTherePro")] = lambda x, y: NPred(content = "EXIST")
+
 grammar[("NVerbParams", "NRel")] = lambda x, y: y
 
 grammar[("NVP", "TAdj")] = lambda x, y: NRel(y, children=[])
@@ -323,6 +326,11 @@ class TEqualsMarker(TreeNode):
     __name__ = "TEqualsMarker"
     def __init__(self):
         super().__init__(None, None)
+
+class TTherePro(TreeNode):
+    __name__ = "TTherePro"
+    def __init__(self, content=None):
+        super().__init__()
 
 class TAdvTransformMarker(TreeNode):
     __name__ = "TAdvTransformMarker"
