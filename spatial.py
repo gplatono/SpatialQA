@@ -113,8 +113,6 @@ def get_frame_size(entities):
     return max(max_x - min_x, max_y - min_y, max_z - min_z)
 
 
-
-
 #Computes the degree of vertical alignment (coaxiality) between two entities
 #The vertical alignment takes the max value if one of the objects is directly above the other
 #Inputs: a, b - entities
@@ -403,10 +401,15 @@ def to_the_right_of_deic(a, b):
 def to_the_left_of_deic(a, b):
     return to_the_right_of_deic(b, a)
 
-#Computes the above relation
-#Inputs: a, b - entities
-#Return value: real number from [0, 1]
 def above(a, b):
+    """Computes the 'a above b' relation, returns the certainty value.
+
+    Parameters:
+    a, b - objects of type Entity
+
+    Return value:
+    float value from [0, 1]
+    """
     #bbox_a = a.get_bbox()
     #bbox_b = b.get_bbox()
     #span_a = a.get_span()
@@ -416,10 +419,15 @@ def above(a, b):
     #scaled_vertical_distance = (center_a[2] - center_b[2]) / ((span_a[5] - span_a[4]) + (span_b[5] - span_b[4]))
     return within_cone(a.centroid - b.centroid, Vector((0, 0, 1)), 0.05) * e ** (- 0.01 * get_centroid_distance_scaled(a, b))
 
-#Computes the below relation, which is taken to be symmetric to above
-#Inputs: a, b - entities
-#Return value: real number from [0, 1]
 def below(a, b):
+    """Computes the 'a below b' relation, returns the certainty value.
+
+    Parameters:
+    a, b - objects of type Entity
+
+    Return value:
+    float value from [0, 1]
+    """
     return above(b, a)
 
 #STUB
@@ -431,8 +439,16 @@ def behind_intr(a, b):
     in_front_of_intr(b, a)
 
 def clear(obj):
+    """Return the degree to which the object obj is clear, i.e., has nothing on top."""
     ent_on = [on(entity, obj) for entity in entities if entity is not obj]
     return 1 - max(ent_on)
+
+def higher_than_centroidwise(a, b):
+    """Compute whether the centroid of a is higher than the centroid of b."""
+
+    a0 = a.get_centroid()
+    b0 = b.get_centroid()    
+    return a0[2] > b0[2]#1 / (1 + math.exp(-(a0[2] - b0[2])))
 
 def superlative(relation, arg, entities):
     func = globals()[rf_mapping[relation]]
@@ -446,3 +462,5 @@ def superlative(relation, arg, entities):
                     result = e
     return result
 
+def in_front_of_extr(obj, world):    
+    return 1

@@ -13,7 +13,7 @@ from geometry_utils import *
 #This class comprises the implementation of the special "Entity"-type
 #used in the project to represent the relevant Blender objects
 #
-class Entity:
+class Entity(object):
     scene = bpy.context.scene
 
     def __init__(self, components, name=None):
@@ -26,6 +26,13 @@ class Entity:
             self.name = name
             self.ent_type = "STRUCTURE"
             self.build_from_entities(components)
+
+        self.x_max = self.span[1]
+        self.x_min = self.span[0]
+        self.y_max = self.span[3]
+        self.y_min = self.span[2]
+        self.z_max = self.span[5]
+        self.z_min = self.span[4]
 
     def build_from_entities(self, components):
         

@@ -23,6 +23,7 @@ from geometry_utils import *
 from spatial import *
 from ulf_parser import *
 from constraint_solver import *
+from world import World
 #from query_proc import *
 
 link = False
@@ -73,7 +74,7 @@ types_ids = {
 entities = []
 
 #Average distance between entities in the scene
-avg_dist = 0
+#avg_dist = 0
 
 #Computes the value of the univariate Gaussian
 #Inputs: x - random variable value; mu - mean; sigma - variance
@@ -127,7 +128,8 @@ def compute_over(entities):
 #e.g., taking screenshots.
 #Inputs: none
 #Return value: the camera object
-def get_observer():
+
+"""def get_observer():
     lamp = bpy.data.lamps.new("Lamp", type = 'POINT')
     lamp.energy = 30
     cam = bpy.data.cameras.new("Camera")
@@ -166,6 +168,7 @@ def get_observer():
     observer_entity = Entity(observer)
     observer_entity.camera = cam_ob
     return observer_entity
+"""
 
 #Searches and returns the entity that has the given name
 #associated with it
@@ -358,7 +361,7 @@ def pick_descriptions(relatum):
     return tuple(max_vals[0:3])
 
 #The observer object (camera)
-observer = get_observer()
+#observer = get_observer()
 
 def get_entities():
     print (entities)
@@ -367,8 +370,9 @@ def get_entities():
 #Entry point
 #Implementation of the evaluation pipeline
 def main():
+    """
     global entities
-    #print ("OBJECT TYPE: ", type(scene.objects[0]))
+    print ("OBJECT TYPE: ", type(scene.objects[0]))
     for obj in scene.objects:
         if obj.get('main') is not None:
             entities.append(Entity(obj))
@@ -378,7 +382,13 @@ def main():
             avg_dist += dist_obj(pair[0], pair[1])
         avg_dist = avg_dist * 2 / (len(entities) * (len(entities) - 1))
 
-    spatial.entities = entities
+    spatial.entities = entities"""
+
+    world = World(bpy.context.scene)
+    spatial.entities = world.entities
+
+    global observer
+    observer = world.observer
 
     #print (filepath, sys.path)
     if "--" in sys.argv:

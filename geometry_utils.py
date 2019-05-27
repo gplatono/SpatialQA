@@ -281,3 +281,24 @@ def within_cone(v1, v2, threshold):
             return 1 / (1 + math.e ** tangent)
         else:
             return 0
+
+
+def distance(a, b):
+    """
+    Compute distance between a and b.
+    The distance computed depends on the specific object types
+    and their geometry.
+    """
+
+    bbox_a = a.get_bbox()
+    bbox_b = b.get_bbox()
+    a0 = a.get_bbox_centroid()
+    b0 = b.get_bbox_centroid()
+    if a.get('extended') is not None:
+        return a.get_closest_face_distance(b0)
+    if b.get('extended') is not None:
+        return b.get_closest_face_distance(a0)
+
+    mesh_dist = closest_mesh_distance_scaled(a, b)
+    centroid_dist = get_centroid_distance_scaled(a, b)
+    return 0.5 * mesh_dist + 0.5 * centroid_dist
