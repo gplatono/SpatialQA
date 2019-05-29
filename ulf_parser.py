@@ -92,9 +92,15 @@ grammar['halfway.mod-a'] = lambda x: TAdvAdjMod(x)
 grammar['slightly.mod-a'] = lambda x: TAdvAdjMod(x)
 grammar['directly.mod-a'] = lambda x: TAdvAdjMod(x)
 
-grammar['red.a'] = lambda x: TAdj(x)
-grammar['green.a'] = lambda x: TAdj(x)
-grammar['blue.a'] = lambda x: TAdj(x)
+grammar['red.a'] = lambda x: NColor(x)
+grammar['green.a'] = lambda x: NColor(x)
+grammar['blue.a'] = lambda x: NColor(x)
+grammar['yellow.a'] = lambda x: NColor(x)
+grammar['black.a'] = lambda x: NColor(x)
+grammar['white.a'] = lambda x: NColor(x)
+grammar['brown.a'] = lambda x: NColor(x)
+grammar['gray.a'] = lambda x: NColor(x)
+
 grammar['clear.a'] = lambda x: TAdj(x)
 
 grammar['left.a'] = lambda x: TAdj(x)
@@ -207,6 +213,7 @@ grammar[("TQuanMarker", "TAdj")] = lambda x, y: NDet(y) if (y.content != "many.a
 grammar[("TName", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = x.content)
 grammar[("TDet", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods, det = x, plur = y.plur)
 grammar[("NDet", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods, det = x, plur = y.plur)
+grammar[("NColor", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = [x] + y.mods, det = x, plur = y.plur)
 grammar[("NCardDet", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods, det = x, plur = y.plur)
 
 grammar[("TAdj", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = y.plur)
@@ -265,8 +272,10 @@ grammar[("NArg", "TPrep")] = lambda x, y : NPred(content = y, children = [x])
 
 grammar[("NRel", "NRel")] = lambda x, y : NPred(content = x.content, children = x.children, neg = x.neg, mods = x.mods + [y])
 
+grammar[("NVerbParams", "NRel")] = lambda x, y : NPred(content = y.content, children = y.children, neg = y.neg, mods = [x] + y.mods)
+
 #Sentence-level rules
-grammar[("NVerbParams", "NRel")] = lambda x, y : NSentence(content = y, is_question = False, tense = NVerbParams)
+#grammar[("NVerbParams", "NRel")] = lambda x, y : NSentence(content = y, is_question = False, tense = NVerbParams)
 grammar[("NRel", "TQMarker")] = lambda x, y: NSentence(x, True)
 grammar[("NArg", "TQMarker")] = lambda x, y: NSentence(x, True)
 grammar[("NPred", "TQMarker")] = lambda x, y: NSentence(x, True)
@@ -442,6 +451,11 @@ class NDet(TreeNode):
     def __init__(self, content=None):
         super(NDet, self).__init__(content, None)
 
+class NColor(TreeNode):
+    __name__ = "NColor"
+    def __init__(self, content=None):
+        super().__init__(content.replace(".a", ""), None)
+
 class NCardDet(TreeNode):
     __name__ = "NCardDet"
     def __init__(self):
@@ -589,7 +603,7 @@ class ULFQuery(object):
 
         #print ("INITIAL TREE: ", tree)
         tree = [self.parse_tree(node) for node in tree]
-        print ("TREE BEFORE COLLAPSING: \n" + "\n".join([node.__str__() for node in tree]))
+        print ("TREE BEFORE COLLAPSING: ", tree, " \n" + "\n".join(["\t" + node.__str__() for node in tree]))
         
         if type(tree[0]) == TNModMarker:
             #print ("CURRENT TREE: ", tree)
@@ -608,7 +622,8 @@ class ULFQuery(object):
             substitute = grammar[(tree[-2].__name__, tree[-1].__name__)](tree[-2], tree[-1])
             tree = tree[:-3] + [substitute]
 
-        print ("TREE AFTER COLLAPSING: ", tree)
+        #print ("TREE AFTER COLLAPSING: ", tree)
+        print ("TREE AFTER COLLAPSING: ", tree, "\n" + "\n".join(["\t" + node.__str__() for node in tree]))
         #print ("\n".join([node.__str__() for node in tree]))
 
         #print ("PROC: ", tree)

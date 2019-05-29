@@ -428,7 +428,7 @@ def main():
     #print (memberof("and.cc", testt))
 
     print (entities)
-    for ulf in ulfs[50:]:
+    for ulf in ulfs:
         #print (ulf)
         #if "and.cc" not in ulf:
         #    continue
@@ -439,7 +439,7 @@ def main():
         if ";;" not in ulf and ulf != "":
             query = ULFQuery(ulf)
             print (query.query_tree)
-            #print (process_query(query.query_tree, entities))
+            print (process_query(query.query_tree, entities))
             input("Press Enter to continue...")
 
     #bl4 = get_entity_by_name("Block 4")

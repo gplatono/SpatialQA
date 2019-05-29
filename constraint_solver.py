@@ -57,7 +57,7 @@ def filter_by_name(entities, name):
 
 #Returns the list of pairs (relatum, referent) such that the given relation holds
 #between them (above the threshold)
-def filter_by_relation(relatums, relation, referents, threshold):
+def filter_relation_by_threshold(relatums, relation, referents, threshold):
         ret_val = []
         for rel in relatums:
                 for ref in referents:
@@ -65,16 +65,34 @@ def filter_by_relation(relatums, relation, referents, threshold):
                                 ret_val += [(rel, ref)]
         return ret_val
 
-def filter_by_relation_modifier(relatums, relation, referents, modifier=None):
+def filter_by_relation(relatums, relation, referents, modifier=None):
 	ret_val = []
 	if modifier in ['fully.adv-a', 'directly.adv-a', 'very.adv-a', 'fully.mod-a', 'directly.mod-a', 'very.mod-a']:
-		return filter_by_relation(relatums, relation, referents, 0.9)
+		return filter_relation_by_threshold(relatums, relation, referents, 0.9)
 	elif modifier in ['slightly.adv-a', 'slightly.mod-a', 'marginally.adv-a']:
-		return filter_by_relation(relatums, relation, referents, 0.5)
+		return filter_relation_by_threshold(relatums, relation, referents, 0.5)
 	elif modifier in ['halfway.adv-a', 'halfway.mod-a']:
-		return filter_by_relation(relatums, relation, referents, 0.7)
+		return filter_relation_by_threshold(relatums, relation, referents, 0.7)
 	else:
-		return filter_by_relation(relatums, relation, referents, 0.5)
+		return filter_relation_by_threshold(relatums, relation, referents, 0.5)
+
+def filter_by_predicate(predicate, args1, args2=None, args3=None, args4=None):
+	predicate	
+
+def filter_by_predicate_modifier(entities, pred_mod):
+	"""Return the subset of entities that satisfy the given predicate modifier."""
+	ret_val = []
+	for entity in entities:
+
+
+def filter_by_mod(entities, modifier):
+	if type(modifier) == NColor:
+		return filter_by_color(entities, modifier.content)
+	elif type(modifier) == TNumber:
+		#TODO!!!
+		pass
+	elif type(modifier) == NPred or type(modifier) == NRel:
+		return filter_by_predicate_modifier(entities, modifier)
         
 def resolve_argument(arg_object, entities):
 	ret_args = entities
@@ -82,6 +100,7 @@ def resolve_argument(arg_object, entities):
 	arg_type = arg_object.obj_type
 	arg_id = arg_object.obj_id
 	arg_det = arg_object.det
+	arg_plur = arg_object.plur
 	arg_mods = arg_object.mods
 
 	#print (arg_object)
@@ -97,6 +116,10 @@ def resolve_argument(arg_object, entities):
 		ret_args = filter_by_name(ret_args, arg_id)
 
 	print ("RESOLVED ARGS:", ret_args, [arg.name for arg in ret_args])
+
+	if arg_mods is not None and arg_mods != []:
+		for modifier in arg_mods:
+			ret_args = filter_by_mod(entities, modifier)			
 
 	return ret_args
 
