@@ -77,7 +77,7 @@ def filter_by_relation(relatums, relation, referents, modifier=None):
 		return filter_relation_by_threshold(relatums, relation, referents, 0.5)
 
 def filter_by_predicate(predicate, args1, args2=None, args3=None, args4=None):
-	predicate	
+	predicate
 
 def filter_by_predicate_modifier(entities, pred_mod):
 	"""Return the subset of entities that satisfy the given predicate modifier."""
