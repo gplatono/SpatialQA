@@ -35,10 +35,7 @@ import time
 import pyaudio
 from six.moves import queue
 
-# Audio recording parameters
 STREAMING_LIMIT = 55000
-SAMPLE_RATE = 16000
-CHUNK_SIZE = int(SAMPLE_RATE / 10)  # 100ms
 
 def get_current_time():
     return int(round(time.time() * 1000))

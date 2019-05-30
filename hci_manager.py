@@ -37,39 +37,44 @@ class HCIManager(object):
 		self.speech_lock = RLock()
 
 	def start(self):
+		print ("Starting the listening thread...")
 		mic_thread = Thread(target = self.mic_loop)
 		mic_thread.start()
 		#thread.join()
-
+		print ("Starting the processing loop...")
 		while True:
 			self.speech_lock.acquire()
 			if self.current_input != "":
-				if self.current_input == "exit":
+				if re.search(r'\b(exit|quit)\b', self.current_input, re.I):
 					self.speech_lock.release()
 					break
 				print ("you said: " + self.current_input)
 				self.current_input = ""
 			self.speech_lock.release()
-			#time.sleep(100)
+			time.sleep(0.1)
 
-	def respond(self, response):
-		print ("Avatar's response: " + response)
-		req = requests.get(self.avatar_speech_servlet + "?say=" + response)
+	def say(self, text):
+		print ("Avatar's response: " + text)
+		req = requests.get(self.avatar_speech_servlet + "?say=" + text)
 		avatar_status = str(req.status_code)
 		print ("STATUS: " + avatar_status)
 
 	def mic_loop(self):
+		# Audio recording parameters
+		sample_rate = 16000
+		chunk_size = int(sample_rate / 10)  # 100ms
+
 		client = speech.SpeechClient()
 		config = speech.types.RecognitionConfig(
 		    encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
-		    sample_rate_hertz=SAMPLE_RATE,
+		    sample_rate_hertz=sample_rate,
 		    language_code='en-US',
 		    max_alternatives=1,
 		    enable_word_time_offsets=True,
 		     enable_automatic_punctuation=True)
 		streaming_config = speech.types.StreamingRecognitionConfig(config=config, interim_results=True)
 
-		mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
+		mic_manager = ResumableMicrophoneStream(sample_rate, chunk_size)
 
 		with mic_manager as stream:
 		    while not stream.closed:
@@ -79,44 +84,42 @@ class HCIManager(object):
 
 		        responses = client.streaming_recognize(streaming_config, requests)
 
-
 		        responses = (r for r in responses if (r.results and r.results[0].alternatives))
 		        num_chars_printed = 0
 		        for response in responses:
 		        	if not response.results:
 		        		continue
 
-		        """The `results` list is consecutive. For streaming, we only care about
-		        the first result being considered, since once it's `is_final`, it
-		        moves on to considering the next utterance."""
-		        result = response.results[0]
-		        if not result.alternatives:
-		        	continue
+			        """The `results` list is consecutive. For streaming, we only care about
+			        the first result being considered, since once it's `is_final`, it
+			        moves on to considering the next utterance."""
+			        result = response.results[0]
+			        if not result.alternatives:
+			        	continue
 
-		        transcript = result.alternatives[0].transcript
-		        # Display interim results, but with a carriage return at the end of the
-		        # line, so subsequent lines will overwrite them.
-		        # If the previous result was longer than this one, we need to print
-		        # some extra spaces to overwrite the previous result
-		        overwrite_chars = ' ' * (num_chars_printed - len(transcript))
+			        transcript = result.alternatives[0].transcript
+			        # Display interim results, but with a carriage return at the end of the
+			        # line, so subsequent lines will overwrite them.
+			        # If the previous result was longer than this one, we need to print
+			        # some extra spaces to overwrite the previous result
+			        overwrite_chars = ' ' * (num_chars_printed - len(transcript))
 
-		        if not result.is_final:
-		        	sys.stdout.write(transcript + overwrite_chars + '\r')
-		        	sys.stdout.flush()
-		        	num_chars_printed = len(transcript)
-		        else:
-		        	# Exit recognition if any of the transcribed phrases could be one of our keywords.
-		        	self.speech_lock.acquire()
-		        	self.current_input = transcript.lower()
-		        	self.speech_lock.release()
+			        if not result.is_final:
+			        	sys.stdout.write(transcript + overwrite_chars + '\r')
+			        	sys.stdout.flush()
+			        	num_chars_printed = len(transcript)
+			        else:
+			        	self.speech_lock.acquire()
+			        	self.current_input = transcript.lower()
+			        	self.speech_lock.release()
 
-		        	if re.search(r'\b(exit|quit)\b', transcript, re.I):
-		        		print('Exiting..')
-		        		stream.closed = True
-		        		break
+			        	# Exit recognition if any of the transcribed phrases could be one of our keywords.			        	
+			        	if re.search(r'\b(exit|quit)\b', transcript, re.I):
+			        		print('Exiting..')
+			        		stream.closed = True
+			        		break
 
-					#num_chars_printed = 0
-
-
+			        	num_chars_printed = 0
 
 manager = HCIManager()
+manager.start()
