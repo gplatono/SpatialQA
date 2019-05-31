@@ -37,6 +37,8 @@ class HCIManager(object):
 		self.speech_lock = RLock()
 
 	def start(self):
+		"""Initiate the listening loop."""
+
 		print ("Starting the listening thread...")
 		mic_thread = Thread(target = self.mic_loop)
 		mic_thread.start()
@@ -60,17 +62,15 @@ class HCIManager(object):
 		print ("STATUS: " + avatar_status)
 
 	def mic_loop(self):
+		"""The mic listening loop."""
+		
 		# Audio recording parameters
 		sample_rate = 16000
 		chunk_size = int(sample_rate / 10)  # 100ms
 
 		client = speech.SpeechClient()
-		config = speech.types.RecognitionConfig(
-		    encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
-		    sample_rate_hertz=sample_rate,
-		    language_code='en-US',
-		    max_alternatives=1,
-		    enable_word_time_offsets=True,
+		config = speech.types.RecognitionConfig(encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
+		    sample_rate_hertz=sample_rate, language_code='en-US', max_alternatives=1, enable_word_time_offsets=True,
 		     enable_automatic_punctuation=True)
 		streaming_config = speech.types.StreamingRecognitionConfig(config=config, interim_results=True)
 
@@ -120,6 +120,20 @@ class HCIManager(object):
 			        		break
 
 			        	num_chars_printed = 0
+
+	def generate_response(self, user_input_surface, question_type, answer_set):
+		"""
+		Generates the reply to the user.
+
+		Parameters:
+			user_input_surface - user's speech in plain English
+			question_type - the type of the query, i.e., existential, or attributuve, etc.
+			answer_set - the set of objects satisfying the question
+
+		Return:
+			string (in plain English) representing the answer
+		"""
+		pass
 
 manager = HCIManager()
 manager.start()
