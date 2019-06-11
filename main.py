@@ -367,6 +367,43 @@ def get_entities():
     print (entities)
     return entities
 
+
+def fit_line(points):
+    """Compute and return the best-fit line through a set of points."""
+    if type(points) == list:
+        points = np.array(points)
+
+    
+    centroid = np.mean(points, axis=0)
+    if len(points) == 1:
+        return points[0], np.array([1, 0, 0]), 1.0
+
+    print (points, centroid)
+
+    #Translating the points to the origin
+    points -= centroid
+
+    print (points)
+
+    P = np.cov(points)
+    eigval, eigvec = np.linalg.eig(P)
+
+    print ("P:", P)
+
+    print (eigval, eigvec)
+  
+    proj = np.dot(eigvec.T, points) #points.dot(eigvec)#eigvec.dot(points)
+    avg_dist = math.sqrt(sum([np.linalg.norm(proj[i] - points[i]) for i in range(len(points))])) / len(points)
+
+    print ("PROJ: ", proj, "\n")
+
+    proj[0] = proj[0] / np.linalg.norm(proj[0])
+
+    print (centroid, proj[0], avg_dist)
+
+    return centroid, proj[0], avg_dist
+
+
 #Entry point
 #Implementation of the evaluation pipeline
 def main():
@@ -439,7 +476,9 @@ def main():
         if ";;" not in ulf and ulf != "":
             query = ULFQuery(ulf)
             print (query.query_tree)
-            print (process_query(query.query_tree, entities))
+            #print (world.entities)            
+            print (process_query(query.query_tree, world.entities))
+            fit_line(np.array([[-1, -1, 0], [0, 0, 0], [1.0, 1.0, 0], [2.0, 2.0, 0]]))
             input("Press Enter to continue...")
 
     #bl4 = get_entity_by_name("Block 4")

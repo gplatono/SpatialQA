@@ -84,6 +84,7 @@ def filter_by_predicate_modifier(entities, pred_mod):
 	"""Return the subset of entities that satisfy the given predicate modifier."""
 	ret_val = []
 	for entity in entities:
+		pass
 
 
 def filter_by_mod(entities, modifier):

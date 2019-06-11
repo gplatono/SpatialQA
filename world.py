@@ -27,7 +27,7 @@ class World(object):
 		self.avg_dist = 0
 		if len(self.entities) != 0:
 			for (a, b) in itertools.combinations(self.entities, r = 2):
-				self.avg_dist += distance(a, b)		
+				self.avg_dist += distance(a, b)	
 		self.avg_dist = self.avg_dist * 2 / (self.N * (self.N - 1))
 		
 		self.observer = self.create_observer()
@@ -91,3 +91,13 @@ class World(object):
 		z_max = [entity.z_max for entity in self.entities]
 
 		return [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
+
+	def show_bbox(self, entity):
+		"""Displays the bounding box around the entity in the scene."""
+		mesh = bpy.data.meshes.new(entity.name + '_mesh')
+		obj = bpy.data.objects.new(entity.name + '_bbox', mesh)
+		self.scene.objects.link(obj)
+		self.scene.objects.active = obj
+		bbox = entity.bbox
+		mesh.from_pydata(bbox, [], [(0, 1, 3, 2), (0, 1, 5, 4), (2, 3, 7, 6), (0, 2, 6, 4), (1, 3, 7, 5), (4, 5, 7, 6)])
+		mesh.update()

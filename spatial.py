@@ -31,10 +31,10 @@ entities = []
 def dist_obj(a, b):
     if type(a) is not Entity or type(b) is not Entity:
         return -1
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
-    center_a = a.get_bbox_centroid()
-    center_b = b.get_bbox_centroid()
+    bbox_a = a.bbox
+    bbox_b = b.bbox
+    center_a = a.bbox_centroid
+    center_b = b.bbox_centroid
     if a.get('extended') is not None:
         return a.get_closest_face_distance(center_b)
     if b.get('extended') is not None:
@@ -45,8 +45,8 @@ def dist_obj(a, b):
 #Inputs: a, b - entities
 #Return value: real number
 def get_proj_intersection(a, b):
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
+    bbox_a = a.bbox
+    bbox_b = b.bbox
     axmin = a.span[0]
     axmax = a.span[1]
     aymin = a.span[2]
@@ -83,7 +83,7 @@ def get_proj_intersection(a, b):
 #Inputs: a - entity
 #Return value: triple representing the coordinates of the orientation vector
 def get_planar_orientation(a):
-    dims = a.get_dimensions()
+    dims = a.dimensions
     if dims[0] == min(dims):
         return (1, 0, 0)
     elif dims[1] == min(dims):
@@ -118,10 +118,10 @@ def get_frame_size(entities):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def v_align(a, b):
-    dim_a = a.get_dimensions()
-    dim_b = b.get_dimensions()
-    center_a = a.get_bbox_centroid()
-    center_b = b.get_bbox_centroid()
+    dim_a = a.dimensions
+    dim_b = b.dimensions
+    center_a = a.bbox_centroid
+    center_b = b.bbox_centroid
     return gaussian(0.9 * point_distance((center_a[0], center_a[1], 0), (center_b[0], center_b[1], 0)) / 
                                 (max(dim_a[0], dim_a[1]) + max(dim_b[0], dim_b[1])), 0, 1 / math.sqrt(2*pi))
 
@@ -132,10 +132,10 @@ def v_align(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def v_offset(a, b):
-    dim_a = a.get_dimensions()    
-    dim_b = b.get_dimensions()
-    center_a = a.get_bbox_centroid()
-    center_b = b.get_bbox_centroid()
+    dim_a = a.dimensions    
+    dim_b = b.dimensions
+    center_a = a.bbox_centroid
+    center_b = b.bbox_centroid
     h_dist = math.sqrt((center_a[0] - center_b[0]) ** 2 + (center_a[1] - center_b[1]) ** 2)    
     return gaussian(2 * (center_a[2] - center_b[2] - 0.5*(dim_a[2] + dim_b[2])) /  \
                     (1e-6 + dim_a[2] + dim_b[2]), 0, 1 / math.sqrt(2*pi))
@@ -151,8 +151,8 @@ def v_offset(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1], the raw nearness measure
 def near_raw(a, b):
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
+    bbox_a = a.bbox
+    bbox_b = b.bbox
     dist = dist_obj(a, b)
     max_dim_a = max(bbox_a[7][0] - bbox_a[0][0],
                     bbox_a[7][1] - bbox_a[0][1],
@@ -220,12 +220,12 @@ def near(a, b):
 #Inputs: a, b, c - entities
 #Return value: real number from [0, 1]
 def between(a, b, c):
-    bbox_a = a.get_bbox()
-    bbox_b = a.get_bbox()
-    bbox_c = c.get_bbox()
-    center_a = a.get_bbox_centroid()
-    center_b = b.get_bbox_centroid()
-    center_c = c.get_bbox_centroid()
+    bbox_a = a.bbox
+    bbox_b = a.bbox
+    bbox_c = c.bbox
+    center_a = a.bbox_centroid
+    center_b = b.bbox_centroid
+    center_c = c.bbox_centroid
     vec1 = np.array(center_b) - np.array(center_a)
     vec2 = np.array(center_c) - np.array(center_a)
     cos = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2) + 0.001)
@@ -237,8 +237,8 @@ def between(a, b, c):
 #Inputs: a, b - entities
 #Return value: real number from [0, 0.5]
 def larger_than(a, b):
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
+    bbox_a = a.bbox
+    bbox_b = b.bbox
     return 1 / (1 + e ** (bbox_b[7][0] - bbox_b[0][0] \
                           + bbox_b[7][1] - bbox_b[0][1] \
                           + bbox_b[7][2] - bbox_b[0][2] \
@@ -273,8 +273,8 @@ def on(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def over(a, b):
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
+    bbox_a = a.bbox
+    bbox_b = b.bbox
     return 0.5 * above(a, b) + 0.2 * get_proj_intersection(a, b) + 0.3 * near(a, b)
 
 
@@ -299,7 +299,7 @@ def closer_than(a, b, pivot):
 #Return value: real number from [0, 1]
 def in_front_of_deic(a, b):
 #def in_front_of_extr(a, b, observer):
-    bbox_a = a.get_bbox()
+    bbox_a = a.bbox
     max_dim_a = max(bbox_a[7][0] - bbox_a[0][0],
                     bbox_a[7][1] - bbox_a[0][1],
                     bbox_a[7][2] - bbox_a[0][2]) + 0.0001
@@ -339,10 +339,10 @@ def inside(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def touching(a, b):
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
-    center_a = a.get_bbox_centroid()
-    center_b = b.get_bbox_centroid()
+    bbox_a = a.bbox
+    bbox_b = b.bbox
+    center_a = a.bbox_centroid
+    center_b = b.bbox_centroid
     rad_a = max(bbox_a[7][0] - bbox_a[0][0], \
                 bbox_a[7][1] - bbox_a[0][1], \
                 bbox_a[7][2] - bbox_a[0][2]) / 2
@@ -410,8 +410,8 @@ def above(a, b):
     Return value:
     float value from [0, 1]
     """
-    #bbox_a = a.get_bbox()
-    #bbox_b = b.get_bbox()
+    #bbox_a = a.bbox
+    #bbox_b = b.bbox
     #span_a = a.get_span()
     #span_b = b.get_span()
     #center_a = a.get_bbox_centroid()
@@ -450,6 +450,9 @@ def higher_than_centroidwise(a, b):
     b0 = b.get_centroid()    
     return a0[2] > b0[2]#1 / (1 + math.exp(-(a0[2] - b0[2])))
 
+def taller_than(a, b):
+    pass
+
 def superlative(relation, arg, entities):
     func = globals()[rf_mapping[relation]]
     if arg != None:
@@ -462,5 +465,5 @@ def superlative(relation, arg, entities):
                     result = e
     return result
 
-def in_front_of_extr(obj, world):    
+def in_front_of_extr(obj, world):
     return 1
