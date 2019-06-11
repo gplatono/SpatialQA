@@ -165,20 +165,80 @@ class HCIManager(object):
 		# assumes answers are already sorted by certainty
 		def entities_to_english_lists_by_certainty(ents, attribute, certainty, threashold):
 			out = []
-			for i in range(0, len(certainty)):
+			for i in range(0, len(ents)):
 				if certainty[i] < threashold:
 					out.append(entities_to_english_list(ents[:i], attribute))
 					out.append(entities_to_english_list(ents[i:], attribute))
+					if i >= 1:
+						out[0] += " are"
+					else:
+						out[0] += " is"
 					return out
 			out.append(entities_to_english_list(ents, attribute))
 			return out
 
-		# First check which state we're in...
+		def english_sentence_to_list(sentence):
+			# Divide the sentence into words
+			list = sentence.split()
+
+			# Next, we need to split the punctuation marks from the words
+			# ie. ['Is', 'this...', 'pig-latin?'] -> ['Is', 'this', '...', 'pig-latin', '?']
+			diff = 1
+			i = 0
+			while i < len(list):
+				# if the word ends in a punctuation mark
+				if not list[i][-1].isalpha():
+					cutoff_len = 1;
+					for j in range(2, len(list[i])):
+						if list[i][-j].isalpha():
+							cutoff_len = j-1
+							break
+					else:
+						i += 1
+						continue
+
+					list.insert(i+diff, list[i][-cutoff_len:])
+					list[i] = list[i][:-cutoff_len]
+
+					diff += 1
+					i -= 1
+				i += 1
+			return list
+
+		# There needs to be a better way to do this...  To cover cases where it is
+		# non-obvious
+		def get_verb_phrase(user_input_surface, is_are):
+			if not is_are == "*":
+				return is_are + user_input_surface.split(is_are)[1]
+			else:
+				return add(user_input_list.split()[3:])
+
+
+		# pre-processing
+		user_input_surface = lower(user_input_surface)
+		user_input_list = english_sentence_to_list(user_input_surface)
+		while not user_input_surface[-1].isalpha():
+			user_input_surface = user_input_surface[:-1]
+		is_are = "*"
+		pos_isare = ["is", "are", "does", "do"]
+		for ia in pos_isare:
+			if ia in user_input_list:
+				is_are = ia
+				break
+		type = "thing"
+		pos_types = ["block", "row", "stack", "group", "blocks", "rows", "stacks", "groups"]
+		for t in range(0, 8):
+			if t == user_input_list[t]:
+				type = user_input_list[t%4]
+				break
+		plural_type = type + "s"
+
+		# Check which state we're in...
 		if self.state == self.STATE.INIT:
 			pass
 
 		elif self.state == self.STATE.USER_GREET:
-			pass # give a greeting
+			pass
 
 		elif self.state == self.STATE.QUESTION_PENDING:
 			# Here, branch on the question type
@@ -188,19 +248,60 @@ class HCIManager(object):
 				# presuposes that the answer exists, but this will be treated very
 				# similarly to the exists question, only with more emphasis on the
 				# identification and less on the existance
+
+				post_is = get_verb_phrase(user_input_surface, is_are, false)
+				use_post_is = is_are in user_input_surface
+
 				if len(answer_set) == 0:
+					if len(certainty) == 0 or certainty[0] > 0.7:
+						# give a certain "it doesn't exist" answer
+						if use_post_is:
+							return "There " + is_are + " no " + post_is + "."
+						else:
+							return "Such a " + type + " doesn't exist."
+					else: # note this is probably not reachable
+						if use_post_is:
+							return "There " + is_are + " no " + post_is + "."
+						else:
+							return "That doesn't exit."
+
+				ans_list = entities_to_english_list(answer_set, 'name')
+
+				if len(answer_set) == 1:
 					if certainty[0] > 0.7:
-						pass # give a certain "it doesn't exist" answer
+						# give a certain affirmative answer
+						if use_post_is:
+							return "Only " + ans_list + " is " + post_is + "."
+						else:
+							return "Just " + ans_list + " is."
 					else:
-						pass # give an uncertain "it doesn't exist" answer
+						# give an uncertain affirmative answer
+						if use_post_is:
+							return "I think only " + ans_list + " is " + post_is + "."
+						else:
+							return "Probably just " + ans_list + " is."
 				else:
 					if min(certainty) < 0.7:
 						if max(certainty) > 0.7:
-							pass # give a mixed certainty answer
+							# give a mixed certainty answer
+							cert_lists = entities_to_english_lists_by_certainty(answer_set, "name", certainty, 0.7)
+							ver = ""
+							if use_post_there:
+								return "I am sure that " + cert_lists[0] + is_are + post_there + ", but less certain about " + cert_lists[1] + "."
+							else:
+								return "I am certain that " + cert_lists[0] + is_are + ", but less sure about " + cert_lists[1] + "."
 						else:
-							pass  # give an uncertain answer
+							# give an uncertain answer
+							if use_post_is:
+								return "Maybe " + ans_list + " are " + post_is + "."
+							else:
+								return "Perhaps " + ans_list + " are."
 					else:
-						pass  # give a certain answer
+						# give a certain answer
+						if use_post_is:
+							return capitalize(ans_list) + " are " + post_is + "."
+						else:
+							return capitalize(ans_list) + " are."
 
 			elif question_type == CONFIRM:
 				# These are the questions like "Is the SRI block near the Toyota
@@ -225,19 +326,44 @@ class HCIManager(object):
 				# In these cases, the answer set will be empty if the answer is no,
 				# and contain the applicable items if it is yes
 				# this conditional branch is a good starting point
+
+				# do some pre-processing
+				post_there = user_input_surface.split("there")[1]
+				use_post_there = user_input_surface.startswith("is there") or user_input_surface.startswith("are there")
+				#use_post_there = use_post_there or user_input_surface.startswith("does there exist") or user_input_surface.startswith("do there exist"):
+				#can't decide if it sounds more natural with/out this
+
 				if len(answer_set) == 0:
-					if certainty[0] > 0.7:
-						pass # give a certain negative answer
-					else:
-						pass # give an uncertain negative answer
+					if len(certainty) == 0 or certainty[0] > 0.7:
+					# give a certain negative answer
+						if use_post_there:
+							return "No, there " + is_are + " not " + post_there + "."
+						else:
+							return "No, there " + is_are + "not."
+					else: # note that this is probably not reachable
+					# give an uncertain negative answer
+						return "I do not think there " + is_are + "."
 				else:
 					if min(certainty) < 0.7:
 						if max(certainty) > 0.7:
-							pass # give a mixed certainty positive answer
+							# give a mixed certainty positive answer
+							cert_lists = entities_to_english_lists_by_certainty(answer_set, "name", certainty, 0.7)
+							if use_post_there:
+								return "I am sure that " + cert_lists[0] + is_are + post_there + ", but less certain about " + cert_lists[1] + "."
+							else:
+								return "I am certain that " + cert_lists[0] + is_are + ", but less sure about " + cert_lists[1] + "."
 						else:
-							pass  # give an uncertain positive answer
+							# give an uncertain positive answer
+							if use_post_there:
+								return "I think there " + is_are + post_there + "."
+							else:
+								return "Yes, there probably" + is_are + "."
 					else:
-						pass  # give a certain positive answer
+						# give a certain positive answer
+						if use_post_there:
+							return "Yes, there " + is_are + post_there + "."
+						else:
+							return "Yes, I am certain of it."
 
 			elif question_type == ATTRIBUTIVE:
 				# These are the questions like "What is the color of the leftmost
@@ -245,11 +371,49 @@ class HCIManager(object):
 				# identification, existance, or confirmation qustions themselves,
 				# so these are difficult to answer
 				pass
+
+			elif question_type == CARDINALITY:
+				# These are questions like "How many blocks are to the left of the
+				# NVidia block" and "How many blocks touch the McDonals block?"
+				# If it is just one, we want to say that and name it, otherwise
+				# just give a number based on the size of the answer set and
+				# adjust for certainty
+
+				# preprocessing
+				post_is = get_verb_phrase(user_input_surface, is_are, true)
+				use_post_is = post_is.startswith(is_are)
+				# ideally this would be "are to the left of the Nvidia block" and
+				# "touch the McDonals block"
+
+				if len(answer_set) == 0:
+					return "There are no " + plural_type + " that " + post_is + "."  # say there are none
+
+				ans_list = entities_to_english_list(answer_set, 'name')
+
+				# This part is very much like the identification
+				if len(answer_set) == 1:
+					if certainty[0] > 0.7:
+						if use_post_is:
+							return "Just " + ans_list + post_is + "." # name the one, with certainty
+						else:
+							return "Only " + ans_list
+					else:
+						if use_post_is:
+							return "I think just " + ans_list + post_is + "." # name the one, with certainty
+						else:
+							return "Probably only " + ans_list
+				else:
+					if certainty[0] > 0.7:
+						pass # give the number, with certainty
+					else:
+						pass # give the number, with uncertainty
+				pass
+
 			elif question_type == ERROR:
 				pass
 
 		elif self.state == self.STATE.USER_BYE:
-			pass # say goodbye
+			pass
 
 		elif self.state == self.STATE.END:
 			pass
@@ -257,3 +421,4 @@ class HCIManager(object):
 
 manager = HCIManager()
 manager.start()
+
