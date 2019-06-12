@@ -467,3 +467,18 @@ def superlative(relation, arg, entities):
 
 def in_front_of_extr(obj, world):
     return 1
+
+
+def extract_contiguous(entities):
+    """Extract all the contiguous groups of entities from the given list."""
+
+    groups = []
+
+    if entities == []:
+        return []
+
+    current_group = [entities[0]]
+
+    for entity in entities[1:]:
+        if touches
+        
