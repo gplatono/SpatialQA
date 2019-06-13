@@ -104,8 +104,7 @@ class Entity(object):
 
         #Color of the entity
         self.color_mod = self.get_color_mod()
-        
-        
+       
     def set_type_structure(self, type_structure):        
         self.type_structure = type_structure
 
@@ -205,10 +204,6 @@ class Entity(object):
             
     def compute_volume(self):
         return (self.span[1] - self.span[0]) * (self.span[3] - self.span[2]) * (self.span[5] - self.span[4])
-        """if not hasattr(self, 'volume'):
-            span = self.get_span()
-            self.volume = (span[1] - span[0]) * (span[3] - span[2]) * (span[5] - span[4])
-        return self.volume"""
 
     def compute_parent_offset(self):
         """Compute and return the offset of the entity relative to the location of its head object."""
@@ -230,8 +225,7 @@ class Entity(object):
 
     #Sets the direction of the frontal axis of the entity
     def set_frontal(self, direction):
-       	self.frontal = direction        
-
+       	self.frontal = direction      
 
     #Checks if the entity has a given property
     def get(self, property):

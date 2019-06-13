@@ -2,6 +2,7 @@ import numpy as np
 import math
 from entity import Entity
 from geometry_utils import *
+from queue import Queue
 #from main import *
 
 #Dictionary that maps the relation names to the names of the functions that implement them
@@ -357,9 +358,22 @@ def touching(a, b):
         if point_distance(point, center_a) < rad_a:
             return 1'''
     mesh_dist = 1e9
+    print ("MESH_DIST:", closest_mesh_distance_scaled(a, b))
+    shared_volume = shared_volume_scaled(a, b)
+    print ("SHARED VOLUME:", shared_volume)
+    planar_dist = 1e9
+    if a.get("planar") is not None:
+        planar_dist = get_planar_distance_scaled(b, a)
+    elif b.get("planar") is not None:
+        planar_dist = get_planar_distance_scaled(a, b)
+    print ("PLANAR DIST: ", planar_dist)    
     if get_centroid_distance_scaled(a, b) <= 1.5:
         mesh_dist = closest_mesh_distance_scaled(a, b)
-    return math.exp(- 5 * mesh_dist)
+    mesh_dist = min(mesh_dist, planar_dist)
+    if shared_volume == 0:
+        return math.exp(- 4 * mesh_dist)
+    else:
+        return 0.3 * math.exp(- 2 * mesh_dist) + 0.7 * (shared_volume > 0)
 
 
 #Computes a special function that takes a maximum value at cutoff point
@@ -470,15 +484,46 @@ def in_front_of_extr(obj, world):
 
 
 def extract_contiguous(entities):
-    """Extract all the contiguous groups of entities from the given list."""
+    """
+    Extract all the contiguous subsets of entities from the given set.
 
-    groups = []
+    Returns:
+    A list of lists, where each inner list represents a contiguous subset of entities.
+    """
 
     if entities == []:
         return []
 
-    current_group = [entities[0]]
+    groups = []
 
-    for entity in entities[1:]:
-        if touches
-        
+    #A flag marking if the given index has been processed and assigned a group.    
+    processed = [0] * len(entities)
+    
+    q = Queue()
+
+    for idx in range(len(entities)):
+
+        """
+        If the current entity has not been assigned to a group yet,
+        add it to the BFS queue and create a new group for it.
+        """        
+        if processed[idx] == 0:
+            q.put(idx)
+            processed[idx] = 1
+            current_group = [entities[idx]]
+
+            """
+            Perform a BFS to find all the entities reachable from the one
+            that originated the current group.
+            """            
+            while not q.empty():
+                curr_idx = q.get()
+                for idx1 in range(curr_idx, len(entities)):
+                    if processed[idx1] == 0 and touching(entities[curr_idx], entities[idx1]) > 0.7:
+                        q.put(idx1)
+                        processed[idx1] = 1
+                        current_group.append(entities[idx1])
+
+            groups.append(current_group)
+
+    return groups

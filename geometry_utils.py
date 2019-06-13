@@ -183,10 +183,16 @@ def get_planar_distance_scaled(ent_a, ent_b):
 #Return value: real number
 def closest_mesh_distance(ent_a, ent_b):
     min_dist = 1e9
+
+    #print (ent_a.vertex_set, ent_b.vertex_set)
+    if len(ent_a.vertex_set) * len(ent_b.vertex_set) <= 1000:
+        min_dist = min([point_distance(u,v) for u in ent_a.vertex_set for v in ent_b.vertex_set])
+        return min_dist
+    
     count = 0    
     u0 = ent_a.vertex_set[0]
     v0 = ent_b.vertex_set[0]
-    min_dist = point_distance(u0, v0)
+    min_dist = point_distance(u0, v0)       
     for v in ent_b.vertex_set:
         if point_distance(u0, v) <= min_dist:
             min_dist = point_distance(u0, v)
@@ -251,7 +257,7 @@ def get_bbox_intersection(ent_a, ent_b):
 
     vol = int_x * int_y * int_z    
     return vol
-    
+
 #Checks whether the entity is vertically oriented
 #Input: ent_a - entity
 #Return value: boolean value
@@ -288,7 +294,7 @@ def distance(a, b):
     The distance computed depends on the specific object types
     and their geometry.
     """
-
+    
     bbox_a = a.bbox
     bbox_b = b.bbox
     a0 = a.bbox_centroid
@@ -302,14 +308,58 @@ def distance(a, b):
     centroid_dist = get_centroid_distance_scaled(a, b)
     return 0.5 * mesh_dist + 0.5 * centroid_dist
 
+def shared_volume(a, b):
+    """Compute shared volume of two entities."""
 
-#Forming vectors of pairwise differences
-    """points = [point - points[0] for point in points[1:]]
-    a = sum([p[0]*p[0] for p in points])
-    b = sum([p[1]*p[1] for p in points])
-    c = sum([p[2]*p[2] for p in points])
-    d = sum([p[0]*p[1] for p in points])
-    e = sum([p[0]*p[2] for p in points])
-    f = sum([p[1]*p[2] for p in points])
+    #PLACEHOLDER - replace with a more accurate code
+    volume = get_bbox_intersection(a, b)
 
-    n = np.linalg.solve(np.array([[a, d, e], [d, b, d], [e, f, c]]), np.array([0, 0, 0]))"""
+    return volume
+
+def shared_volume_scaled(a, b):
+    """Compute shared volume of two entities scaled by their max volume."""
+
+    volume = shared_volume(a, b)
+    max_vol = max(a.volume, b.volume)
+
+    if max_vol != 0:
+        return volume / max_vol
+    elif volume != 0:
+        return 1.0
+    else:
+        return 0.0
+
+
+def fit_line(points):
+    """Compute and return the best-fit line through a set of points."""
+    if type(points) == list:
+        points = np.array(points)
+    
+    centroid = np.mean(points, axis=0)
+    if len(points) == 1:
+        return points[0], np.array([1, 0, 0]), 1.0
+
+    print (points, centroid)
+
+    #Translating the points to the origin
+    points -= centroid
+
+    print (points)
+
+    P = np.cov(points)
+    eigval, eigvec = np.linalg.eig(P)
+
+    print ("P:", P)
+
+    print (eigval, eigvec)
+  
+    proj = np.dot(eigvec.T, points) #points.dot(eigvec)#eigvec.dot(points)
+    avg_dist = math.sqrt(sum([np.linalg.norm(proj[i] - points[i]) for i in range(len(points))])) / len(points)
+
+    print ("PROJ: ", proj, "\n")
+
+    proj[0] = proj[0] / np.linalg.norm(proj[0])
+
+    print (centroid, proj[0], avg_dist)
+
+    return centroid, proj[0], avg_dist
