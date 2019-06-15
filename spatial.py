@@ -2,6 +2,7 @@ import numpy as np
 import math
 from entity import Entity
 from geometry_utils import *
+from queue import Queue
 #from main import *
 
 #Dictionary that maps the relation names to the names of the functions that implement them
@@ -31,10 +32,10 @@ entities = []
 def dist_obj(a, b):
     if type(a) is not Entity or type(b) is not Entity:
         return -1
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
-    center_a = a.get_bbox_centroid()
-    center_b = b.get_bbox_centroid()
+    bbox_a = a.bbox
+    bbox_b = b.bbox
+    center_a = a.bbox_centroid
+    center_b = b.bbox_centroid
     if a.get('extended') is not None:
         return a.get_closest_face_distance(center_b)
     if b.get('extended') is not None:
@@ -45,8 +46,8 @@ def dist_obj(a, b):
 #Inputs: a, b - entities
 #Return value: real number
 def get_proj_intersection(a, b):
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
+    bbox_a = a.bbox
+    bbox_b = b.bbox
     axmin = a.span[0]
     axmax = a.span[1]
     aymin = a.span[2]
@@ -83,7 +84,7 @@ def get_proj_intersection(a, b):
 #Inputs: a - entity
 #Return value: triple representing the coordinates of the orientation vector
 def get_planar_orientation(a):
-    dims = a.get_dimensions()
+    dims = a.dimensions
     if dims[0] == min(dims):
         return (1, 0, 0)
     elif dims[1] == min(dims):
@@ -118,10 +119,10 @@ def get_frame_size(entities):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def v_align(a, b):
-    dim_a = a.get_dimensions()
-    dim_b = b.get_dimensions()
-    center_a = a.get_bbox_centroid()
-    center_b = b.get_bbox_centroid()
+    dim_a = a.dimensions
+    dim_b = b.dimensions
+    center_a = a.bbox_centroid
+    center_b = b.bbox_centroid
     return gaussian(0.9 * point_distance((center_a[0], center_a[1], 0), (center_b[0], center_b[1], 0)) / 
                                 (max(dim_a[0], dim_a[1]) + max(dim_b[0], dim_b[1])), 0, 1 / math.sqrt(2*pi))
 
@@ -132,10 +133,10 @@ def v_align(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def v_offset(a, b):
-    dim_a = a.get_dimensions()    
-    dim_b = b.get_dimensions()
-    center_a = a.get_bbox_centroid()
-    center_b = b.get_bbox_centroid()
+    dim_a = a.dimensions    
+    dim_b = b.dimensions
+    center_a = a.bbox_centroid
+    center_b = b.bbox_centroid
     h_dist = math.sqrt((center_a[0] - center_b[0]) ** 2 + (center_a[1] - center_b[1]) ** 2)    
     return gaussian(2 * (center_a[2] - center_b[2] - 0.5*(dim_a[2] + dim_b[2])) /  \
                     (1e-6 + dim_a[2] + dim_b[2]), 0, 1 / math.sqrt(2*pi))
@@ -151,8 +152,8 @@ def v_offset(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1], the raw nearness measure
 def near_raw(a, b):
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
+    bbox_a = a.bbox
+    bbox_b = b.bbox
     dist = dist_obj(a, b)
     max_dim_a = max(bbox_a[7][0] - bbox_a[0][0],
                     bbox_a[7][1] - bbox_a[0][1],
@@ -220,12 +221,12 @@ def near(a, b):
 #Inputs: a, b, c - entities
 #Return value: real number from [0, 1]
 def between(a, b, c):
-    bbox_a = a.get_bbox()
-    bbox_b = a.get_bbox()
-    bbox_c = c.get_bbox()
-    center_a = a.get_bbox_centroid()
-    center_b = b.get_bbox_centroid()
-    center_c = c.get_bbox_centroid()
+    bbox_a = a.bbox
+    bbox_b = a.bbox
+    bbox_c = c.bbox
+    center_a = a.bbox_centroid
+    center_b = b.bbox_centroid
+    center_c = c.bbox_centroid
     vec1 = np.array(center_b) - np.array(center_a)
     vec2 = np.array(center_c) - np.array(center_a)
     cos = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2) + 0.001)
@@ -237,8 +238,8 @@ def between(a, b, c):
 #Inputs: a, b - entities
 #Return value: real number from [0, 0.5]
 def larger_than(a, b):
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
+    bbox_a = a.bbox
+    bbox_b = b.bbox
     return 1 / (1 + e ** (bbox_b[7][0] - bbox_b[0][0] \
                           + bbox_b[7][1] - bbox_b[0][1] \
                           + bbox_b[7][2] - bbox_b[0][2] \
@@ -273,8 +274,8 @@ def on(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def over(a, b):
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
+    bbox_a = a.bbox
+    bbox_b = b.bbox
     return 0.5 * above(a, b) + 0.2 * get_proj_intersection(a, b) + 0.3 * near(a, b)
 
 
@@ -299,7 +300,7 @@ def closer_than(a, b, pivot):
 #Return value: real number from [0, 1]
 def in_front_of_deic(a, b):
 #def in_front_of_extr(a, b, observer):
-    bbox_a = a.get_bbox()
+    bbox_a = a.bbox
     max_dim_a = max(bbox_a[7][0] - bbox_a[0][0],
                     bbox_a[7][1] - bbox_a[0][1],
                     bbox_a[7][2] - bbox_a[0][2]) + 0.0001
@@ -339,10 +340,10 @@ def inside(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def touching(a, b):
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
-    center_a = a.get_bbox_centroid()
-    center_b = b.get_bbox_centroid()
+    bbox_a = a.bbox
+    bbox_b = b.bbox
+    center_a = a.bbox_centroid
+    center_b = b.bbox_centroid
     rad_a = max(bbox_a[7][0] - bbox_a[0][0], \
                 bbox_a[7][1] - bbox_a[0][1], \
                 bbox_a[7][2] - bbox_a[0][2]) / 2
@@ -357,9 +358,22 @@ def touching(a, b):
         if point_distance(point, center_a) < rad_a:
             return 1'''
     mesh_dist = 1e9
+    print ("MESH_DIST:", closest_mesh_distance_scaled(a, b))
+    shared_volume = shared_volume_scaled(a, b)
+    print ("SHARED VOLUME:", shared_volume)
+    planar_dist = 1e9
+    if a.get("planar") is not None:
+        planar_dist = get_planar_distance_scaled(b, a)
+    elif b.get("planar") is not None:
+        planar_dist = get_planar_distance_scaled(a, b)
+    print ("PLANAR DIST: ", planar_dist)    
     if get_centroid_distance_scaled(a, b) <= 1.5:
         mesh_dist = closest_mesh_distance_scaled(a, b)
-    return math.exp(- 5 * mesh_dist)
+    mesh_dist = min(mesh_dist, planar_dist)
+    if shared_volume == 0:
+        return math.exp(- 4 * mesh_dist)
+    else:
+        return 0.3 * math.exp(- 2 * mesh_dist) + 0.7 * (shared_volume > 0)
 
 
 #Computes a special function that takes a maximum value at cutoff point
@@ -410,8 +424,8 @@ def above(a, b):
     Return value:
     float value from [0, 1]
     """
-    #bbox_a = a.get_bbox()
-    #bbox_b = b.get_bbox()
+    #bbox_a = a.bbox
+    #bbox_b = b.bbox
     #span_a = a.get_span()
     #span_b = b.get_span()
     #center_a = a.get_bbox_centroid()
@@ -450,6 +464,9 @@ def higher_than_centroidwise(a, b):
     b0 = b.get_centroid()    
     return a0[2] > b0[2]#1 / (1 + math.exp(-(a0[2] - b0[2])))
 
+def taller_than(a, b):
+    pass
+
 def superlative(relation, arg, entities):
     func = globals()[rf_mapping[relation]]
     if arg != None:
@@ -462,5 +479,51 @@ def superlative(relation, arg, entities):
                     result = e
     return result
 
-def in_front_of_extr(obj, world):    
+def in_front_of_extr(obj, world):
     return 1
+
+
+def extract_contiguous(entities):
+    """
+    Extract all the contiguous subsets of entities from the given set.
+
+    Returns:
+    A list of lists, where each inner list represents a contiguous subset of entities.
+    """
+
+    if entities == []:
+        return []
+
+    groups = []
+
+    #A flag marking if the given index has been processed and assigned a group.    
+    processed = [0] * len(entities)
+    
+    q = Queue()
+
+    for idx in range(len(entities)):
+
+        """
+        If the current entity has not been assigned to a group yet,
+        add it to the BFS queue and create a new group for it.
+        """        
+        if processed[idx] == 0:
+            q.put(idx)
+            processed[idx] = 1
+            current_group = [entities[idx]]
+
+            """
+            Perform a BFS to find all the entities reachable from the one
+            that originated the current group.
+            """            
+            while not q.empty():
+                curr_idx = q.get()
+                for idx1 in range(curr_idx, len(entities)):
+                    if processed[idx1] == 0 and touching(entities[curr_idx], entities[idx1]) > 0.85:
+                        q.put(idx1)
+                        processed[idx1] = 1
+                        current_group.append(entities[idx1])
+
+            groups.append(current_group)
+
+    return groups

@@ -1,5 +1,5 @@
 import math
-import numpy
+import numpy as np
 
 #Computes the cross-product of vectors a and b
 #Inputs: a,b - vector coordinates as tuples or lists
@@ -20,8 +20,8 @@ def get_normal(a, b, c):
 #Inputs: point,a,b,c - point coordinates as tuples or lists
 #Return value: real number
 def get_distance_from_plane(point, a, b, c):
-    normal = numpy.array(get_normal(a, b, c))
-    return math.fabs((numpy.array(point).dot(normal) - numpy.array(a).dot(normal)) / numpy.linalg.norm(normal))
+    normal = np.array(get_normal(a, b, c))
+    return math.fabs((np.array(point).dot(normal) - np.array(a).dot(normal)) / np.linalg.norm(normal))
 
 #Computes the orthogonal distance between x3 and the line
 #defined by x1 and x2
@@ -31,13 +31,13 @@ def get_distance_from_line(x1, x2, x3):
     if x1 == x2:
         return point_distance(x1, x3)    
     #print ("POINTS: {}, {}, {}".format(x1, x2, x3))
-    v1 = numpy.array(x3) - numpy.array(x1)
-    v2 = numpy.array(x2) - numpy.array(x1)
-    #v1 = numpy.array(x3 - x1)
-    #v2 = numpy.array(x2 - x1)
+    v1 = np.array(x3) - np.array(x1)
+    v2 = np.array(x2) - np.array(x1)
+    #v1 = np.array(x3 - x1)
+    #v2 = np.array(x2 - x1)
     #print ("VECTORS: {}, {}".format(v1, v2))
-    l1 = numpy.linalg.norm(v1)
-    l2 = numpy.dot(v1, v2) / numpy.linalg.norm(v2)
+    l1 = np.linalg.norm(v1)
+    l2 = np.dot(v1, v2) / np.linalg.norm(v2)
     #print ("L1, L2", l1, l2)
     return math.sqrt(l1 * l1 - l2 * l2)
     #t = (x3[0] - x1[0]) * (x2[0] - x1[0]) + (x3[1] - x1[1]) * (x2[1] - x1[1]) * (x3[2] - x1[2]) * (x2[2] - x1[2])
@@ -50,7 +50,7 @@ def get_distance_from_line(x1, x2, x3):
 #Inputs: a, b - point coordinates as tuples or lists
 #Return value: real number
 def point_distance(a, b):
-    return numpy.linalg.norm(numpy.array(a) - numpy.array(b))
+    return np.linalg.norm(np.array(a) - np.array(b))
 
 
 #Computes the projection of the bounding box of a set
@@ -74,8 +74,8 @@ def get_2d_bbox(points):
 #Inputs: ent_a, ent_b - entities
 #Return value: real number
 def get_centroid_distance(ent_a, ent_b):
-    a_centroid = ent_a.get_bbox_centroid()
-    b_centroid = ent_b.get_bbox_centroid()
+    a_centroid = ent_a.bbox_centroid
+    b_centroid = ent_b.bbox_centroid
     return point_distance(a_centroid, b_centroid)
 
 #Computes the distance between the centroids of
@@ -84,8 +84,8 @@ def get_centroid_distance(ent_a, ent_b):
 #Inputs: ent_a, ent_b - entities
 #Return value: real number
 def get_centroid_distance_scaled(ent_a, ent_b):
-    a_max_dim = max(ent_a.get_dimensions())
-    b_max_dim = max(ent_b.get_dimensions())
+    a_max_dim = max(ent_a.dimensions)
+    b_max_dim = max(ent_b.dimensions)
 
     #add a small number to denominator in order to
     #avoid division by zero in the case when a_max_dim + b_max_dim == 0
@@ -97,9 +97,9 @@ def get_centroid_distance_scaled(ent_a, ent_b):
 #Inputs: ent_a, ent_b - entities
 #Return value: real number
 def get_line_distance_scaled(ent_a, ent_b):
-    a_dims = ent_a.get_dimensions()
-    b_dims = ent_b.get_dimensions()
-    a_bbox = ent_a.get_bbox()
+    a_dims = ent_a.dimensions
+    b_dims = ent_b.dimensions
+    a_bbox = ent_a.bbox
     dist = 0
 
     #If ent_a is elongated, one dimension should be much bigger than the sum of the other two
@@ -138,9 +138,9 @@ def get_line_distance_scaled(ent_a, ent_b):
 #Inputs: ent_a, ent_b - entities
 #Return value: real number
 def get_planar_distance_scaled(ent_a, ent_b):
-    a_dims = ent_a.get_dimensions()
-    b_dims = ent_b.get_dimensions()
-    a_bbox = ent_a.get_bbox()
+    a_dims = ent_a.dimensions
+    b_dims = ent_b.dimensions
+    a_bbox = ent_a.bbox
     dist = 0
 
     #If ent_a is planar, one dimension should be much smaller than the other two
@@ -183,15 +183,21 @@ def get_planar_distance_scaled(ent_a, ent_b):
 #Return value: real number
 def closest_mesh_distance(ent_a, ent_b):
     min_dist = 1e9
+
+    #print (ent_a.vertex_set, ent_b.vertex_set)
+    if len(ent_a.vertex_set) * len(ent_b.vertex_set) <= 1000:
+        min_dist = min([point_distance(u,v) for u in ent_a.vertex_set for v in ent_b.vertex_set])
+        return min_dist
+    
     count = 0    
-    u0 = ent_a.total_mesh[0]
-    v0 = ent_b.total_mesh[0]
-    min_dist = point_distance(u0, v0)
-    for v in ent_b.total_mesh:
+    u0 = ent_a.vertex_set[0]
+    v0 = ent_b.vertex_set[0]
+    min_dist = point_distance(u0, v0)       
+    for v in ent_b.vertex_set:
         if point_distance(u0, v) <= min_dist:
             min_dist = point_distance(u0, v)
             v0 = v
-    for u in ent_a.total_mesh:
+    for u in ent_a.vertex_set:
         if point_distance(u, v0) <= min_dist:
             min_dist = point_distance(u, v0)
             u0 = u
@@ -209,8 +215,8 @@ def closest_mesh_distance(ent_a, ent_b):
 #Input: ent_a, ent_b - entities
 #Return value: real number
 def closest_mesh_distance_scaled(ent_a, ent_b):
-    a_dims = ent_a.get_dimensions()
-    b_dims = ent_b.get_dimensions()
+    a_dims = ent_a.dimensions
+    b_dims = ent_b.dimensions
     return closest_mesh_distance(ent_a, ent_b) / (max(a_dims) + max(b_dims) + 0.0001)
 
 #Computes the shared volume of the bounding boxes of two entities
@@ -251,7 +257,7 @@ def get_bbox_intersection(ent_a, ent_b):
 
     vol = int_x * int_y * int_z    
     return vol
-    
+
 #Checks whether the entity is vertically oriented
 #Input: ent_a - entity
 #Return value: boolean value
@@ -259,11 +265,11 @@ def isVertical(ent_a):
     return ent_a.dimensions[0] < 0.5 * ent_a.dimensions[2] or ent_a.dimensions[1] < 0.5 * ent_a.dimensions[2]
 
 def cosine_similarity(v1, v2):
-    l1 = numpy.linalg.norm(v1)
-    l2 = numpy.linalg.norm(v2)
+    l1 = np.linalg.norm(v1)
+    l2 = np.linalg.norm(v2)
     if l1 == 0 or l2 == 0:
         return None
-    cos = numpy.dot(v1, v2) / (l1 * l2)
+    cos = np.dot(v1, v2) / (l1 * l2)
     if cos > 1:
         cos = 1
     if cos < -1:
@@ -275,13 +281,12 @@ def within_cone(v1, v2, threshold):
     if cos is None:
         return None
     else:        
-        #print ("DENOM: {}, TAN: {}".format((1 + numpy.sign(threshold - cos) * threshold), 0.5 * math.pi * (cos - threshold) / (1 + numpy.sign(threshold - cos) * threshold)))
-        tangent = -math.tan(0.5 * math.pi * (cos - threshold) / (1 + numpy.sign(threshold - cos) * threshold))
+        #print ("DENOM: {}, TAN: {}".format((1 + np.sign(threshold - cos) * threshold), 0.5 * math.pi * (cos - threshold) / (1 + np.sign(threshold - cos) * threshold)))
+        tangent = -math.tan(0.5 * math.pi * (cos - threshold) / (1 + np.sign(threshold - cos) * threshold))
         if tangent <= 100:
             return 1 / (1 + math.e ** tangent)
         else:
             return 0
-
 
 def distance(a, b):
     """
@@ -289,11 +294,11 @@ def distance(a, b):
     The distance computed depends on the specific object types
     and their geometry.
     """
-
-    bbox_a = a.get_bbox()
-    bbox_b = b.get_bbox()
-    a0 = a.get_bbox_centroid()
-    b0 = b.get_bbox_centroid()
+    
+    bbox_a = a.bbox
+    bbox_b = b.bbox
+    a0 = a.bbox_centroid
+    b0 = b.bbox_centroid
     if a.get('extended') is not None:
         return a.get_closest_face_distance(b0)
     if b.get('extended') is not None:
@@ -302,3 +307,59 @@ def distance(a, b):
     mesh_dist = closest_mesh_distance_scaled(a, b)
     centroid_dist = get_centroid_distance_scaled(a, b)
     return 0.5 * mesh_dist + 0.5 * centroid_dist
+
+def shared_volume(a, b):
+    """Compute shared volume of two entities."""
+
+    #PLACEHOLDER - replace with a more accurate code
+    volume = get_bbox_intersection(a, b)
+
+    return volume
+
+def shared_volume_scaled(a, b):
+    """Compute shared volume of two entities scaled by their max volume."""
+
+    volume = shared_volume(a, b)
+    max_vol = max(a.volume, b.volume)
+
+    if max_vol != 0:
+        return volume / max_vol
+    elif volume != 0:
+        return 1.0
+    else:
+        return 0.0
+
+
+def fit_line(points):
+    """Compute and return the best-fit line through a set of points."""
+    if type(points) == list:
+        points = np.array(points)
+    
+    centroid = np.mean(points, axis=0)
+    if len(points) == 1:
+        return points[0], np.array([1, 0, 0]), 1.0
+
+    print (points, centroid)
+
+    #Translating the points to the origin
+    points -= centroid
+
+    print (points)
+
+    P = np.cov(points)
+    eigval, eigvec = np.linalg.eig(P)
+
+    print ("P:", P)
+
+    print (eigval, eigvec)
+  
+    proj = np.dot(eigvec.T, points) #points.dot(eigvec)#eigvec.dot(points)
+    avg_dist = math.sqrt(sum([np.linalg.norm(proj[i] - points[i]) for i in range(len(points))])) / len(points)
+
+    print ("PROJ: ", proj, "\n")
+
+    proj[0] = proj[0] / np.linalg.norm(proj[0])
+
+    print (centroid, proj[0], avg_dist)
+
+    return centroid, proj[0], avg_dist

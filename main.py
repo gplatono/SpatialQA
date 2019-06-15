@@ -170,24 +170,6 @@ def compute_over(entities):
     return observer_entity
 """
 
-#Searches and returns the entity that has the given name
-#associated with it
-#Inputs: name - human-readable name as a string
-#Return value: entity (if exists) or None
-def get_entity_by_name(name):
-    for entity in entities:
-        #print("NAME:",name, entity.name)
-        if entity.name.lower() == name.lower():
-            return entity
-    for col in color_mods:
-        if col in name:
-            name = name.replace(col + " ", "")
-            #print ("MOD NAME:", name)
-    for entity in entities:
-        #print(name, entity.name)
-        if entity.name.lower() == name.lower():
-            return entity
-    return None
 '''
 #Places the entity at a specified location and with specified orientation
 #Inputs: entity, position - triple of point coordinates, rotation - triple of Euler angles
@@ -439,7 +421,22 @@ def main():
         if ";;" not in ulf and ulf != "":
             query = ULFQuery(ulf)
             print (query.query_tree)
-            print (process_query(query.query_tree, entities))
+            #print (world.entities)                        
+            fit_line(np.array([[-1, -1, 0], [0, 0, 0], [1.0, 1.0, 0], [2.0, 2.0, 0]]))
+            toy = world.find_entity_by_name("Toyota")
+            tex = world.find_entity_by_name("Texaco")
+            mcd = world.find_entity_by_name("McDonald's")
+            sri = world.find_entity_by_name("SRI")
+            nvd = world.find_entity_by_name("NVidia")
+            stb = world.find_entity_by_name("Starbucks")
+            mrc = world.find_entity_by_name("Mercedes")
+            bgk = world.find_entity_by_name("BurgerKing")
+            tar = world.find_entity_by_name("Target")
+            tbl = world.find_entity_by_name("Table")
+            print (toy, tex, mcd, sri, nvd, touching(tar, stb))
+            #print (near(tbl, toy))
+            print (extract_contiguous(world.entities))
+            print (process_query(query.query_tree, world.entities))
             input("Press Enter to continue...")
 
     #bl4 = get_entity_by_name("Block 4")

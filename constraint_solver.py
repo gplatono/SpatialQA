@@ -84,7 +84,7 @@ def filter_by_predicate_modifier(entities, pred_mod):
 	"""Return the subset of entities that satisfy the given predicate modifier."""
 	ret_val = []
 	for entity in entities:
-
+		pass
 
 def filter_by_mod(entities, modifier):
 	if type(modifier) == NColor:
@@ -124,7 +124,7 @@ def resolve_argument(arg_object, entities):
 
 	return ret_args
 
-def resolve_relation(relation_object):
+def resolve_predicate(relation_object):
 	#print ("REL:", rel_to_func_dict[relation_object.content.content])
 	rel_to_func_map = {
 	'on.p': spatial.on,
@@ -150,14 +150,14 @@ def resolve_relation(relation_object):
     'front.p': spatial.in_front_of_deic,
     'behind.p': spatial.behind_deic,
     'between.p': spatial.between,
-    'next_to.p': spatial.at
+    'next_to.p': spatial.at,
+    'clear.a': spatial.clear
     }
 	#for key in globals():
 	#	print (globals()[key])
 	#print (type(rel_to_func_map[relation_object.content.content]))
 	return rel_to_func_map[relation_object.content.content]
 
-                
 def process_query(query, entities):
 	print ("ENTERING THE QUERY PROCESSING:")
 	#print (entities)
@@ -165,7 +165,7 @@ def process_query(query, entities):
 		return None
 	arg = query.content	
 	if type(arg) == NRel or type(arg) == NPred:
-		relation = resolve_relation(arg)
+		relation = resolve_predicate(arg)
 		print ("RELATION:", relation)
 		res = spatial.near_raw(entities[0], entities[1])
 		relata = resolve_argument(arg.children[0], entities) if len(arg.children) > 0 else None

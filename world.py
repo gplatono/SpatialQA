@@ -19,6 +19,9 @@ class World(object):
 			if obj.get('main') is not None:
 				self.entities.append(Entity(obj))
 
+		#self.test = shared_volume(self.entities[0], self.entities[1])
+		#shared_volume(self.entities[0], self.entities[1])
+
 		#Number of objects in the world
 		self.N = len(self.entities)
 
@@ -27,10 +30,13 @@ class World(object):
 		self.avg_dist = 0
 		if len(self.entities) != 0:
 			for (a, b) in itertools.combinations(self.entities, r = 2):
-				self.avg_dist += distance(a, b)		
+				self.avg_dist += distance(a, b)
 		self.avg_dist = self.avg_dist * 2 / (self.N * (self.N - 1))
 		
 		self.observer = self.create_observer()
+
+		#List of  possible color modifiers
+		self.color_mods = ['black', 'red', 'blue', 'brown', 'green', 'yellow']
 
 
 	def create_observer(self):
@@ -44,15 +50,15 @@ class World(object):
 		cam = bpy.data.cameras.new("Camera")
 
 		if bpy.data.objects.get("Lamp") is not None:
-		    lamp_obj = bpy.data.objects["Lamp"]
+			lamp_obj = bpy.data.objects["Lamp"]
 		else:
-		    lamp_obj = bpy.data.objects.new("Lamp", lamp)
-		    self.scene.objects.link(lamp_obj)
+			lamp_obj = bpy.data.objects.new("Lamp", lamp)
+			self.scene.objects.link(lamp_obj)
 		if bpy.data.objects.get("Camera") is not None:
-		    cam_ob = bpy.data.objects["Camera"]
+			cam_ob = bpy.data.objects["Camera"]
 		else:
-		    cam_ob = bpy.data.objects.new("Camera", cam)
-		    self.scene.objects.link(cam_ob)    
+			cam_ob = bpy.data.objects.new("Camera", cam)
+			self.scene.objects.link(cam_ob)    
 
 		lamp_obj.location = (-20, 0, 10)
 		cam_ob.location = (-15.5, 0, 7)
@@ -63,16 +69,16 @@ class World(object):
 		bpy.context.scene.camera = self.scene.objects["Camera"]
 
 		if bpy.data.objects.get("Observer") is None:
-		    mesh = bpy.data.meshes.new("Observer")
-		    bm = bmesh.new()
-		    bm.verts.new(cam_ob.location)
-		    bm.to_mesh(mesh)
-		    observer = bpy.data.objects.new("Observer", mesh)    
-		    self.scene.objects.link(observer)
-		    bm.free()
-		    self.scene.update()
+			mesh = bpy.data.meshes.new("Observer")
+			bm = bmesh.new()
+			bm.verts.new(cam_ob.location)
+			bm.to_mesh(mesh)
+			observer = bpy.data.objects.new("Observer", mesh)    
+			self.scene.objects.link(observer)
+			bm.free()
+			self.scene.update()
 		else: 
-		    observer = bpy.data.objects["Observer"]            
+			observer = bpy.data.objects["Observer"]            
 		observer_entity = Entity(observer)
 		observer_entity.camera = cam_ob
 		return observer_entity
@@ -91,3 +97,36 @@ class World(object):
 		z_max = [entity.z_max for entity in self.entities]
 
 		return [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
+
+	def show_bbox(self, entity):
+		"""Displays the bounding box around the entity in the scene."""
+		mesh = bpy.data.meshes.new(entity.name + '_mesh')
+		obj = bpy.data.objects.new(entity.name + '_bbox', mesh)
+		self.scene.objects.link(obj)
+		self.scene.objects.active = obj
+		bbox = entity.bbox
+		mesh.from_pydata(bbox, [], [(0, 1, 3, 2), (0, 1, 5, 4), (2, 3, 7, 6), (0, 2, 6, 4), (1, 3, 7, 5), (4, 5, 7, 6)])
+		mesh.update()
+
+	def find_entity_by_name(self, name):
+		"""
+		Search and return the entity that has the given name
+		associated with it.
+
+		Inputs: name - human-readable name as a string
+
+		Returns: entity (if exists) or None.
+		"""
+
+		for entity in self.entities:
+			if entity.name.lower() == name.lower():
+				return entity
+		
+
+		for col in self.color_mods:
+			if col in name:
+				name = name.replace(col + " ", "")				
+		for entity in self.entities:			
+			if entity.name.lower() == name.lower():
+				return entity
+		return None
