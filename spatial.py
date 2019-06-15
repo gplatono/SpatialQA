@@ -519,7 +519,7 @@ def extract_contiguous(entities):
             while not q.empty():
                 curr_idx = q.get()
                 for idx1 in range(curr_idx, len(entities)):
-                    if processed[idx1] == 0 and touching(entities[curr_idx], entities[idx1]) > 0.7:
+                    if processed[idx1] == 0 and touching(entities[curr_idx], entities[idx1]) > 0.85:
                         q.put(idx1)
                         processed[idx1] = 1
                         current_group.append(entities[idx1])

@@ -1,6 +1,4 @@
 import enum
-from gcs_micstream import ResumableMicrophoneStream
-from google.cloud import speech
 import sys
 import re
 import requests
@@ -19,11 +17,12 @@ class HCIManager(object):
 		USER_BYE = 4
 		END = 5
 
-
-	def __init__(self):
+	def __init__(self, debug_mode = False):
 
 		#Stores the context of the conversation. For future use.
 		self.context = None
+
+		self.debug_mode = debug_mode
 
 		#Current state = initial state
 		self.state = self.STATE.INIT
@@ -38,11 +37,15 @@ class HCIManager(object):
 
 	def start(self):
 		"""Initiate the listening loop."""
+		if self.debug_mode == False:
+			from gcs_micstream import ResumableMicrophoneStream
+			from google.cloud import speech
 
-		print ("Starting the listening thread...")
-		mic_thread = Thread(target = self.mic_loop)
-		mic_thread.start()
-		#thread.join()
+			print ("Starting the listening thread...")
+			mic_thread = Thread(target = self.mic_loop)
+			mic_thread.start()
+			#thread.join()
+
 		print ("Starting the processing loop...")
 		while True:
 			self.speech_lock.acquire()
@@ -60,6 +63,20 @@ class HCIManager(object):
 		req = requests.get(self.avatar_speech_servlet + "?say=" + text)
 		avatar_status = str(req.status_code)
 		print ("STATUS: " + avatar_status)
+
+	def load_as_text(self, text):
+		def load_loop():
+			for utterance in text:
+				while True:
+					self.speech_lock.acquire()
+					if self.current_input == "":
+						self.current_input = utterance
+						self.speech_lock.release()
+						break
+					self.speech_lock.release()
+
+		ll_th = Thread(target = load_loop)
+		ll_th.start()
 
 	def mic_loop(self):
 		"""The mic listening loop."""
@@ -135,5 +152,6 @@ class HCIManager(object):
 		"""
 		pass
 
-manager = HCIManager()
+manager = HCIManager(debug_mode=True)
+manager.load_as_text(["Test message 1", "Test message 2", "Test message 3", "Test message 4", "Test message 5"])
 manager.start()

@@ -421,8 +421,7 @@ def main():
         if ";;" not in ulf and ulf != "":
             query = ULFQuery(ulf)
             print (query.query_tree)
-            #print (world.entities)            
-            print (process_query(query.query_tree, world.entities))
+            #print (world.entities)                        
             fit_line(np.array([[-1, -1, 0], [0, 0, 0], [1.0, 1.0, 0], [2.0, 2.0, 0]]))
             toy = world.find_entity_by_name("Toyota")
             tex = world.find_entity_by_name("Texaco")
@@ -436,7 +435,8 @@ def main():
             tbl = world.find_entity_by_name("Table")
             print (toy, tex, mcd, sri, nvd, touching(tar, stb))
             #print (near(tbl, toy))
-            #print (extract_contiguous(world.entities))
+            print (extract_contiguous(world.entities))
+            print (process_query(query.query_tree, world.entities))
             input("Press Enter to continue...")
 
     #bl4 = get_entity_by_name("Block 4")

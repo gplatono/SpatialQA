@@ -19,6 +19,7 @@ class QueryFrame(object):
 		COUNT = 4
 		ATTR_COLOR = 5
 		ATTR_ORIENT = 6
+		ERROR = 7
 
 	def __init__(self, gr_sentence):
 		self.raw = gr_sentence.content
