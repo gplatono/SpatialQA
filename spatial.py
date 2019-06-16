@@ -3,6 +3,7 @@ import math
 from entity import Entity
 from geometry_utils import *
 from queue import Queue
+from mathutils import Vector
 #from main import *
 
 #Dictionary that maps the relation names to the names of the functions that implement them
@@ -78,7 +79,7 @@ def get_proj_intersection(a, b):
     area = xdim * ydim
     
     #Normalize the intersection area to [0, 1]
-    return e ** (area - min((axmax - axmin) * (aymax - aymin), (bxmax - bxmin) * (bymax - bymin)))
+    return math.e ** (area - min((axmax - axmin) * (aymax - aymin), (bxmax - bxmin) * (bymax - bymin)))
     
 #Returns the orientation of the entity relative to the coordinate axes
 #Inputs: a - entity
@@ -90,7 +91,6 @@ def get_planar_orientation(a):
     elif dims[1] == min(dims):
         return (0, 1, 0)
     else: return (0, 0, 1)
-
 
 #Returns the frame size of the current scene
 #Inputs: none
@@ -240,7 +240,7 @@ def between(a, b, c):
 def larger_than(a, b):
     bbox_a = a.bbox
     bbox_b = b.bbox
-    return 1 / (1 + e ** (bbox_b[7][0] - bbox_b[0][0] \
+    return 1 / (1 + math.e ** (bbox_b[7][0] - bbox_b[0][0] \
                           + bbox_b[7][1] - bbox_b[0][1] \
                           + bbox_b[7][2] - bbox_b[0][2] \
                           - (bbox_a[7][0] - bbox_a[0][0] \
@@ -252,6 +252,7 @@ def larger_than(a, b):
 #Return value: real number from [0, 1]
 def on(a, b):
     ret_val = 0.5 * (above(a, b) + touching(a, b))
+    print ("CURRENT ON:", ret_val)
     if b.get('planar') is not None and larger_than(b, a) and a.centroid[2] > 0.5 * a.dimensions[2]:
         ret_val = max(ret_val, touching(a, b))    
     #ret_val = 0.5 * (v_offset(a, b) + get_proj_intersection(a, b))
@@ -306,7 +307,7 @@ def in_front_of_deic(a, b):
                     bbox_a[7][2] - bbox_a[0][2]) + 0.0001
     dist = get_distance_from_line(get_observer().centroid, b.centroid, a.centroid)
     #print ("{}, {}, CLOSER: {}, WC_DEIC: {}, WC_EXTR: {}, DIST: {}".format(a.name, b.name, closer_than(a, b, observer), within_cone(b.centroid - observer.centroid, a.centroid - observer.centroid, 0.95), within_cone(b.centroid - a.centroid, Vector((0, -1, 0)) - a.centroid, 0.8), e ** (- 0.1 * get_centroid_distance_scaled(a, b))))
-    return e ** (- 0.01 * get_centroid_distance_scaled(a, b)) * within_cone(b.centroid - a.centroid, Vector((1, 0, 0)), 0.7)
+    return math.e ** (- 0.01 * get_centroid_distance_scaled(a, b)) * within_cone(b.centroid - a.centroid, Vector((1, 0, 0)), 0.7)
     '''0.3 * closer_than(a, b, observer) + \
                   0.7 * (max(within_cone(b.centroid - observer.centroid, a.centroid - observer.centroid, 0.95),
                   within_cone(b.centroid - a.centroid, Vector((1, 0, 0)), 0.7)) * \
@@ -431,7 +432,9 @@ def above(a, b):
     #center_a = a.get_bbox_centroid()
     #center_b = b.get_bbox_centroid()
     #scaled_vertical_distance = (center_a[2] - center_b[2]) / ((span_a[5] - span_a[4]) + (span_b[5] - span_b[4]))
-    return within_cone(a.centroid - b.centroid, Vector((0, 0, 1)), 0.05) * e ** (- 0.01 * get_centroid_distance_scaled(a, b))
+    #print ("ABOVE:", sigmoid(a.centroid[2] - b.centroid[2], 1, 0.1))
+    #print ("CONE:",within_cone(a.centroid - b.centroid, Vector((0, 0, 1)), 0.05))    
+    return within_cone(a.centroid - b.centroid, Vector((0, 0, 1)), 0.05) * sigmoid(a.centroid[2] - b.centroid[2], 1, 0.1)#math.e ** (- 0.01 * get_centroid_distance_scaled(a, b))
 
 def below(a, b):
     """Computes the 'a below b' relation, returns the certainty value.

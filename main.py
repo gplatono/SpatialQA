@@ -76,17 +76,6 @@ entities = []
 #Average distance between entities in the scene
 #avg_dist = 0
 
-#Computes the value of the univariate Gaussian
-#Inputs: x - random variable value; mu - mean; sigma - variance
-#Return value: real number
-def gaussian(x, mu, sigma):
-    return e ** (- 0.5 * ((float(x) - mu) / sigma) ** 2) / (math.fabs(sigma) * math.sqrt(2.0 * pi))
-
-#Computes the value of the logistic sigmoid function
-#Inputs: x - random variable value; a, b - coefficients
-#Return value: real number
-def sigmoid(x, a, b):
-    return a / (1 + e ** (- b * x)) if b * x > -100 else 0
 
 
 
@@ -418,11 +407,13 @@ def main():
         #    continue        
         print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
         ulf = ulf.lower().strip().replace("{", "").replace("}", "")
-        if ";;" not in ulf and ulf != "":
+        if ";;" not in ulf and ulf != "" and "clear" in ulf:
             query = ULFQuery(ulf)
             print (query.query_tree)
             #print (world.entities)                        
-            fit_line(np.array([[-1, -1, 0], [0, 0, 0], [1.0, 1.0, 0], [2.0, 2.0, 0]]))
+            #fit_line(np.array([[-1, 0, 0], [-2, 0, 0], [0, 1.0, 0], [2.0, 0, 0], [10, 0, 1000.0]]))
+            #fit_line(np.array([[-1, -1, 0], [-2, -2, 0], [1.0, 1.0, 0], [2.0, 2.0, 0]]))
+            #fit_line(np.array([[1, 1, 0.5], [1.2, 1.1, 1.5], [1.0, 0.9, 2.5], [1.6, 1.01, 4.0], [0.8, 1.1, 5.5]]))
             toy = world.find_entity_by_name("Toyota")
             tex = world.find_entity_by_name("Texaco")
             mcd = world.find_entity_by_name("McDonald's")
@@ -433,10 +424,19 @@ def main():
             bgk = world.find_entity_by_name("BurgerKing")
             tar = world.find_entity_by_name("Target")
             tbl = world.find_entity_by_name("Table")
-            print (toy, tex, mcd, sri, nvd, touching(tar, stb))
+            ent = [toy, tex, mcd, bgk, tar, sri, stb, tbl,mrc,nvd]
+            #print (toy, tex, mcd, sri, nvd, touching(tar, stb))
             #print (near(tbl, toy))
-            print (extract_contiguous(world.entities))
-            print (process_query(query.query_tree, world.entities))
+            #print (extract_contiguous(world.entities))
+            #print ([on(e, tar) for e in ent])
+            print (on(tar, tar))
+            #print (clear(toy))
+            print ("\n" + ulf)
+            #row = Entity([sri, stb, bgk, toy, tex])
+            #print (row.ordering)
+            #print (row.get_first())
+            #print (row.get_last())
+            #print (process_query(query.query_tree, world.entities))
             input("Press Enter to continue...")
 
     #bl4 = get_entity_by_name("Block 4")

@@ -1,6 +1,19 @@
 import math
 import numpy as np
 
+#Computes the value of the univariate Gaussian
+#Inputs: x - random variable value; mu - mean; sigma - variance
+#Return value: real number
+def gaussian(x, mu, sigma):
+    return math.e ** (- 0.5 * ((float(x) - mu) / sigma) ** 2) / (math.fabs(sigma) * math.sqrt(2.0 * math.pi))
+
+#Computes the value of the logistic sigmoid function
+#Inputs: x - random variable value; a, b - coefficients
+#Return value: real number
+def sigmoid(x, a, b):
+    return a / (1 + math.e ** (- b * x)) if b * x > -100 else 0
+
+
 #Computes the cross-product of vectors a and b
 #Inputs: a,b - vector coordinates as tuples or lists
 #Return value: a triple of coordinates
@@ -267,8 +280,10 @@ def isVertical(ent_a):
 def cosine_similarity(v1, v2):
     l1 = np.linalg.norm(v1)
     l2 = np.linalg.norm(v2)
+    if l1 == 0 and l2 == 0:
+        return 1
     if l1 == 0 or l2 == 0:
-        return None
+        return 0    
     cos = np.dot(v1, v2) / (l1 * l2)
     if cos > 1:
         cos = 1
@@ -278,15 +293,12 @@ def cosine_similarity(v1, v2):
 
 def within_cone(v1, v2, threshold):
     cos = cosine_similarity(v1, v2)
-    if cos is None:
-        return None
-    else:        
-        #print ("DENOM: {}, TAN: {}".format((1 + np.sign(threshold - cos) * threshold), 0.5 * math.pi * (cos - threshold) / (1 + np.sign(threshold - cos) * threshold)))
-        tangent = -math.tan(0.5 * math.pi * (cos - threshold) / (1 + np.sign(threshold - cos) * threshold))
-        if tangent <= 100:
-            return 1 / (1 + math.e ** tangent)
-        else:
-            return 0
+    #print ("DENOM: {}, TAN: {}".format((1 + np.sign(threshold - cos) * threshold), 0.5 * math.pi * (cos - threshold) / (1 + np.sign(threshold - cos) * threshold)))
+    tangent = -math.tan(0.5 * math.pi * (cos - threshold) / (1 + np.sign(threshold - cos) * threshold))
+    if tangent <= 100:
+        return 1 / (1 + math.e ** tangent)
+    else:
+        return 0
 
 def distance(a, b):
     """
@@ -334,32 +346,38 @@ def fit_line(points):
     """Compute and return the best-fit line through a set of points."""
     if type(points) == list:
         points = np.array(points)
-    
-    centroid = np.mean(points, axis=0)
+
     if len(points) == 1:
-        return points[0], np.array([1, 0, 0]), 1.0
+        return points[0], np.array([0, 0, 1.0]), 1
 
-    print (points, centroid)
-
+    centroid = np.mean(points, axis=0)
+    
     #Translating the points to the origin
-    points -= centroid
+    X = points - centroid
 
-    print (points)
+    Sigma = np.cov(X.T)
+    U, S, V = np.linalg.svd(Sigma)
+    D = U[:,0]
 
-    P = np.cov(points)
-    eigval, eigvec = np.linalg.eig(P)
+    #Project the points along the largest eigenvector
+    proj = D.T.dot(X.T)
 
-    print ("P:", P)
+    #Get 3-D coordinates of the projected points
+    X_proj = np.outer(D, proj.T).T
+    
+    #print (X, "\n", X_proj)
 
-    print (eigval, eigvec)
-  
-    proj = np.dot(eigvec.T, points) #points.dot(eigvec)#eigvec.dot(points)
-    avg_dist = math.sqrt(sum([np.linalg.norm(proj[i] - points[i]) for i in range(len(points))])) / len(points)
+    #Deviations of the original points from the projected points
+    dev = [np.linalg.norm(v) for v in X - X_proj]
+    
+    avg_dist = np.average(dev)
+    max_dist = np.max(dev)
 
-    print ("PROJ: ", proj, "\n")
-
-    proj[0] = proj[0] / np.linalg.norm(proj[0])
-
-    print (centroid, proj[0], avg_dist)
-
-    return centroid, proj[0], avg_dist
+    #Normalize the direction vector
+    D = D / np.linalg.norm(D)
+    
+    #Reorient left-to-right and down-to-up if direction is closely aligned with z or x axis
+    if D.dot(np.array([0, 0, 1.0])) > 0.71 or D.dot(np.array([1.0, 0, 0])) < -0.71:
+        D = -D
+        
+    return centroid, D, avg_dist, max_dist

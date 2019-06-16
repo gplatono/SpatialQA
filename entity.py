@@ -11,12 +11,15 @@ from mathutils import Vector
 from geometry_utils import *
 import enum
 
-#This class comprises the implementation of the special "Entity"-type
-#used in the project to represent the relevant Blender objects
-#
 class Entity(object):
+    """
+    Comprises the implementation of the basic class representing relevant
+    objects in the scene, such as primitives, composite structures, regions.
+    """
+
     scene = bpy.context.scene
 
+    #Enumerates possible categories the entity object can belong to
     class Category(enum.Enum):
         PRIMITIVE = 0
         STRUCTURE = 1
@@ -49,7 +52,7 @@ class Entity(object):
 
         elif type(components) == list and components != [] and type(components[0]) == Entity:
             self.category = self.Category.STRUCTURE
-            self.constituents = [item for item in entity.constituents for entity in components]
+            self.constituents = [item for entity in components for item in entity.constituents]
         elif type(components) == list:
             self.category = self.Category.REGION
             self.constituents = [components]
@@ -104,6 +107,8 @@ class Entity(object):
 
         #Color of the entity
         self.color_mod = self.get_color_mod()
+
+        self.ordering = self.induce_linear_order()
        
     def set_type_structure(self, type_structure):        
         self.type_structure = type_structure
@@ -131,7 +136,7 @@ class Entity(object):
                 vertices += [obj.matrix_world * v.co for v in obj.data.vertices]
             vertices = [np.array([v[0],v[1],v[2]]) for v in vertices]
         elif self.category == self.Category.STRUCTURE:
-            vertices = [v for v in e.vertex_set for e in self.constituents]
+            vertices = [v for e in self.components for v in e.vertex_set]
         elif self.category == self.Category.REGION:
             vertices = self.components
         return vertices
@@ -144,7 +149,7 @@ class Entity(object):
                 for face in ob.data.polygons:
                     faces.append([ob.matrix_world * ob.data.vertices[i].co for i in face.vertices])
         elif self.category == self.Category.STRUCTURE:
-            faces = [f for f in entity.faces for entity in self.constituents]        
+            faces = [f for entity in self.components for f in entity.faces]        
         return faces
 
     def compute_span(self):
@@ -249,3 +254,27 @@ class Entity(object):
 
     def __repr__(self):
         return "ENT: " + self.name
+
+    def induce_linear_order(self):        
+        if self.category == self.Category.STRUCTURE:
+            #print ("COMPUTING ORDER: ")
+            centroid, direction, avg_dist, max_dist = fit_line([entity.centroid for entity in self.components])
+            #print (centroid, direction, avg_dist, max_dist)
+            if avg_dist < 0.7 and max_dist < 1:
+                proj = [(entity, (entity.centroid - centroid).dot(direction)/(0.001 + np.linalg.norm(entity.centroid - centroid))) for entity in self.components]
+                proj.sort(key = lambda x: x[1])                
+                #print (proj)
+                return [entity for (entity, val) in proj]
+        return None
+
+    def get_first(self):
+        if self.ordering is not None and len(self.ordering) > 0:
+            return self.ordering[0]
+        else:
+            return None
+
+    def get_last(self):
+        if self.ordering is not None and len(self.ordering) > 0:
+            return self.ordering[-1]
+        else:
+            return None
