@@ -124,7 +124,7 @@ def v_align(a, b):
     center_a = a.bbox_centroid
     center_b = b.bbox_centroid
     return gaussian(0.9 * point_distance((center_a[0], center_a[1], 0), (center_b[0], center_b[1], 0)) / 
-                                (max(dim_a[0], dim_a[1]) + max(dim_b[0], dim_b[1])), 0, 1 / math.sqrt(2*pi))
+                                (max(dim_a[0], dim_a[1]) + max(dim_b[0], dim_b[1])), 0, 1 / math.sqrt(2*math.pi))
 
 #Computes the degree of vertical offset between two entities
 #The vertical offset measures how far apart are two entities one
@@ -139,7 +139,7 @@ def v_offset(a, b):
     center_b = b.bbox_centroid
     h_dist = math.sqrt((center_a[0] - center_b[0]) ** 2 + (center_a[1] - center_b[1]) ** 2)    
     return gaussian(2 * (center_a[2] - center_b[2] - 0.5*(dim_a[2] + dim_b[2])) /  \
-                    (1e-6 + dim_a[2] + dim_b[2]), 0, 1 / math.sqrt(2*pi))
+                    (1e-6 + dim_a[2] + dim_b[2]), 0, 1 / math.sqrt(2*math.pi))
 
 
 #==========================================================================================
@@ -251,7 +251,9 @@ def larger_than(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def on(a, b):
-    ret_val = 0.5 * (above(a, b) + touching(a, b))
+    if a == b:
+        return 0
+    ret_val =  touching(a, b) if above(a, b) > 0.7 else above(a, b) * touching(a, b)        
     print ("CURRENT ON:", ret_val)
     if b.get('planar') is not None and larger_than(b, a) and a.centroid[2] > 0.5 * a.dimensions[2]:
         ret_val = max(ret_val, touching(a, b))    
