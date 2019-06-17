@@ -24,6 +24,7 @@ from spatial import *
 from ulf_parser import *
 from constraint_solver import *
 from world import World
+from query_frame import QueryFrame
 #from query_proc import *
 
 link = False
@@ -430,13 +431,15 @@ def main():
             #print (extract_contiguous(world.entities))
             #print ([(e, on(e, tar)) for e in ent])
             #print (on(tar, tar))
-            print ([(e, clear(e)) for e in ent])
-            print ("\n" + ulf)
+            #print ([(e, clear(e)) for e in ent])
+            #print ("\n" + ulf)
             #row = Entity([sri, stb, bgk, toy, tex])
             #print (row.ordering)
             #print (row.get_first())
             #print (row.get_last())
-            #print (process_query(query.query_tree, world.entities))
+            query_fr = QueryFrame(query.query_tree)
+            print (query.query_tree)
+            print (process_query(query.query_tree, world.entities))
             input("Press Enter to continue...")
 
     #bl4 = get_entity_by_name("Block 4")

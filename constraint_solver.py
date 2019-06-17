@@ -1,4 +1,5 @@
 import spatial
+import itertools
 from ulf_parser import *
 
 #Dictionary that maps the relation names to the names of the functions that implement them
@@ -76,9 +77,12 @@ def filter_by_relation(relatums, relation, referents, modifier=None):
 	else:
 		return filter_relation_by_threshold(relatums, relation, referents, 0.5)
 
-def filter_by_predicate(predicate, args1, args2=None, args3=None, args4=None):
-	if args2 is None:
-		predicate(args1)
+def compute_predicate(predicate, *arglists):
+	arg_combinations = list(itertools.product(*arglists))
+	print (arg_combinations)
+	predicate_values = [(arg, predicate(*arg)) for arg in arg_combinations]
+	print (predicate_values)
+	return predicate_values
 
 def filter_by_predicate_modifier(entities, pred_mod):
 	"""Return the subset of entities that satisfy the given predicate modifier."""
@@ -106,22 +110,21 @@ def resolve_argument(arg_object, entities):
 
 	#print (arg_object)
 
-	print ("BEFORE TYPE:", ret_args)
+	#print ("BEFORE TYPE:", ret_args)
 
 	if arg_type is not None:
 		ret_args = filter_by_type(ret_args, arg_type)
 
-	print ("BEFORE NAME:", ret_args)
+	#print ("BEFORE NAME:", ret_args)
 
 	if arg_id is not None:
 		ret_args = filter_by_name(ret_args, arg_id)
-
-	print ("RESOLVED ARGS:", ret_args, [arg.name for arg in ret_args])
 
 	if arg_mods is not None and arg_mods != []:
 		for modifier in arg_mods:
 			ret_args = filter_by_mod(entities, modifier)			
 
+	print ("RESOLVED ARGS:", ret_args, [arg.name for arg in ret_args])
 	return ret_args
 
 def resolve_predicate(relation_object):
@@ -165,15 +168,20 @@ def process_query(query, entities):
 		return None
 	arg = query.content	
 	if type(arg) == NRel or type(arg) == NPred:
+		print ("ENTERING NPRED PROCESSING...")
 		relation = resolve_predicate(arg)
 		print ("RELATION:", relation)
 		res = spatial.near_raw(entities[0], entities[1])
 		relata = resolve_argument(arg.children[0], entities) if len(arg.children) > 0 else None
 		referents = resolve_argument(arg.children[1], entities) if len(arg.children) > 1 else None
+		if referents is not None:
+			compute_predicate(relation, relata, referents)
+		else:
+			compute_predicate(relation, relata)
 		return "NPRED"
 	elif type(arg) == NArg:
 		relata = resolve_argument(arg, entities)
-		print (relata)
+		return relata		
 	else:
 		return "FAIL"
 	ret_set = entities
