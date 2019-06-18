@@ -5,6 +5,7 @@ import requests
 from threading import Thread, RLock
 import time
 import operator
+import collections
 
 class HCIManager(object):
 	"""Manages the high-level interaction loop between the user and the system."""
@@ -138,117 +139,54 @@ class HCIManager(object):
 
 						num_chars_printed = 0
 
-	# forgive me, much of this is not very "pythonic", I'm still getting more
-	# comfortable with it
-	def generate_response(self, user_input_surface, query_object, question_type, answer_set, is_ambiguous, certainty):
-		# first a few helper functions
+	'''
+Here is a (nonexhaustive) list of questions that I think I can answer in a very natural way:
+1: Existential Questions -
+	Q: Is there a block at height 3?
+	A: No, there is not a block that is at height 3.
 
-		# takes an entity list and returns an english list with no excess whitespace
-		# the list must be of length at least 1
-		# ents is the answer set, attribute is the attribute that should be listed
-		def entities_to_english_list(ents, attribute):
-			types = map(lambda x: lower(x.type_structure[:-1][0]), ents)
-			attribs = map(operator.attrgetter(attribute), ents)
-			uniform_type = all(x == type[0] for x in type)
+	Q: Are there blocks to the left of the SRI block?
+	A: Yes, a block that is to the left of the SRI block is the Toyota block.
 
-			if len(list) == 1:
-				return 'the ' + attribs[0]
-			elif len(list) == 2:
-				return 'the ' + attribs[0] + ' ' + types[0] + ' and the ' + attribs[1] + types[1]
-			else:
-				if uniform_type:
-					out = 'the ' + attribs[0]
-					for i in range(1, len(list)-1):
-						out += ', ' + attribs[i]
-					out += ', and ' + attribs[-1] + ' ' + types[-1] + 's'
-					return out
-				else:
-					out = 'the ' + attribs[0] + ' ' + types[0]
-					for i in range(1, len(list)-1):
-						out += ', ' + attribs[i] + ' ' + types[i]
-					out += ', and ' + attribs[-1] + ' ' + types[-1]
-					return out
-		# Sample Usage:
-		# [_Nvidia_] -> (is...) "the Nvidia block" (is...)
-		# [_Toyota_, _McDonalds_] ->
-		#                  (...are) "the Toyota block and the McDonalds block" (are...)
-		# [_SRI_, _Mercedes_, _Target_] ->
-		#                      (...are) "the SRI, Mercedes, and Target blocks" (are...)
-		# [_SRI_, _Mercedes_, _Support_] ->
-		#  (...are) "the SRI block, the Mercedes block, and the Support stack" (are...)
+	Q: Does there exist a red block touching a blue block?
+	A: Yes, there probably does.
+2: Identification Questions -
+	Q: What block is above the Toyota block?
+	A: There is no block that is above the Toyota block.
 
-		# returns two lists divided by the certainty about each entity
-		# used in mixed certainty answers
-		# assumes answers are already sorted by certainty
-		def entities_to_english_lists_by_certainty(ents, attribute, certainty, threashold):
-			out = []
-			for i in range(0, len(ents)):
-				if certainty[i] < threashold:
-					out.append(entities_to_english_list(ents[:i], attribute))
-					out.append(entities_to_english_list(ents[i:], attribute))
-					if i >= 1:
-						out[0] += " are"
-					else:
-						out[0] += " is"
-					return out
-			out.append(entities_to_english_list(ents, attribute))
-			return out
+	Q: Which blocks are below the SRI block?
+	A: The Toyota block and the Nvidia block are below the SRI block.
 
-		def english_sentence_to_list(sentence):
-			# Divide the sentence into words
-			list = sentence.split()
+	Q: Which three blocks are below the SRI block?
+	A: The Toyota block and the Nvidia block are below the SRI block,
+				but it is less certain for the McDonald's block.
+3. Counting Questions -
+	Q: How many blocks are to the left of the Nvidia block?
+	A: There are 7 blocks that are to the left of the Nvidia block.
 
-			# Next, we need to split the punctuation marks from the words
-			# ie. ['Is', 'this...', 'pig-latin?'] -> ['Is', 'this', '...', 'pig-latin', '?']
-			diff = 1
-			i = 0
-			while i < len(list):
-				# if the word ends in a punctuation mark
-				if not list[i][-1].isalpha():
-					cutoff_len = 1;
-					for j in range(2, len(list[i])):
-						if list[i][-j].isalpha():
-							cutoff_len = j-1
-							break
-					else:
-						i += 1
-						continue
+	Q: How many blocks touch the Nvidia block?
+	A: There are 3 blocks that touch the Nvidia block: the Toyota, Starbucks, and Mercedes blocks.
 
-					list.insert(i+diff, list[i][-cutoff_len:])
-					list[i] = list[i][:-cutoff_len]
+	Q: What is the number of blocks at height 5:
+	A: There are 2: the SRI and Nvidia blocks
+4. Questions about Color -
+	Q: What is the color is the leftmost block?
+	A: It is yellow.
 
-					diff += 1
-					i -= 1
-				i += 1
-			return list
+	Q: What color are the blocks touching the McDonald's block?
+	A: There is a red block and a green block that are touching the McDonald's block
+5. Confirmation / Error:
+	Q: What is the meaning of life?
+	A: There is no object that satisfies those parameters, please rephrase and ask again.
 
-		# There needs to be a better way to do this...  To cover cases where it is
-		# non-obvious
-		def get_verb_phrase(user_input_surface, is_are):
-			if not is_are == "*":
-				return is_are + user_input_surface.split(is_are)[1]
-			else:
-				return add(user_input_list.split()[3:])
+	Q: Is there a yellow block touching a green block?
+	A: No.
 
+	Q: Can a block fit between the SRI and Nvidia blocks?
+	A: Yes.
 
-		# pre-processing
-		user_input_surface = lower(user_input_surface)
-		user_input_list = english_sentence_to_list(user_input_surface)
-		while not user_input_surface[-1].isalpha():
-			user_input_surface = user_input_surface[:-1]
-		is_are = "*"
-		pos_isare = ["is", "are", "does", "do"]
-		for ia in pos_isare:
-			if ia in user_input_list:
-				is_are = ia
-				break
-		type = "thing"
-		pos_types = ["block", "row", "stack", "group", "blocks", "rows", "stacks", "groups"]
-		for t in range(0, 8):
-			if t == user_input_list[t]:
-				type = user_input_list[t%4]
-				break
-		plural_type = type + "s"
+	'''
+	def generate_response(self, user_input_surface, query_object, question_type, answer_set, certainty):
 
 		# Check which state we're in...
 		if self.state == self.STATE.INIT:
@@ -259,174 +197,471 @@ class HCIManager(object):
 
 		elif self.state == self.STATE.QUESTION_PENDING:
 			# Here, branch on the question type
-			if question_type == IDENT:
+			# (mostly) completed types:  EXIST, ERROR, IDENT, ATTR_COLOR
+			#       EXIST: perhaps use query object to generate desired property
+			#       ERROR: perhaps alter boilerplate
+			#       IDENT: perhaps use query object to generate desired property
+			#       ATTR_COLOR: perhaps use query object to generate desired property
+			#       COUNT: perhaps use query object to generate desired property
+			#       CONFIRM: consider making more verbose
+			# incomplete types: ATTR_ORIENT,
+			# empty types: DESCR
+			# Need to work on initial pre-processing as well
+
+			# pre-processing
+			user_input_surface = lower(user_input_surface)
+			user_input_list = english_sentence_to_list(user_input_surface)
+			while not user_input_surface[-1].isalpha():
+				user_input_surface = user_input_surface[:-1]
+
+			type_surf = "thing"
+			pos_types = ["block", "row", "stack", "group", "blocks", "rows", "stacks", "groups"]
+			for t in range(0, len(pos_types)):
+				if t == user_input_list[t]:
+					type_surf = user_input_list[t%4]
+					break
+			plural_type_surf = type_surf + "s"
+
+			threashold = 0.7
+
+			if question_type == question_type.IDENT:
 				# These are the questions like "Which blocks are touching the SRI
 				# block?" and "What block is above the Toyota block?"...  This
 				# presuposes that the answer exists, but this will be treated very
 				# similarly to the exists question, only with more emphasis on the
 				# identification and less on the existance
 
-				post_is = get_verb_phrase(user_input_surface, is_are, false)
-				use_post_is = is_are in user_input_surface
+				# PREPROCESSING: --------------------------------------------------
+				# first we want to isolate the desired property that we will use for
+				# grounding, i.e. "touching the SRI block" or "above the Toyota block"
+				des_prop = user_input_surface.split(type_surf)[1].split(' ', 1)[1]
+				# NOTE: consider using the query_object, much (MUCH) more reliable
+				#       and consistant with the system
+
+				# it is helpful to know how the question was posed so that it can
+				# be answered more naturally
+				surf_aux = "*"
+				if "is" in user_input_list:
+					surf_aux = "is"
+				elif "are" in user_input_list:
+					surf_aux = "are"
+
+				# decide when it will sound natural to ground our response
+				use_grounding = not surf_aux == "*"
+				# this is kinda an easy way out and somewhat arbitrary but
+				# it probably won't sound unnatural
 
 				if len(answer_set) == 0:
-					if len(certainty) == 0 or certainty[0] > 0.7:
-						# give a certain "it doesn't exist" answer
-						if use_post_is:
-							return "There " + is_are + " no " + post_is + "."
+				# give an "it doesn't exist" answer
+					if len(certainty) == 0 or certainty[0] > threashold:
+					# give a certain "it doesn't exist" answer
+						if use_grounding:
+						# give a certain "it doesn't exist" answer with grounding
+							if surf_aux == "is":
+								return "There is no " + type_surf + " that is " + des_prop + "."
+							elif surf_aux == "are":
+								return "There are no " + plural_type_surf + " that are " + des_prop + "."
 						else:
-							return "Such a " + type + " doesn't exist."
+						# give a certain "it doesn't exist" answer without grounding
+							return "There is no such" + type_surf + "."
 					else: # note this is probably not reachable
-						if use_post_is:
-							return "There " + is_are + " no " + post_is + "."
-						else:
-							return "That doesn't exit."
+					# give an uncertain "it doesn't exist answer"
+						return "That probably doesn't exist."
 
 				ans_list = entities_to_english_list(answer_set, 'name')
 
 				if len(answer_set) == 1:
-					if certainty[0] > 0.7:
-						# give a certain affirmative answer
-						if use_post_is:
-							return "Only " + ans_list + " is " + post_is + "."
+				# identify the only answer
+					if certainty[0] > threashold:
+					# identify the only answer with certainty
+						if use_grounding:
+						# identify the only answer with certainty and grounding
+							return "Just " + ans_list + " is " + des_prop + "."
 						else:
-							return "Just " + ans_list + " is."
+						# identify the only answer with certainty and without grounding
+							return "Only " + ans_list + "."
 					else:
-						# give an uncertain affirmative answer
-						if use_post_is:
-							return "I think only " + ans_list + " is " + post_is + "."
+					# identify the only answer with uncertainty
+						if use_vp:
+						# identify the only answer with uncertainty and grounding
+							return "I think only " + ans_list + " is " + des_prop + "."
 						else:
+						# identify the only answer with uncertainty and without grounding
 							return "Probably just " + ans_list + " is."
-				else:
-					if min(certainty) < 0.7:
-						if max(certainty) > 0.7:
-							# give a mixed certainty answer
-							cert_lists = entities_to_english_lists_by_certainty(answer_set, "name", certainty, 0.7)
-							ver = ""
-							if use_post_there:
-								return "I am sure that " + cert_lists[0] + is_are + post_there + ", but less certain about " + cert_lists[1] + "."
-							else:
-								return "I am certain that " + cert_lists[0] + is_are + ", but less sure about " + cert_lists[1] + "."
-						else:
-							# give an uncertain answer
-							if use_post_is:
-								return "Maybe " + ans_list + " are " + post_is + "."
-							else:
-								return "Perhaps " + ans_list + " are."
-					else:
-						# give a certain answer
-						if use_post_is:
-							return capitalize(ans_list) + " are " + post_is + "."
-						else:
-							return capitalize(ans_list) + " are."
 
-			elif question_type == CONFIRM:
+				else:
+				# identify the multiple answers
+					if min(certainty) < threashold:
+						if max(certainty) > threashold:
+						# identify the multiple answers with mixed certainty
+
+							# split the answers by certainty
+							cert_lists = entities_split_by_certainty(answer_set, certainty, threashold)
+							cert_items = entities_to_english_list(cert_lists[0])
+							uncert_items = entities_to_english_list(cert_lists[1])
+
+							if use_grounding:
+							# identify the multiple answers with mixed certainty and grounding
+								if len(cert_lists[0]) == 1:
+									return cert_items.capitalize() + " is " + des_prop + ", but it is less certain for " + uncert_items + "."
+								else:
+									return cert_items.capitalize() + " are " + des_prop + ", but it is less certain for " + uncert_items + "."
+							else:
+							# identify the multiple answers with mixed certainty and without grounding
+								if len(cert_lists[0]) == 1:
+									return cert_items.capitalize() + " does, but it is less certain for " + uncert_items + "."
+								else:
+									return cert_items.capitalize() + " do, but it is less certain for " + uncert_items + "."
+						else:
+						# identify the multiple answers uncertainly
+							if use_grounding:
+							# identify the multiple answers uncertainly with grounding
+								return "Possibly " + ans_list + " are " + des_prop + "."
+							else:
+							# identify the multiple answers uncertainly without grounding
+								return "Perhaps " + ans_list + " do."
+					else:
+					# identify the multiple answers with certainty
+						if use_grounding:
+						# identify the multiple answers with certainty with grounding
+							return ans_list.capitalize() + " are " + des_prop + "."
+						else:
+						# identify the multiple answers with certainty without grounding
+							return capitalize(ans_list) + " do."
+
+			elif question_type == question_type.CONFIRM:
 				# These are the questions like "Is the SRI block near the Toyota
 				# block?" and "The Toyota block is red, right?"
 				# How these will be handled depends very much on what the answer set
 				# will give in these cases, I'm not sure. I will assume for now
 				# that it just contains a boolean value in these cases
-				if answer_set[0]:
-					if certainty[0] > 0.7:
-						pass # give a certain affirmative answer
-					else:
-						pass # give an uncertain affirmative answer
-				else:
-					if certainty[0] > 0.7:
-						pass # give a certain negative answer
-					else:
-						pass # give an uncertain negative answer
 
-			elif question_type == EXIST:
+				if len(answer_set) == 0:
+				# return certain no
+					return "No."
+				else:
+				# return yes
+					if certainty[0] > threashold:
+					# return certain yes
+						return "Yes."
+					else:
+					# return uncerain yes
+						return "Probably."
+			elif question_type == question_type.EXIST:
 				# These are the questions like "Is there a block at height 3?"
 				# or "Is there a block to the left of the SRI block?"
 				# In these cases, the answer set will be empty if the answer is no,
 				# and contain the applicable items if it is yes
-				# this conditional branch is a good starting point
 
-				# do some pre-processing
-				post_there = user_input_surface.split("there")[1]
-				use_post_there = user_input_surface.startswith("is there") or user_input_surface.startswith("are there")
-				#use_post_there = use_post_there or user_input_surface.startswith("does there exist") or user_input_surface.startswith("do there exist"):
-				#can't decide if it sounds more natural with/out this
+				# PREPROCESSING: --------------------------------------------------
+				# first let's isolate the property that we're looking for, i.e.
+				# "at height 3" or "to the left of the SRI block"
+				des_prop = user_input_surface.split(type_surf)[1].strip()
+				# NOTE: consider using the query_object, much more reliable
+				#       and consistant with the system
+
+				# now, decide if we will ground the answer
+				use_grounding = user_input_surface.startswith("is there") or user_input_surface.startswith("are there")
+				# I think this is a good policy, if the user asks "does there exist
+				# a block at height 3" we can respond simply "Yes.", and if there
+				# is only one we can name it
+
+				# it is helpful to know how the question was posed so that it can
+				# be answered more naturally
+				surf_aux = "*"
+				if "is" in user_input_list:
+					surf_aux = "is"
+				elif "are" in user_input_list:
+					surf_aux = "are"
+				elif "does" in user_input_list:
+					surf_aux = "does"
+				elif "do" in user_input_list:
+					surf_aux = "do"
+				# use the list to ensure it only considers full words, i.e.
+				# "McDonald's" contains do
 
 				if len(answer_set) == 0:
-					if len(certainty) == 0 or certainty[0] > 0.7:
+				# give a negative answer
+					if len(certainty) == 0 or certainty[0] > threashold:
 					# give a certain negative answer
-						if use_post_there:
-							return "No, there " + is_are + " not " + post_there + "."
+						if use_grounding:
+						# give a certain negative answer with grounding
+							if surf_aux == "is":
+								return "No, there is not a " + type_surf + " that is " + des_prop + "."
+							elif surf_aux == "are":
+								return "No, there are no " + plural_type_surf + " that are " + des_prop + "."
 						else:
-							return "No, there " + is_are + "not."
-					else: # note that this is probably not reachable
-					# give an uncertain negative answer
-						return "I do not think there " + is_are + "."
-				else:
-					if min(certainty) < 0.7:
-						if max(certainty) > 0.7:
-							# give a mixed certainty positive answer
-							cert_lists = entities_to_english_lists_by_certainty(answer_set, "name", certainty, 0.7)
-							if use_post_there:
-								return "I am sure that " + cert_lists[0] + is_are + post_there + ", but less certain about " + cert_lists[1] + "."
-							else:
-								return "I am certain that " + cert_lists[0] + is_are + ", but less sure about " + cert_lists[1] + "."
-						else:
-							# give an uncertain positive answer
-							if use_post_there:
-								return "I think there " + is_are + post_there + "."
-							else:
-								return "Yes, there probably" + is_are + "."
+						# give a certain negative answer without grounding
+							return "No."
 					else:
-						# give a certain positive answer
-						if use_post_there:
-							return "Yes, there " + is_are + post_there + "."
+					# give an uncertain negative answer
+						return "Probably not."
+
+				elif len(answer_set) == 1:
+				# give a positive answer and identify it
+
+					# identify the entity
+					ans_list = entities_to_english_list(answer_set, 'name')
+					# ex. "the Nvidia block", "the afsk32313 stack"
+
+					if certainty[0] > threashold:
+					# give a certain positive answer and identify it
+						if use_grounding:
+						# give a certain positive answer w/ grounding and identify it
+							if surf_aux == "is":
+								return "Yes, the " + type_surf + " that is " + des_prop + " is " + ans_list + "."
+							elif surf_aux == "are":
+								return "Yes, a " + type_surf + " that is " + des_prop + " is " + ans_list + "."
+							# I think this is a good distinction, i.e. for the qs:
+							# "Is there a block on the SRI block?" should be answered:
+							#       "Yes, the block that is on the SRI block is the Toyota block."
+							# "Are there any blocks on the SRI block?" sba:
+							#       "Yes, a block that is on the SRI block is the Toyota block."
+
 						else:
-							return "Yes, I am certain of it."
+						# give a certain positive answer w/out grounding and identify it
+							if surf_aux == "do":
+								return "Yes, " + ans_list + " is one."
+							return     "Yes, it is " + ans_list + "."
+							# Similar to above, i.e. for the qs:
+							# "Do there exist blocks on the SRI block?" should be answered:
+							#       "Yes, the Toyota block is one."
+							# "Does there exist a block on the SRI block?" should be answered:
+							#       "Yes, it is the Toyota block."
+					else:
+					# give an uncertain positive answer and identify it
+						if use_grounding:
+						# give an uncertain positive answer w/ grounding and identify it
+							return "Perhaps, the " + ans_list + " may be " + des_prop + "."
+						else:
+						# give an uncertain positive answer w/out grounding and identify it
+							return "Perhaps, the " + ans_list + " might be."
 
-			elif question_type == ATTRIBUTIVE:
+				# there is more than one answer
+				else:
+				# give a positive answer
+					if min(certainty) < threashold:
+						if max(certainty) > threashold:
+							# give a mixed certainty positive answer
+
+							# split the answers by certainty
+							cert_lists = entities_split_by_certainty(answer_set, certainty, threashold)
+							cert_items = entities_to_english_list(cert_lists[0])
+							uncert_items = entities_to_english_list(cert_lists[1])
+
+							if use_grounding:
+							# give a mixed certainty postive answer with grounding
+								if len(cert_items) == 1:
+									return "It is uncertain.  " + cert_items.capitalize() + " is " + des_prop + ", but it is less sure for " + uncert_items + "."
+								else:
+									return "It is uncertain.  " + cert_items.capitalize() + " are " + des_prop + ", but it is less sure for " + uncert_items + "."
+							else:
+							# give a mixed certainty postive answer without grounding
+								if len(cert_items) == 1:
+									return "It is uncertain.  " + cert_items.capitalize() + " is definately, but it is less sure for " + uncert_items + "."
+								else:
+									return "It is uncertain.  " + cert_items.capitalize() + " are definately, but it is less sure for " + uncert_items + "."
+						else:
+						# give an uncertain positive answer
+							if use_grounding:
+							# give an uncertain postive answer with grounding
+								return "I think there are " + plural_type_surf + " that are " + post_there + "."
+							else:
+							# give an uncertain postive answer without grounding
+								return "Yes, there probably " + surf_aux + "."
+								# when being this vague we want to echo back the question's language, even though there is no grounding
+					else:
+					# give a certain positive answer
+						if use_grounding:
+						# give a certain positive answer with grounding
+							return "Yes, there are " + plural_type_surf + " that are " + des_prop + "."
+						else:
+						# give a certain positive answer without grounding
+							return "Yes."
+			elif question_type == question_type.ATTR_COLOR:
 				# These are the questions like "What is the color of the leftmost
-				# block?" and "how high is the Toyota block?".  They can be
-				# identification, existance, or confirmation qustions themselves,
-				# so these are difficult to answer
-				pass
+				# block?" or "Which color blocks are touching the Nvidia block"
 
-			elif question_type == CARDINALITY:
+				# PREPROCESSING: --------------------------------------------------
+				# first let's isolate the property that we're looking for, i.e.
+				# "the leftmost block" or "touching the Nvidia block"
+				des_prop = user_input_surface.split(surf_aux)[1].strip()
+				# NOTE: consider using the query_object, much more reliable
+				#       and consistant with the system
+
+				# now, decide if we will ground the answer
+				use_grounding = user_input_surface.startswith("what color")
+				# I'm not sure what a good policy is here, I'll write code even if it's
+				# unreachable in case it sounds unnatural and this is changed
+
+				if len(answer_set) == 0:
+					# there is no such object
+					return "There is no such " + type_surf + "."
+
+				# a simple list of colors
+				ans_list_simple = entities_to_color_list(answer_set)
+				ans_list_complex = entities_to_english_list(answer_set, 'color')
+
+				if len(answer_set) == 1:
+					if certainty[0] > threashold:
+					# give a certain answer
+						if use_grounding:
+						# give a certain answer with grounding
+							return "There is a " + ans_list_complex.split()[1] + " that is " + des_prop + "."
+						else:
+						# give a certain answer without grounding
+							return "It is " + ans_list_simple + "."
+					else:
+						# give an uncertain answer
+						if use_vp:
+							return "Perhaps there is a " + ans_list_complex.split()[1] + " that is " + des_prop + "."
+						else:
+							return "It may be " + ans_list_simple + "."
+
+				else:
+					# ans_list looks like "red, blue, and green" or "yellow and orange"
+					if all(cert > threashold for cert in certainty):
+					# give a certain answer
+						if use_grounding:
+						# give a certain answer with grounding
+							return "There is a " + ans_list_complex.split()[1] + " that are " + des_prop + "."
+						else:
+						# give a certain answer without grounding
+							return "They are " + ans_list_simple + "."
+					else:
+					# give an uncertain answer
+						if use_grounding:
+						# give an uncertain answer w/ grounding
+							return "Perhaps there are a " + ans_list_complex.split()[1] + " that are " + des_prop + "."
+						else:
+						# give an uncertain answer w/out grounding
+							return "They may be " + ans_list_simple + "."
+			elif question_type == question_type.ATTR_ORIENT:
+				# These are the questions like "What is the orientation of the SRI
+				# block?"
+				pass
+			elif question_type == question_type.COUNT:
 				# These are questions like "How many blocks are to the left of the
 				# NVidia block" and "How many blocks touch the McDonals block?"
 				# If it is just one, we want to say that and name it, otherwise
 				# just give a number based on the size of the answer set and
 				# adjust for certainty
 
-				# preprocessing
-				post_is = get_verb_phrase(user_input_surface, is_are, true)
-				use_post_is = post_is.startswith(is_are)
-				# ideally this would be "are to the left of the Nvidia block" and
-				# "touch the McDonals block"
+				# PREPROCESSING: --------------------------------------------------
+				# first let's isolate the property that we're looking for, i.e.
+				# "to the left of the Nvidia block" or "touch the McDonals block"
+				des_prop = user_input_surface.split(type_surf)[1].strip()
+				if des_prop.startswith("are") or des_prop.startswith("is"):
+					des_prop = des_prop.split(surf_aux)[1].strip()
+				# NOTE: consider using the query_object, much more reliable
+				#       and consistant with the system
+
+				# now, decide if we will ground the answer
+				use_grounding = not user_input_surface.startswith("what is")
+				# I think this is workable...  if they ask for what is the number
+				# we simply want to give the number, if how many we should elaborate
+
+				# it is helpful to know how the question was posed so that it can
+				# be answered more naturally
+				surf_aux = "*"
+				if "is" in user_input_list:
+					surf_aux = "is"
+				elif "are" in user_input_list:
+					surf_aux = "are"
 
 				if len(answer_set) == 0:
-					return "There are no " + plural_type + " that " + post_is + "."  # say there are none
+				# say there are none
+					if use_grounding:
+					# say with grounding there are none
+						if surf_aux == "is" or surf_aux == "are":
+							return "There are no " + plural_type_surf + " that are " + des_prop + "."
+						else:
+							return "There are no " + plural_type_surf + " that " + des_prop + "."
+					else:
+					# say flatly there are none
+						return "There are 0."
 
 				ans_list = entities_to_english_list(answer_set, 'name')
 
 				# This part is very much like the identification
 				if len(answer_set) == 1:
-					if certainty[0] > 0.7:
-						if use_post_is:
-							return "Just " + ans_list + post_is + "." # name the one, with certainty
+				# identify the only answer
+					if certainty[0] > threashold:
+					# identify the only answer with certainty
+						if use_grounding:
+						# identify the only answer with certainty and grounding
+							if surf_aux == "is" or surf_aux == "are": # !!!! are we active or passive voice !!!!
+								return "Just " + ans_list + " is " + des_prop + "."
+							else:
+								return "Just " + ans_list + " " + des_prop + "."
 						else:
-							return "Only " + ans_list
+						# identify the only answer with certainty and without grounding
+							return "Only one, " + ans_list + "."
 					else:
-						if use_post_is:
-							return "I think just " + ans_list + post_is + "." # name the one, with certainty
+					# identify the only answer with uncertainty
+						if use_grounding:
+						# identify the only answer with uncertainty and grounding
+							if surf_aux == "is" or surf_aux == "are":
+								return "Probably only " + ans_list + " is " + des_prop + "."
+							else:
+								return "Probably only " + ans_list + " " + des_prop + "."
 						else:
-							return "Probably only " + ans_list
-				else:
-					if certainty[0] > 0.7:
-						pass # give the number, with certainty
-					else:
-						pass # give the number, with uncertainty
-				pass
+						# identify the only answer with uncertainty and without grounding
+							return "Probably " + ans_list + " is the only one."
 
-			elif question_type == ERROR:
+				# give the number AND list them out, also very much like identification
+				elif len(answer_set) < 4:
+				# identify the reasonably enumerable answers
+					if certainty[0] > threashold:
+					# identify the reasonably enumerable answers with certainty
+						if use_grounding:
+						# identify the reasonably enumerable answers with certainty and grounding
+							if surf_aux == "is" or surf_aux == "are":
+								return "There are " + str(len(ans_set)) + " that are " + des_prop + ": " + ans_list + "."
+							else:
+								return "There are " + str(len(ans_set)) + " that " + des_prop + ": " + ans_list + "."
+						else:
+						# identify the reasonably enumerable answers with certainty and without grounding
+							return "There are " + str(len(ans_set)) + ": " + ans_list + "."
+					else:
+					# identify the reasonably enumerable answers with uncertainty
+						if use_grounding:
+						# identify the reasonably enumerable answers with uncertainty and grounding
+							if surf_aux == "is" or surf_aux == "are":
+								return "There are probably " + str(len(ans_set)) + " that are " + des_prop + ": " + ans_list + "."
+							else:
+								return "There are probably " + str(len(ans_set)) + " that " + des_prop + ": " + ans_list + "."
+						else:
+						# identify the reasonably enumerable answers with uncertainty and without grounding
+							return "Probably " + ans_list + " is the only one."
+
+				else:
+				# give the number
+					if all(cert > threashold for cert in certainty):
+					# give the number, with certainty
+						if use_grounding:
+						# give the number certaintly with grounding
+							if surf_aux == "is" or surf_aux == "are":
+								return "There are " + str(len(ans_set)) + plural_type_surf + " that are " + des_prop + "."
+							else:
+								return "There are " + str(len(ans_set)) + plural_type_surf + " that " + des_prop + "."
+						else:
+						# give the number certaintly without grounding
+							return "There are " + str(len(ans_set)) + "."
+					else:
+					# give the number, with uncertainty
+						if use_grounding:
+						# give the number uncertaintly with grounding
+							if surf_aux == "is" or surf_aux == "are":
+								return "There may be " + str(len(ans_set)) + plural_type_surf + " that are " + des_prop + "."
+							else:
+								return "There may be " + str(len(ans_set)) + plural_type_surf + " that " + des_prop + "."
+						else:
+						# give the number uncertaintly without grounding
+							return "Perhaps there are " + str(len(ans_set)) + "."
+			elif question_type == question_type.ERROR:
+				return "There is no object that satisfies those parameters, please rephrase and ask again."
+			elif question_type == question_type.DESCR:
 				pass
 
 		elif self.state == self.STATE.USER_BYE:
@@ -439,3 +674,112 @@ def main():
 	manager = HCIManager(debug_mode=True)
 	manager.load_as_text(["Test message 1", "Test message 2", "Test message 3", "Test message 4", "Test message 5"])
 	manager.start()
+
+# The following are functions used in generate_response -------------------------------------------
+
+# takes an entity list and returns an english list with no excess whitespace
+# the list must be of length at least 1
+# ents is the answer set, attribute is the attribute that should be listed
+def entities_to_english_list(ents, attribute):
+	types = map(lambda x: lower(x.type_structure[:-1][0]), ents)
+	attribs = map(operator.attrgetter(attribute), ents)
+	uniform_type = all(x == type[0] for x in type)
+
+	if len(list) == 1:
+		return 'the ' + attribs[0]
+	elif len(list) == 2:
+		return 'the ' + attribs[0] + ' ' + types[0] + ' and the ' + attribs[1] + types[1]
+	else:
+		if uniform_type:
+			out = 'the ' + attribs[0]
+			for i in range(1, len(list)-1):
+				out += ', ' + attribs[i]
+			out += ', and ' + attribs[-1] + ' ' + types[-1] + 's'
+			return out
+		else:
+			out = 'the ' + attribs[0] + ' ' + types[0]
+			for i in range(1, len(list)-1):
+				out += ', ' + attribs[i] + ' ' + types[i]
+			out += ', and ' + attribs[-1] + ' ' + types[-1]
+			return out
+# Sample Usage:
+# [_Nvidia_] -> (is...) "the Nvidia block" (is...)
+# [_Toyota_, _McDonalds_] ->
+#                  (...are) "the Toyota block and the McDonalds block" (are...)
+# [_SRI_, _Mercedes_, _Target_] ->
+#                      (...are) "the SRI, Mercedes, and Target blocks" (are...)
+# [_SRI_, _Mercedes_, _Support_] ->
+#  (...are) "the SRI block, the Mercedes block, and the Support stack" (are...)
+
+# use this when we only want colors, without types or specifier
+def entities_to_color_list(ents):
+	# similar to entities_to_english_list here
+	types = map(lambda x: lower(x.type_structure[:-1][0]), ents)
+	cols = map(operator.attrgetter('color'), ents)
+	cols = list(dict.fromkeys(cols))
+	uniform_type = all(x == type[0] for x in type)
+
+	# there's only one answer
+	if len(cols) == 1:
+		return cols[0]
+
+	if len(cols) == 2:
+		return cols[0] + " and " + cols[1]
+
+	else:
+		out = ""
+		for i in range(0, (len(cols) - 1)):
+			out += cols[i] + ", "
+		out += " and " + cols[-1]
+		return out
+
+# returns two lists divided by the certainty about each entity
+# used in mixed certainty answers
+# assumes answers are already sorted by certainty
+def entities_split_by_certainty(ents, certainty, threashold):
+	out = []
+	for i in range(0, len(ents)):
+		if certainty[i] < threashold:
+			out.append(ents[:i])
+			out.append(ents[i:])
+			return out
+	out.append(ents)
+	return out
+
+def english_sentence_to_list(sentence):
+	# Divide the sentence into words
+	list = sentence.split()
+
+	# Next, we need to split the punctuation marks from the words
+	# ie. ['Is', 'this...', 'pig-latin?'] -> ['Is', 'this', '...', 'pig-latin', '?']
+	diff = 1
+	i = 0
+	while i < len(list):
+		# if the word ends in a punctuation mark
+		if not list[i][-1].isalpha():
+			cutoff_len = 1;
+			for j in range(2, len(list[i])):
+				if list[i][-j].isalpha():
+					cutoff_len = j-1
+					break
+			else:
+				i += 1
+				continue
+
+			list.insert(i+diff, list[i][-cutoff_len:])
+			list[i] = list[i][:-cutoff_len]
+
+			diff += 1
+			i -= 1
+		i += 1
+	return list
+
+# There needs to be a better way to do this...  To cover cases where it is
+# non-obvious
+def get_verb_phrase(user_input_surface, is_are):
+	if not is_are == "*":
+		return is_are + user_input_surface.split(is_are)[1]
+	else:
+		return add(user_input_list.split()[3:])
+
+# -------------------------------------------------------------------------------------------------
