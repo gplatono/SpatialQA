@@ -435,6 +435,7 @@ class HCIManager(object):
 		elif self.state == self.STATE.END:
 			pass
 
-manager = HCIManager(debug_mode=True)
-manager.load_as_text(["Test message 1", "Test message 2", "Test message 3", "Test message 4", "Test message 5"])
-manager.start()
+def main():
+	manager = HCIManager(debug_mode=True)
+	manager.load_as_text(["Test message 1", "Test message 2", "Test message 3", "Test message 4", "Test message 5"])
+	manager.start()

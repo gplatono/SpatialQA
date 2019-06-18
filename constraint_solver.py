@@ -79,10 +79,12 @@ def filter_by_relation(relatums, relation, referents, modifier=None):
 
 def compute_predicate(predicate, *arglists):
 	arg_combinations = list(itertools.product(*arglists))
-	print (arg_combinations)
+	print ("ARGLISTS: ", *arglists)
+	print ("ARG_COMB: ", arg_combinations)
+	print ("COMPUTING: " + str(predicate))	
 	predicate_values = [(arg, predicate(*arg)) for arg in arg_combinations]
-	print (predicate_values)
-	return predicate_values
+	#print (predicate_values)
+	return None#predicate_values
 
 def filter_by_predicate_modifier(entities, pred_mod):
 	"""Return the subset of entities that satisfy the given predicate modifier."""
@@ -124,7 +126,10 @@ def resolve_argument(arg_object, entities):
 		for modifier in arg_mods:
 			ret_args = filter_by_mod(entities, modifier)			
 
-	print ("RESOLVED ARGS:", ret_args, [arg.name for arg in ret_args])
+	if ret_args is not None:
+		print ("RESOLVED ARGS:", ret_args, [arg.name for arg in ret_args])
+	else:
+		print ("RESOLVED ARGS: EMPTY")
 	return ret_args
 
 def resolve_predicate(relation_object):
@@ -173,7 +178,7 @@ def process_query(query, entities):
 		print ("RELATION:", relation)
 		res = spatial.near_raw(entities[0], entities[1])
 		relata = resolve_argument(arg.children[0], entities) if len(arg.children) > 0 else None
-		referents = resolve_argument(arg.children[1], entities) if len(arg.children) > 1 else None
+		referents = resolve_argument(arg.children[1], entities) if len(arg.children) > 1 else None		
 		if referents is not None:
 			compute_predicate(relation, relata, referents)
 		else:

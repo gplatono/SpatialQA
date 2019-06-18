@@ -45,12 +45,13 @@ grammar['close_to.p'] = lambda x: TPrep(x)
 grammar['near_to.p'] = lambda x: TPrep(x)
 grammar['far_from.p'] = lambda x: TPrep(x)
 
-grammar['touch.v'] = lambda x: TPrep(x)
-grammar['contain.v'] = lambda x: TPrep(x)
-grammar['consist_of.v'] = lambda x: NPred(x)
-grammar['face.v'] = lambda x: TPrep(x)
-grammar['have.v'] = lambda x: TPrep(x)
-grammar['side_by_side.a'] = lambda x: TPrep(x)
+grammar['touch.v'] = lambda x: TPred(x)
+grammar['contain.v'] = lambda x: TPred(x)
+grammar['consist_of.v'] = lambda x: TPred(x)
+grammar['face.v'] = lambda x: TPred(x)
+grammar['have.v'] = lambda x: TPred(x)
+grammar['side_by_side.a'] = lambda x: TPred(x)
+grammar['where.a'] = lambda x: TPred(x)
 
 #grammar['block.n'] = lambda x: TNoun(x)
 #grammar['{block}.n'] = lambda x: TNoun(x)
@@ -235,11 +236,20 @@ grammar[("NRel", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.
 #Relational rules
 grammar[("TPrep", "NArg")] = lambda x, y: NRel(x, children=[y])
 grammar[("TPrep", "NConjArg")] = lambda x, y: NRel(x, children=[y])
+
+grammar[("TPred", "NArg")] = lambda x, y: NPred(x.content, children=[y])
+grammar[("NArg", "TPred")] = lambda x, y : NPred(content = y.content, children = [x])
+grammar[("TPred", "NConjArg")] = lambda x, y: NPred(x.content, children=[y])
+grammar[("NConjArg", "NPred")] = lambda x, y: NPred(content=y.content, children=[x]+y.children, mods = y.mods)
+grammar[("NConjArg", "TPred")] = lambda x, y: NPred(content=y.content, children=[x])
+grammar[("TNeg", "NPred")] = lambda x, y: NPred(content=y.content, children=y.children, mods=y.mods+[x])
+#grammar[("NVP", "NRel")] = lambda x, y: y
+
+
 grammar[("TNeg", "NRel")] = lambda x, y: NRel(y.content, y.children, neg=True)
 grammar[("NArg", "NRel")] = lambda x, y: NRel(content=y.content, children=[x]+y.children, neg = y.neg)
 grammar[("NConjArg", "NRel")] = lambda x, y: NRel(content=y.content, children=[x]+y.children, neg = y.neg)
 grammar[("NConjArg", "TPrep")] = lambda x, y: NRel(content=y, children=[x])
-
 
 grammar[("NVP", "NRel")] = lambda x, y: y
 grammar[("NVP", "TTherePro")] = lambda x, y: NPred(content = "EXIST")
@@ -382,6 +392,11 @@ class TPrep(TreeNode):
     __name__ = "TPrep"
     def __init__(self, content=None):
         super(TPrep, self).__init__(content, None)
+
+class TPred(TreeNode):
+    __name__ = "TPred"
+    def __init__(self, content=None):
+        super().__init__(content)
 
 class TNoun(TreeNode):
     __name__ = "TNoun"
@@ -569,7 +584,6 @@ class NArg(TreeNode):
         output+= "]}"
         return output
 
-
 class NSentence(TreeNode):
     __name__ = "NSentence"
     def __init__(self, content, is_question=True, tense=None):
@@ -629,6 +643,21 @@ class ULFQuery(object):
         #print ("PROC: ", tree)
         return tree[0]
 
+    def lift(self, ulf, lifted_tokens):
+        if type(ulf) != list:
+            if ulf in lifted_tokens:
+                return [ulf], []
+            else return [], [ulf]
+
+        lifted = []
+        ret_ulf = []
+        for item in ulf:
+            l_val, ulf_val = lift(item, lifted_tokens)
+            lifted += l_val
+            ret_ulf += ulf
+
+        return [lifted, ret_ulf]
+    
     def add_brackets(self, ulf):
         '''Adds brackets in different places in ulf if missing
 

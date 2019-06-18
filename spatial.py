@@ -199,7 +199,7 @@ def near(a, b):
             raw_near_a += [near_a_entity]
             #if dist_b_to_entity < raw_dist:
             raw_near_b += [near_b_entity]
-    print ("RAW_NEAR_A: ", raw_near_a, entities)
+    #print ("RAW_NEAR_A: ", raw_near_a, entities)
     #print ("RAW:", a.name, b.name, raw_near_measure)
     average_near_a = sum(raw_near_a) / len(raw_near_a)
     average_near_b = sum(raw_near_b) / len(raw_near_b)
@@ -214,7 +214,7 @@ def near(a, b):
     else:        
         near_measure_final = raw_near_measure * ratio
     near_measure = raw_near_measure + (raw_near_measure - avg_near) * min(raw_near_measure, 1 - raw_near_measure)
-    print ("RAW: {}; NEAR: {}; FINAL: {}; AVER: {};".format(raw_near_measure, near_measure, near_measure_final, (average_near_a + average_near_b) / 2))
+    #print ("RAW: {}; NEAR: {}; FINAL: {}; AVER: {};".format(raw_near_measure, near_measure, near_measure_final, (average_near_a + average_near_b) / 2))
     return near_measure
 
 #Computes the between relation (a is between b and c)
@@ -254,7 +254,7 @@ def on(a, b):
     if a == b:
         return 0
     ret_val =  touching(a, b) if above(a, b) > 0.7 else above(a, b) * touching(a, b)        
-    print ("CURRENT ON:", ret_val)
+    #print ("CURRENT ON:", ret_val)
     if b.get('planar') is not None and larger_than(b, a) and a.centroid[2] > 0.5 * a.dimensions[2]:
         ret_val = max(ret_val, touching(a, b))    
     #ret_val = 0.5 * (v_offset(a, b) + get_proj_intersection(a, b))
@@ -361,15 +361,15 @@ def touching(a, b):
         if point_distance(point, center_a) < rad_a:
             return 1'''
     mesh_dist = 1e9
-    print ("MESH_DIST:", closest_mesh_distance_scaled(a, b))
+    #print ("MESH_DIST:", closest_mesh_distance_scaled(a, b))
     shared_volume = shared_volume_scaled(a, b)
-    print ("SHARED VOLUME:", shared_volume)
+    #print ("SHARED VOLUME:", shared_volume)
     planar_dist = 1e9
     if a.get("planar") is not None:
         planar_dist = get_planar_distance_scaled(b, a)
     elif b.get("planar") is not None:
         planar_dist = get_planar_distance_scaled(a, b)
-    print ("PLANAR DIST: ", planar_dist)    
+    #print ("PLANAR DIST: ", planar_dist)    
     if get_centroid_distance_scaled(a, b) <= 1.5:
         mesh_dist = closest_mesh_distance_scaled(a, b)
     mesh_dist = min(mesh_dist, planar_dist)
@@ -532,3 +532,71 @@ def extract_contiguous(entities):
             groups.append(current_group)
 
     return groups
+
+def get_region(region_type, region_mod, entity):
+    x_max = entity.x_max
+    x_min = entity.x_min
+    y_max = entity.y_max
+    y_min = entity.y_min
+    z_max = entity.z_max
+    z_min = entity.z_min    
+    dims = entity.dimensions
+    
+    x_center = (x_max + x_min) / 2
+    y_center = (y_max + y_min) / 2
+    corners = np.array([[(x_min, y_min, 0)], [(x_min, y_max, 0)], [(x_max, y_max, 0)], [(x_max, y_min, 0)]])
+    edges = np.array([
+        #Front
+        [corners[0], corners[3]],
+        #Left
+        [corners[0], corners[1]],
+        #Back
+        [corners[1], corners[2]],
+        #Right
+        [corners[2], corners[3]]])
+    sides = np.array([
+        #Left
+        [(x_min, y_min, z_min), (x_min, y_max, z_min), (x_center, y_max, z_min), (x_center, y_min, z_min),
+         (x_min, y_min, z_max), (x_min, y_max, z_max), (x_center, y_max, z_max), (x_center, y_min, z_max)],
+
+        #Right
+        [(x_center, y_min, z_min), (x_center, y_max, z_min), (x_max, y_max, z_min), (x_max, y_min, z_min),
+         (x_center, y_min, z_max), (x_center, y_max, z_max), (x_max, y_max, z_max), (x_max, y_min, z_max)],
+
+        #Front
+        [(x_min, y_min, z_min), (x_min, y_center, z_min), (x_max, y_center, z_min), (x_max, y_min, z_min),
+         (x_min, y_min, z_max), (x_min, y_center, z_max), (x_max, y_center, z_max), (x_max, y_min, z_max)],
+
+        #Back
+        [(x_min, y_center, z_min), (x_min, y_max, z_min), (x_max, y_max, z_min), (x_max, y_center, z_min),
+         (x_min, y_center, z_max), (x_min, y_max, z_max), (x_max, y_max, z_max), (x_max, y_center, z_max)]])
+
+    if region_type == "side":
+        if region_mod == "left":
+            return Entity(sides[0])
+        elif region_mod == "right":
+            return Entity(sides[1])
+        elif region_mod == "front":
+            return Entity(sides[2])
+        elif region_mod == "back":
+            return Entity(sides[3])
+        else:
+            return None
+
+    if region_type == "edge":
+        if region_mod == "front":
+            return Entity(edges[0])
+        elif region_mod == "left":
+            return Entity(edges[1])
+        elif region_mod == "back":
+            return Entity(edges[2])
+        elif region_mod == "right":
+            return Entity(edges[3])
+        else:
+            return None
+
+        
+
+
+        
+        

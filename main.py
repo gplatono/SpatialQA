@@ -25,6 +25,7 @@ from ulf_parser import *
 from constraint_solver import *
 from world import World
 from query_frame import QueryFrame
+from hci_manager import HCIManager
 #from query_proc import *
 
 link = False
@@ -359,6 +360,8 @@ def main():
     world = World(bpy.context.scene)
     spatial.entities = world.entities
 
+    hci_manager = HCIManager(debug_mode = True)
+
     global observer
     observer = world.observer
 
@@ -408,7 +411,7 @@ def main():
         #    continue        
         print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
         ulf = ulf.lower().strip().replace("{", "").replace("}", "")
-        if ";;" not in ulf and ulf != "" and "clear" in ulf:
+        if ";;" not in ulf and ulf != "" and "row" not in ulf and "stack" not in ulf and "face" not in ulf and "-of" not in ulf:
             query = ULFQuery(ulf)
             print (query.query_tree)
             #print (world.entities)                        
@@ -437,9 +440,18 @@ def main():
             #print (row.ordering)
             #print (row.get_first())
             #print (row.get_last())
-            query_fr = QueryFrame(query.query_tree)
             print (query.query_tree)
-            print (process_query(query.query_tree, world.entities))
+            query_fr = QueryFrame(query.query_tree)
+            side = get_region("side", "front", tbl)
+            print (side)
+            print ("\n" + ulf + "\n")
+            ulf1 = query.preprocess(ulf)
+            print ("PROCESSED_ULF: ", ulf1)
+            print ("LIFTED ULF: ", query.lift(ulf1, ['pres', 'prog', 'perf']))
+            answer_set = process_query(query.query_tree, world.entities)
+            #response = hci_manager.generate_response(ulf, query_fr, )
+            print (answer_set)
+
             input("Press Enter to continue...")
 
     #bl4 = get_entity_by_name("Block 4")

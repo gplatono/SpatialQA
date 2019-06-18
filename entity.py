@@ -27,6 +27,8 @@ class Entity(object):
 
     def __init__(self, components, name=None):
 
+        #print (components, type(components))
+
         self.components = components
         self.name = name
         
@@ -53,7 +55,7 @@ class Entity(object):
         elif type(components) == list and components != [] and type(components[0]) == Entity:
             self.category = self.Category.STRUCTURE
             self.constituents = [item for entity in components for item in entity.constituents]
-        elif type(components) == list:
+        elif type(components) == list or type(components) == np.ndarray:
             self.category = self.Category.REGION
             self.constituents = [components]
 
@@ -250,10 +252,10 @@ class Entity(object):
         print ("\n".join([attr + ": " + self.__dict__[attr].__str__() for attr in self.__dict__.keys()]))
 
     def __str__(self):
-        return "ENTITY: " + self.name
+        return "ENTITY: " + (self.name if self.name is not None else "NONE")
 
     def __repr__(self):
-        return "ENT: " + self.name
+        return "ENT: " + (self.name if self.name is not None else "NONE")
 
     def induce_linear_order(self):        
         if self.category == self.Category.STRUCTURE:
