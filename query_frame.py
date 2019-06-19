@@ -1,4 +1,5 @@
 import enum
+import re
 from ulf_grammar import NArg, NRel, NPred, NCardDet
 
 class QueryFrame(object):
@@ -21,9 +22,23 @@ class QueryFrame(object):
 		ATTR_ORIENT = 6
 		ERROR = 7
 
-	def __init__(self, gr_sentence):
-		self.raw = gr_sentence.content
-		self.is_question = gr_sentence.is_question
+	def __init__(self, query_surface, query_ulf, query_parse_tree):
+		self.surface = query_surface
+		self.ulf = query_ulf
+		self.raw = query_parse_tree.content
+
+		print ("QUERY REPRESENTATIONS: ")
+		print (self.surface)
+		print (self.ulf)
+		print (self.raw)
+
+		self.is_question = query_parse_tree.is_question
+
+		self.YN_FLAG = False
+		self.COUNT_FLAG = False
+		self.EXIST_FLAG = False
+		self.IDENT_FLAG = False
+		self.DESCR_FLAG = False
 
 		self.arg = None
 		self.predicate = None
@@ -34,10 +49,10 @@ class QueryFrame(object):
 
 		if type(self.raw) == NArg:
 			self.content_type = self.ContentType.ARG
-			self.arg = gr_sentence.content			
+			self.arg = query_parse_tree.content			
 		else:
 			self.content_type = self.ContentType.PRED
-			self.predicate = gr_sentence.content
+			self.predicate = query_parse_tree.content
 			self.relatum = self.predicate.children[0]
 			if len(self.predicate.children) > 1:
 				self.referent = self.predicate.children[1]
@@ -45,6 +60,8 @@ class QueryFrame(object):
 		self.resolve_relatum = self.resolve_arg(self.relatum)
 		if self.referent is not None:
 			self.resolve_referent = self.resolve_arg(self.referent)
+
+		self.scan_type()
 
 		print ("QUERY CONTENT:")
 		print ("PREDICATE: ", self.predicate)
@@ -56,9 +73,23 @@ class QueryFrame(object):
 	def resolve_arg(self, arg):
 		if arg.det is not None:
 			print (arg.det)
-			if type(arg.det) == NCardDet or arg.det.content in ["which.d", "what.d", "HOWMANY"]:
+			if type(arg.det) == NCardDet or arg.det.content in ["which.d", "what.d", "HOWMANY", "how_many.d"]:
 				print ("YES")
 				return True
 		return False
 
+	def scan_type(self):
+		self.YN_FLAG = True if re.search('^\(*(pres|past|pres perf\)|pres prog\)|prog) (be.v|do.aux|can.aux)', self.ulf, re.IGNORECASE) else False
+		self.COUNT_FLAG = True if re.search('^\(*(how.adv-a many.a|how_many.d)', self.ulf, re.IGNORECASE) else False
+		self.IDENT_FLAG = True if re.search('^\(*(what.d|which.d).*(block.n).*(be.v)', self.ulf, re.IGNORECASE) else False
+		self.DESCR_FLAG = True if re.search('^\(*(where).*(be.v).*\|.*\|.* block.n', self.ulf, re.IGNORECASE) else False
+
+		if self.COUNT_FLAG:
+			self.query_type = self.QueryType.COUNT
+
+		if self.IDENT_FLAG:
+			self.query_type = self.QueryType.IDENT
+
+		if self.DESCR_FLAG:
+			self.query_type = self.QueryType.DESCR
 

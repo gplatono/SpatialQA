@@ -1,22 +1,14 @@
 import re
-from query_frame import QueryFrame
 from ulf_grammar import *
 
 class ULFParser(object):
     def __init__(self):
         pass
 
-    def parse(self, ulf):
-        self.YN_FLAG = False
-        self.COUNT_FLAG = False
-        self.EXIST_FLAG = False
-        self.IDENT_FLAG = False
-        self.DESCR_FLAG = False
-        
+    def parse(self, ulf):        
         ulf = self.preprocess(ulf)
         self.query_tree = self.parse_tree(ulf)
-        query_frame = QueryFrame(self.query_tree)
-        return query_frame
+        return self.query_tree
         
     def preprocess(self, ulf):
         ulf = self.lispify(ulf)
@@ -28,11 +20,6 @@ class ULFParser(object):
         ulf = self.add_brackets(ulf)
         print ("PREPROC QUERY: ", ulf, "\n")
         return ulf
-
-    def scan_type(self, ulf):
-        self.YN_FLAG = True if re.search("^[is|are|were|was]", ulf, re.IGNORECASE) else False
-        
-        
 
     def parse_tree(self, tree):
         if type(tree) == str:

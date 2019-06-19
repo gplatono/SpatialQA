@@ -25,6 +25,7 @@ from ulf_parser import ULFParser
 from constraint_solver import *
 from world import World
 from hci_manager import HCIManager
+from query_frame import QueryFrame
 #from query_proc import *
 
 link = False
@@ -368,10 +369,8 @@ def main():
     world = World(bpy.context.scene)
     spatial.entities = world.entities
 
-    hci_manager = HCIManager(debug_mode = settings['DEBUG_MODE'])
-    hci_manager.start()
-
-    return
+    hci_manager = HCIManager(debug_mode = True)#settings['DEBUG_MODE'])
+    #hci_manager.start()
 
     global observer
     observer = world.observer
@@ -403,13 +402,13 @@ def main():
                 print("RESULT: {}".format("#".join(descr)))
         return
 
-    f = open("sqa_input.bw")
+    surface_forms = open("sqa_dev_surface.bw").readlines()
+    ulfs = open("sqa_dev_ulf.bw").readlines()
+    min_len = min(len(ulfs), len(surface_forms))
+    surface_forms = surface_forms[:min_len]
+
     #test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
     #test2 = ["sub", ["what.d", "color.n"], [["pres", "be.v"], ["rep", [["farthest.a", "*p"], "block.n"], ["to.p", ["the.d", "right.n"]]], "*h"]]
-    ulfs = f.readlines()
-
-
-
     #testt = [[['pres', 'be.v'], ['the.d', [['|nvidia|', 'and.cc', '|sri|'], ['plur', 'block.n']]], ['in.p', ['the.d', ['same.a', 'stack.n']]]], '?']
     #print (memberof("and.cc", testt))
 
@@ -417,16 +416,11 @@ def main():
 
     print (entities)
     for ulf in ulfs:
-        #print (ulf)
-        #if "and.cc" not in ulf:
-        #    continue
-        #if "sub" not in ulf and "rep" not in ulf:
-        #    continue        
+        idx = ulfs.index(ulf)
         print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
         ulf = ulf.lower().strip().replace("{", "").replace("}", "")
         if ";;" not in ulf and ulf != "" and "row" not in ulf and "stack" not in ulf and "face" not in ulf and "-of" not in ulf:
-            query_frame = ulf_parser.parse(ulf)#ULFQuery(ulf)
-            #print (world.entities)                        
+            query_frame = QueryFrame(surface_forms[idx], ulf, ulf_parser.parse(ulf))
             #fit_line(np.array([[-1, 0, 0], [-2, 0, 0], [0, 1.0, 0], [2.0, 0, 0], [10, 0, 1000.0]]))
             #fit_line(np.array([[-1, -1, 0], [-2, -2, 0], [1.0, 1.0, 0], [2.0, 2.0, 0]]))
             #fit_line(np.array([[1, 1, 0.5], [1.2, 1.1, 1.5], [1.0, 0.9, 2.5], [1.6, 1.01, 4.0], [0.8, 1.1, 5.5]]))
@@ -452,17 +446,20 @@ def main():
             #print (row.ordering)
             #print (row.get_first())
             #print (row.get_last())
+
             print (query_frame.raw)
+            print ("\n" + ulf + "\n")
+            answer_set = process_query(query_frame, world.entities)
+            print (answer_set)
+            
             #query_frame = QueryFrame(query.query_tree)
             #side = get_region("side", "front", tbl)
             #print (side)
-            print ("\n" + ulf + "\n")
             #ulf1 = query.preprocess(ulf)
             #print ("PROCESSED_ULF: ", ulf1)
             #print ("LIFTED ULF: ", query.lift(ulf1, ['pres', 'prog', 'perf']))
-            answer_set = process_query(query_frame, world.entities)
             #response = hci_manager.generate_response(ulf, query_fr, )
-            print (answer_set)
+            
 
             input("Press Enter to continue...")
 

@@ -160,6 +160,7 @@ grammar['any.d'] = lambda x: TDet(x)
 grammar['some.d'] = lambda x: TDet(x)
 grammar['what.d'] = lambda x: TDet(x)
 grammar['all.d'] = lambda x: TDet(x)
+grammar['how_many.d'] = lambda x: TDet(x)
 
 grammar['|Nvidia|'] = lambda x: TName(x)
 grammar['|Toyota|'] = lambda x: TName(x)

@@ -198,7 +198,10 @@ def process_query(query, entities):
 			for mod in arg.mods:
 				predicate_values = filter_by_predicate_modifier(predicate_values, mod)
 
-		return "NPRED"
+		relata = [arg[0] for (arg, val) in predicate_values]
+		referents = [arg[1] for (arg, val) in predicate_values] if referents is not None else None
+
+		return relata
 	elif query.arg is not None:#type(arg) == NArg:
 		arg = query.arg
 		relata = resolve_argument(arg, entities)
