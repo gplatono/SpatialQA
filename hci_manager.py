@@ -670,116 +670,117 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 		elif self.state == self.STATE.END:
 			pass
 
+
+	# The following are functions used in generate_response -------------------------------------------
+
+	# takes an entity list and returns an english list with no excess whitespace
+	# the list must be of length at least 1
+	# ents is the answer set, attribute is the attribute that should be listed
+	def entities_to_english_list(ents, attribute):
+		types = map(lambda x: lower(x.type_structure[:-1][0]), ents)
+		attribs = map(operator.attrgetter(attribute), ents)
+		uniform_type = all(x == type[0] for x in type)
+
+		if len(list) == 1:
+			return 'the ' + attribs[0]
+		elif len(list) == 2:
+			return 'the ' + attribs[0] + ' ' + types[0] + ' and the ' + attribs[1] + types[1]
+		else:
+			if uniform_type:
+				out = 'the ' + attribs[0]
+				for i in range(1, len(list)-1):
+					out += ', ' + attribs[i]
+				out += ', and ' + attribs[-1] + ' ' + types[-1] + 's'
+				return out
+			else:
+				out = 'the ' + attribs[0] + ' ' + types[0]
+				for i in range(1, len(list)-1):
+					out += ', ' + attribs[i] + ' ' + types[i]
+				out += ', and ' + attribs[-1] + ' ' + types[-1]
+				return out
+	# Sample Usage:
+	# [_Nvidia_] -> (is...) "the Nvidia block" (is...)
+	# [_Toyota_, _McDonalds_] ->
+	#                  (...are) "the Toyota block and the McDonalds block" (are...)
+	# [_SRI_, _Mercedes_, _Target_] ->
+	#                      (...are) "the SRI, Mercedes, and Target blocks" (are...)
+	# [_SRI_, _Mercedes_, _Support_] ->
+	#  (...are) "the SRI block, the Mercedes block, and the Support stack" (are...)
+
+	# use this when we only want colors, without types or specifier
+	def entities_to_color_list(ents):
+		# similar to entities_to_english_list here
+		types = map(lambda x: lower(x.type_structure[:-1][0]), ents)
+		cols = map(operator.attrgetter('color'), ents)
+		cols = list(dict.fromkeys(cols))
+		uniform_type = all(x == type[0] for x in type)
+
+		# there's only one answer
+		if len(cols) == 1:
+			return cols[0]
+
+		if len(cols) == 2:
+			return cols[0] + " and " + cols[1]
+
+		else:
+			out = ""
+			for i in range(0, (len(cols) - 1)):
+				out += cols[i] + ", "
+			out += " and " + cols[-1]
+			return out
+
+	# returns two lists divided by the certainty about each entity
+	# used in mixed certainty answers
+	# assumes answers are already sorted by certainty
+	def entities_split_by_certainty(ents, certainty, threashold):
+		out = []
+		for i in range(0, len(ents)):
+			if certainty[i] < threashold:
+				out.append(ents[:i])
+				out.append(ents[i:])
+				return out
+		out.append(ents)
+		return out
+
+	def english_sentence_to_list(sentence):
+		# Divide the sentence into words
+		list = sentence.split()
+
+		# Next, we need to split the punctuation marks from the words
+		# ie. ['Is', 'this...', 'pig-latin?'] -> ['Is', 'this', '...', 'pig-latin', '?']
+		diff = 1
+		i = 0
+		while i < len(list):
+			# if the word ends in a punctuation mark
+			if not list[i][-1].isalpha():
+				cutoff_len = 1;
+				for j in range(2, len(list[i])):
+					if list[i][-j].isalpha():
+						cutoff_len = j-1
+						break
+				else:
+					i += 1
+					continue
+
+				list.insert(i+diff, list[i][-cutoff_len:])
+				list[i] = list[i][:-cutoff_len]
+
+				diff += 1
+				i -= 1
+			i += 1
+		return list
+
+	# There needs to be a better way to do this...  To cover cases where it is
+	# non-obvious
+	def get_verb_phrase(user_input_surface, is_are):
+		if not is_are == "*":
+			return is_are + user_input_surface.split(is_are)[1]
+		else:
+			return add(user_input_list.split()[3:])
+
+	# -------------------------------------------------------------------------------------------------
+
 def main():
 	manager = HCIManager(debug_mode=True)
 	manager.load_as_text(["Test message 1", "Test message 2", "Test message 3", "Test message 4", "Test message 5"])
 	manager.start()
-
-# The following are functions used in generate_response -------------------------------------------
-
-# takes an entity list and returns an english list with no excess whitespace
-# the list must be of length at least 1
-# ents is the answer set, attribute is the attribute that should be listed
-def entities_to_english_list(ents, attribute):
-	types = map(lambda x: lower(x.type_structure[:-1][0]), ents)
-	attribs = map(operator.attrgetter(attribute), ents)
-	uniform_type = all(x == type[0] for x in type)
-
-	if len(list) == 1:
-		return 'the ' + attribs[0]
-	elif len(list) == 2:
-		return 'the ' + attribs[0] + ' ' + types[0] + ' and the ' + attribs[1] + types[1]
-	else:
-		if uniform_type:
-			out = 'the ' + attribs[0]
-			for i in range(1, len(list)-1):
-				out += ', ' + attribs[i]
-			out += ', and ' + attribs[-1] + ' ' + types[-1] + 's'
-			return out
-		else:
-			out = 'the ' + attribs[0] + ' ' + types[0]
-			for i in range(1, len(list)-1):
-				out += ', ' + attribs[i] + ' ' + types[i]
-			out += ', and ' + attribs[-1] + ' ' + types[-1]
-			return out
-# Sample Usage:
-# [_Nvidia_] -> (is...) "the Nvidia block" (is...)
-# [_Toyota_, _McDonalds_] ->
-#                  (...are) "the Toyota block and the McDonalds block" (are...)
-# [_SRI_, _Mercedes_, _Target_] ->
-#                      (...are) "the SRI, Mercedes, and Target blocks" (are...)
-# [_SRI_, _Mercedes_, _Support_] ->
-#  (...are) "the SRI block, the Mercedes block, and the Support stack" (are...)
-
-# use this when we only want colors, without types or specifier
-def entities_to_color_list(ents):
-	# similar to entities_to_english_list here
-	types = map(lambda x: lower(x.type_structure[:-1][0]), ents)
-	cols = map(operator.attrgetter('color'), ents)
-	cols = list(dict.fromkeys(cols))
-	uniform_type = all(x == type[0] for x in type)
-
-	# there's only one answer
-	if len(cols) == 1:
-		return cols[0]
-
-	if len(cols) == 2:
-		return cols[0] + " and " + cols[1]
-
-	else:
-		out = ""
-		for i in range(0, (len(cols) - 1)):
-			out += cols[i] + ", "
-		out += " and " + cols[-1]
-		return out
-
-# returns two lists divided by the certainty about each entity
-# used in mixed certainty answers
-# assumes answers are already sorted by certainty
-def entities_split_by_certainty(ents, certainty, threashold):
-	out = []
-	for i in range(0, len(ents)):
-		if certainty[i] < threashold:
-			out.append(ents[:i])
-			out.append(ents[i:])
-			return out
-	out.append(ents)
-	return out
-
-def english_sentence_to_list(sentence):
-	# Divide the sentence into words
-	list = sentence.split()
-
-	# Next, we need to split the punctuation marks from the words
-	# ie. ['Is', 'this...', 'pig-latin?'] -> ['Is', 'this', '...', 'pig-latin', '?']
-	diff = 1
-	i = 0
-	while i < len(list):
-		# if the word ends in a punctuation mark
-		if not list[i][-1].isalpha():
-			cutoff_len = 1;
-			for j in range(2, len(list[i])):
-				if list[i][-j].isalpha():
-					cutoff_len = j-1
-					break
-			else:
-				i += 1
-				continue
-
-			list.insert(i+diff, list[i][-cutoff_len:])
-			list[i] = list[i][:-cutoff_len]
-
-			diff += 1
-			i -= 1
-		i += 1
-	return list
-
-# There needs to be a better way to do this...  To cover cases where it is
-# non-obvious
-def get_verb_phrase(user_input_surface, is_are):
-	if not is_are == "*":
-		return is_are + user_input_surface.split(is_are)[1]
-	else:
-		return add(user_input_list.split()[3:])
-
-# -------------------------------------------------------------------------------------------------
