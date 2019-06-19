@@ -1,4 +1,5 @@
 import enum
+import os
 import sys
 import re
 import requests
@@ -36,6 +37,12 @@ class HCIManager(object):
 
 		self.speech_lock = RLock()
 
+		self.lissa_path = ".." + os.sep + "lissa-blocksworld" + os.sep
+		self.lissa_input = self.lissa_path + "input.lisp"
+		self.lissa_ulf = self.lissa_path + "ulf.lisp"
+		self.lissa_reaction = self.lissa_path + "reaction.lisp"
+		self.lissa_output = self.lissa_path + "output.txt"
+
 	def start(self):
 		"""Initiate the listening loop."""
 		if self.debug_mode == False:
@@ -46,6 +53,10 @@ class HCIManager(object):
 			mic_thread = Thread(target = self.mic_loop)
 			mic_thread.start()
 			#thread.join()
+			lissa_inp_file = open(self.lissa_input, w)
+			lissa_ulf_file = open(self.lissa_ulf, w)
+			lissa_react_file = open(self.lissa_reaction, w)
+			lissa_out_file = open(self.lissa_output, w)
 
 		print ("Starting the processing loop...")
 		while True:
@@ -54,7 +65,27 @@ class HCIManager(object):
 				if re.search(r'\b(exit|quit)\b', self.current_input, re.I):
 					self.speech_lock.release()
 					break
+				
 				print ("you said: " + self.current_input)
+
+				if debug_mode == False:
+					lissa_inp_file.write(self.current_input)
+
+					ulf = lissa_ulf_file.readline()
+					while ulf is None or ulf == "":
+						ulf = lissa_ulf_file.readline()
+					lissa_ulf_file.truncate(0)
+
+					lissa_react_file.write("test")
+
+					response = lissa_out_file.readline()
+					while response is None or response == "":
+						response = lissa_out_file.readline()
+					lissa_out_file.truncate(0)
+
+					print ("response: " + response)
+
+
 				self.current_input = ""
 			self.speech_lock.release()
 			time.sleep(0.1)

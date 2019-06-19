@@ -31,6 +31,15 @@ link = False
 #The current scene
 scene = bpy.context.scene
 
+conf_list = open("config").readlines()
+settings = {}
+for line in conf_list:
+    setting = line.split("=")[0]
+    val = line.split("=")[1]
+    if setting == "DEBUG_MODE":
+        val = (val == "True")
+    settings[setting] = val
+
 #List of  possible color modifiers
 color_mods = ['black', 'red', 'blue', 'brown', 'green', 'yellow']
 
@@ -359,7 +368,10 @@ def main():
     world = World(bpy.context.scene)
     spatial.entities = world.entities
 
-    hci_manager = HCIManager(debug_mode = True)
+    hci_manager = HCIManager(debug_mode = settings['DEBUG_MODE'])
+    hci_manager.start()
+
+    return
 
     global observer
     observer = world.observer
@@ -402,7 +414,7 @@ def main():
     #print (memberof("and.cc", testt))
 
     ulf_parser = ULFParser()
-    
+
     print (entities)
     for ulf in ulfs:
         #print (ulf)
