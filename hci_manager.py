@@ -43,20 +43,22 @@ class HCIManager(object):
 		self.lissa_reaction = self.lissa_path + "reaction.lisp"
 		self.lissa_output = self.lissa_path + "output.txt"
 
+		# print (self.lissa_input)
+		# print (self.lissa_ulf)
+		# print (self.lissa_reaction)
+		# print (self.lissa_output)
+
+		# print (os.path.isfile(self.lissa_ulf))
+		# print (os.path.isfile(self.lissa_reaction))
+		# print (os.path.isfile(self.lissa_output))
+
 	def start(self):
 		"""Initiate the listening loop."""
-		if self.debug_mode == False:
-			from gcs_micstream import ResumableMicrophoneStream
-			from google.cloud import speech
-
+		if self.debug_mode == False:			
 			print ("Starting the listening thread...")
 			mic_thread = Thread(target = self.mic_loop)
 			mic_thread.start()
-			#thread.join()
-			lissa_inp_file = open(self.lissa_input, w)
-			lissa_ulf_file = open(self.lissa_ulf, w)
-			lissa_react_file = open(self.lissa_reaction, w)
-			lissa_out_file = open(self.lissa_output, w)
+			#thread.join()			
 
 		print ("Starting the processing loop...")
 		while True:
@@ -68,23 +70,63 @@ class HCIManager(object):
 				
 				print ("you said: " + self.current_input)
 
-				if debug_mode == False:
-					lissa_inp_file.write(self.current_input)
+				if self.debug_mode == False:
+					print ("ENTERING LISSA EXCHANGE BLOCK...")
+					lisp_formatted_input = "(setq *next-input* \"" + self.current_input + "\")"
 
+					lissa_inp_file = open(self.lissa_input, 'w+')
+					lissa_inp_file.write(lisp_formatted_input)
+					lissa_inp_file.close()
+
+					time.sleep(0.5)
+
+					print ("WAITING FOR ULF...")
+					
+					lissa_ulf_file = open(self.lissa_ulf, 'r+')					
 					ulf = lissa_ulf_file.readline()
-					while ulf is None or ulf == "":
-						ulf = lissa_ulf_file.readline()
 					lissa_ulf_file.truncate(0)
+					lissa_ulf_file.close()
+					
+					ulf_counter = 1
+					while ulf is None or ulf == "":
+						time.sleep(0.2)
+						lissa_ulf_file = open(self.lissa_ulf, 'r+')
+						ulf = lissa_ulf_file.readline()
+						lissa_ulf_file.truncate(0)
+						lissa_ulf_file.close()					
+						ulf_counter += 1
+						if ulf_counter==7:
+							break
 
-					lissa_react_file.write("test")
+					print (ulf)
+									
+					if ulf_counter == 7:
+						continue
 
-					response = lissa_out_file.readline()
-					while response is None or response == "":
-						response = lissa_out_file.readline()
+					print ("WRITING REACTION...")
+					lisp_formatted_response = "(setq *next-reaction* \"" + "test" + "\")"
+					lissa_react_file = open(self.lissa_reaction, 'w+')					
+					lissa_react_file.write(lisp_formatted_response)
+					lissa_react_file.close()
+
+					print ("WAITING FOR RESPONSE...")
+
+					time.sleep(0.2)
+
+					lissa_out_file = open(self.lissa_output, 'r+')
+					responses = lissa_out_file.readlines()
 					lissa_out_file.truncate(0)
+					lissa_out_file.close()
+					while responses is None or responses == "" or responses == []:
+						lissa_out_file = open(self.lissa_output, 'r+')
+						responses = lissa_out_file.readlines()
+						lissa_out_file.truncate(0)
+						lissa_out_file.close()
+						time.sleep(0.1)
 
-					print ("response: " + response)
-
+					response = ""
+					responses = [r.strip() for r in responses if r.strip() != ""]
+					print ("response: " + str(responses))
 
 				self.current_input = ""
 			self.speech_lock.release()
@@ -114,6 +156,10 @@ class HCIManager(object):
 		"""The mic listening loop."""
 
 		# Audio recording parameters
+
+		from gcs_micstream import ResumableMicrophoneStream
+		from google.cloud import speech
+
 		sample_rate = 16000
 		chunk_size = int(sample_rate / 10)  # 100ms
 
