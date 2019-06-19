@@ -79,18 +79,26 @@ def filter_by_relation(relatums, relation, referents, modifier=None):
 
 def compute_predicate(predicate, *arglists):
 	arg_combinations = list(itertools.product(*arglists))
-	print ("ARGLISTS: ", *arglists)
-	print ("ARG_COMB: ", arg_combinations)
-	print ("COMPUTING: " + str(predicate))	
+	#print ("ARGLISTS: ", *arglists)
+	#print ("ARG_COMB: ", arg_combinations)
+	#print ("COMPUTING: " + str(predicate))	
 	predicate_values = [(arg, predicate(*arg)) for arg in arg_combinations]
-	#print (predicate_values)
-	return None#predicate_values
+	return predicate_values
 
-def filter_by_predicate_modifier(entities, pred_mod):
+def filter_by_predicate_modifier(predicate_values, modifier):
 	"""Return the subset of entities that satisfy the given predicate modifier."""
-	ret_val = []
-	for entity in entities:
-		pass
+	modifier = modifier.content
+
+	if modifier in ['fully.adv-a', 'directly.adv-a', 'very.adv-a', 'fully.mod-a', 'directly.mod-a', 'very.mod-a']:
+		return [(arg, val) for (arg, val) in predicate_values if val >= 0.85]
+	elif modifier in ['slightly.adv-a', 'slightly.mod-a', 'marginally.adv-a']:
+		return [(arg, val) for (arg, val) in predicate_values if val >= 0.5]
+	elif modifier in ['halfway.adv-a', 'halfway.mod-a']:
+		return [(arg, val) for (arg, val) in predicate_values if val >= 0.7]
+	elif modifier in ['not.adv-s', 'not.adv-a', 'not.mod-a']:
+		return [(arg, val) for (arg, val) in predicate_values if val <= 0.3]
+	else:
+		return [(arg, val) for (arg, val) in predicate_values if val >= 0.5]
 
 def filter_by_mod(entities, modifier):
 	if type(modifier) == NColor:
@@ -124,12 +132,8 @@ def resolve_argument(arg_object, entities):
 
 	if arg_mods is not None and arg_mods != []:
 		for modifier in arg_mods:
-			ret_args = filter_by_mod(entities, modifier)			
-
-	if ret_args is not None:
-		print ("RESOLVED ARGS:", ret_args, [arg.name for arg in ret_args])
-	else:
-		print ("RESOLVED ARGS: EMPTY")
+			ret_args = filter_by_mod(entities, modifier)
+	
 	return ret_args
 
 def resolve_predicate(relation_object):
@@ -164,27 +168,39 @@ def resolve_predicate(relation_object):
 	#for key in globals():
 	#	print (globals()[key])
 	#print (type(rel_to_func_map[relation_object.content.content]))
-	return rel_to_func_map[relation_object.content.content]
+	return rel_to_func_map[relation_object.content]
 
 def process_query(query, entities):
 	print ("ENTERING THE QUERY PROCESSING:")
-	#print (entities)
-	if type(query) != NSentence or (not query.is_question) or query.content == None:
-		return None
-	arg = query.content	
-	if type(arg) == NRel or type(arg) == NPred:
+	#if type(query) != NSentence or (not query.is_question) or query.content == None:
+	#	return None
+	
+	if query.predicate is not None:#type(arg) == NRel or type(arg) == NPred:
 		print ("ENTERING NPRED PROCESSING...")
-		relation = resolve_predicate(arg)
+		pred = query.predicate
+		
+		relation = resolve_predicate(pred)
 		print ("RELATION:", relation)
-		res = spatial.near_raw(entities[0], entities[1])
-		relata = resolve_argument(arg.children[0], entities) if len(arg.children) > 0 else None
-		referents = resolve_argument(arg.children[1], entities) if len(arg.children) > 1 else None		
+		
+		relata = resolve_argument(pred.children[0], entities) if len(pred.children) > 0 else None
+		print ("RESOLVED RELATA:", relata)
+
+		referents = resolve_argument(pred.children[1], entities) if len(pred.children) > 1 else None
+		print ("RESOLVED REFERENTS:", referents)
+
+		predicate_values = []
 		if referents is not None:
-			compute_predicate(relation, relata, referents)
+			predicate_values = compute_predicate(relation, relata, referents)
 		else:
-			compute_predicate(relation, relata)
+			predicate_values = compute_predicate(relation, relata)
+
+		if pred.mods is not None and pred.mods != []:
+			for mod in arg.mods:
+				predicate_values = filter_by_predicate_modifier(predicate_values, mod)
+
 		return "NPRED"
-	elif type(arg) == NArg:
+	elif query.arg is not None:#type(arg) == NArg:
+		arg = query.arg
 		relata = resolve_argument(arg, entities)
 		return relata		
 	else:

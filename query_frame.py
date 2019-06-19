@@ -1,5 +1,5 @@
 import enum
-from ulf_parser import NArg, NRel, NPred
+from ulf_grammar import NArg, NRel, NPred, NCardDet
 
 class QueryFrame(object):
 	"""Represents and incapsulates the query data in a frame-like format."""
@@ -27,11 +27,38 @@ class QueryFrame(object):
 
 		self.arg = None
 		self.predicate = None
-		self.pred_args = []
+		self.relatum = None
+		self.referent = None
+		self.resolve_relatum = False
+		self.resolve_referent = False
 
 		if type(self.raw) == NArg:
 			self.content_type = self.ContentType.ARG
-			self.arg = gr_sentence.content
+			self.arg = gr_sentence.content			
 		else:
 			self.content_type = self.ContentType.PRED
 			self.predicate = gr_sentence.content
+			self.relatum = self.predicate.children[0]
+			if len(self.predicate.children) > 1:
+				self.referent = self.predicate.children[1]
+
+		self.resolve_relatum = self.resolve_arg(self.relatum)
+		if self.referent is not None:
+			self.resolve_referent = self.resolve_arg(self.referent)
+
+		print ("QUERY CONTENT:")
+		print ("PREDICATE: ", self.predicate)
+		print ("RELATUM: ", self.relatum)
+		print ("REFERENT: ", self.referent)
+		print ("RESOLVE RELATUM: ", self.resolve_relatum)
+		print ("RESOLVE REFERENT: ", self.resolve_referent)
+
+	def resolve_arg(self, arg):
+		if arg.det is not None:
+			print (arg.det)
+			if type(arg.det) == NCardDet or arg.det.content in ["which.d", "what.d", "HOWMANY"]:
+				print ("YES")
+				return True
+		return False
+
+
