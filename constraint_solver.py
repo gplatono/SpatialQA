@@ -2,6 +2,8 @@ import spatial
 import itertools
 from ulf_parser import *
 
+global_entities = []
+
 #Dictionary that maps the relation names to the names of the functions that implement them
 rel_to_func_dict = {'to_the_left_of.p': 'to_the_left_of_deic',
               'to_the_right_of.p': 'to_the_right_of_deic',
@@ -87,7 +89,10 @@ def compute_predicate(predicate, *arglists):
 
 def filter_by_predicate_modifier(predicate_values, modifier):
 	"""Return the subset of entities that satisfy the given predicate modifier."""
-	modifier = modifier.content
+	if modifier.content is not None and modifier.content != "":
+		modifier = modifier.content
+
+	print ("MODIFIER CONTENT: ", modifier)
 
 	if modifier in ['fully.adv-a', 'directly.adv-a', 'very.adv-a', 'fully.mod-a', 'directly.mod-a', 'very.mod-a']:
 		return [(arg, val) for (arg, val) in predicate_values if val >= 0.85]
@@ -95,22 +100,57 @@ def filter_by_predicate_modifier(predicate_values, modifier):
 		return [(arg, val) for (arg, val) in predicate_values if val >= 0.5]
 	elif modifier in ['halfway.adv-a', 'halfway.mod-a']:
 		return [(arg, val) for (arg, val) in predicate_values if val >= 0.7]
-	elif modifier in ['not.adv-s', 'not.adv-a', 'not.mod-a']:
+	elif type(modifier) == TNeg or modifier in ['not.adv-s', 'not.adv-a', 'not.mod-a']:
 		return [(arg, val) for (arg, val) in predicate_values if val <= 0.3]
 	else:
 		return [(arg, val) for (arg, val) in predicate_values if val >= 0.5]
 
-def filter_by_mod(entities, modifier):
+def filter_by_mod(entities, modifier, global_entities):
 	if type(modifier) == NColor:
 		return filter_by_color(entities, modifier.content)
 	elif type(modifier) == TNumber:
 		#TODO!!!
 		pass
 	elif type(modifier) == NPred or type(modifier) == NRel:
-		return filter_by_predicate_modifier(entities, modifier)
-        
+		print ("ENTERING PRED MOD PROCESSING...", modifier, modifier.mods)
+		if modifier.children is not None and modifier.children != []:
+			referents = resolve_argument(modifier.children[0], global_entities)
+			predicate_values = process_predicate(resolve_predicate(modifier), modifier.mods, entities, referents)
+		else:
+			predicate_values = process_predicate(resolve_predicate(modifier), modifier.mods, entities)
+
+		answer_entities = list(set([arg[0] for (arg, val) in predicate_values if arg[0] in entities]))
+		print ("ANSWER ENTITIES: ", answer_entities)
+		return answer_entities
+
+def process_predicate(predicate, modifiers, *arglists):
+	"""
+	Processes the predicate by computing its values over all the combinations
+	of arguments and then appyling each modifiers to obtain more and more
+	restricted list of argument tuples that satisfy the constraints of the
+	predicate.
+
+	"""
+	print ("PREDICATE COMPONENTS: ",  predicate, modifiers, arglists)
+
+	predicate_values = compute_predicate(predicate, *arglists)
+
+	#print ("PREDICATE VALUES: ", predicate, modifiers, predicate_values)	
+	if modifiers is not None and modifiers != []:
+		for modifier in modifiers:
+			predicate_values = filter_by_predicate_modifier(predicate_values, modifier)
+			#print ("PREDICATE VALUES AFTER MOD: ", predicate, modifier, predicate_values)
+	else:
+		predicate_values = [(arg, val) for (arg, val) in predicate_values if val >= 0.7]
+
+	print ("RESULTING ARGLISTS AFTER PRED FILTERING: ",  predicate_values)
+	return predicate_values
+
 def resolve_argument(arg_object, entities):
 	ret_args = entities
+
+	print (arg_object, entities)
+	print (arg_object.obj_type)
 
 	arg_type = arg_object.obj_type
 	arg_id = arg_object.obj_id
@@ -119,25 +159,28 @@ def resolve_argument(arg_object, entities):
 	arg_mods = arg_object.mods
 
 	#print (arg_object)
-
-	#print ("BEFORE TYPE:", ret_args)
-
+	
 	if arg_type is not None:
 		ret_args = filter_by_type(ret_args, arg_type)
 
-	#print ("BEFORE NAME:", ret_args)
+	print ("AFTER TYPE RESOLUTION:", ret_args)
 
 	if arg_id is not None:
 		ret_args = filter_by_name(ret_args, arg_id)
 
+	print ("AFTER NAME RESOLUTION:", ret_args)
+
 	if arg_mods is not None and arg_mods != []:
 		for modifier in arg_mods:
-			ret_args = filter_by_mod(entities, modifier)
-	
+			print ("CURRENT MOD: ", modifier)
+			ret_args = filter_by_mod(ret_args, modifier, entities)
+
+	print ("AFTER MOD APPLICATION:", ret_args)
 	return ret_args
 
-def resolve_predicate(relation_object):
+def resolve_predicate(predicate_object):
 	#print ("REL:", rel_to_func_dict[relation_object.content.content])
+
 	rel_to_func_map = {
 	'on.p': spatial.on,
 	'on': spatial.on,
@@ -147,6 +190,7 @@ def resolve_predicate(relation_object):
 	'close_to.p': spatial.near,
 	'close.a': spatial.near,
 	'on.p': spatial.on,
+	'on_top_of.p': spatial.on,
 	'above.p': spatial.above,
     'below.p': spatial.below,
     'over.p': spatial.over,
@@ -168,19 +212,27 @@ def resolve_predicate(relation_object):
 	#for key in globals():
 	#	print (globals()[key])
 	#print (type(rel_to_func_map[relation_object.content.content]))
-	return rel_to_func_map[relation_object.content]
+	#print (predicate_object.content)
+	if type(predicate_object.content) == str:
+		return rel_to_func_map[predicate_object.content]
+	else:
+		if type(predicate_object.content) == TCopulaBe:
+			return ident
+		else:
+			return rel_to_func_map[predicate_object.content.content]
+
+def ident(arg1, arg2):
+	return arg1 is arg2
 
 def process_query(query, entities):
-	print ("ENTERING THE QUERY PROCESSING:")
 	#if type(query) != NSentence or (not query.is_question) or query.content == None:
-	#	return None
-	
+	#	return None	
 	if query.predicate is not None:#type(arg) == NRel or type(arg) == NPred:
 		print ("ENTERING NPRED PROCESSING...")
 		pred = query.predicate
 		
-		relation = resolve_predicate(pred)
-		print ("RELATION:", relation)
+		predicate = resolve_predicate(pred)
+		print ("PREDICATE:", predicate)
 		
 		relata = resolve_argument(pred.children[0], entities) if len(pred.children) > 0 else None
 		print ("RESOLVED RELATA:", relata)
@@ -188,7 +240,11 @@ def process_query(query, entities):
 		referents = resolve_argument(pred.children[1], entities) if len(pred.children) > 1 else None
 		print ("RESOLVED REFERENTS:", referents)
 
-		predicate_values = []
+
+		predicate_values = process_predicate(predicate, pred.mods, relata, referents) if referents is not None\
+													else process_predicate(predicate, pred.mods, relata)
+
+		"""predicate_values = []
 		if referents is not None:
 			predicate_values = compute_predicate(relation, relata, referents)
 		else:
@@ -197,14 +253,16 @@ def process_query(query, entities):
 		if pred.mods is not None and pred.mods != []:
 			for mod in arg.mods:
 				predicate_values = filter_by_predicate_modifier(predicate_values, mod)
-
+		"""
 		relata = [arg[0] for (arg, val) in predicate_values]
 		referents = [arg[1] for (arg, val) in predicate_values] if referents is not None else None
 
 		return relata
 	elif query.arg is not None:#type(arg) == NArg:
+		print ("ENTERING TOP LEVEL ARG PROCESSING...")
 		arg = query.arg
 		relata = resolve_argument(arg, entities)
+		print ("RESOLVED RELATA:", relata)
 		return relata		
 	else:
 		return "FAIL"

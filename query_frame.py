@@ -41,6 +41,7 @@ class QueryFrame(object):
 		self.DESCR_FLAG = False
 
 		self.arg = None
+		
 		self.predicate = None
 		self.relatum = None
 		self.referent = None
@@ -57,7 +58,8 @@ class QueryFrame(object):
 			if len(self.predicate.children) > 1:
 				self.referent = self.predicate.children[1]
 
-		self.resolve_relatum = self.resolve_arg(self.relatum)
+		if self.relatum is not None:
+			self.resolve_relatum = self.resolve_arg(self.relatum)
 		if self.referent is not None:
 			self.resolve_referent = self.resolve_arg(self.referent)
 

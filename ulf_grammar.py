@@ -37,7 +37,7 @@ grammar['at.p'] = lambda x: TPrep(x)
 grammar['in.p'] = lambda x: TPrep(x)
 grammar['between.p'] = lambda x: TPrep(x)
 grammar['side_by_side_with.p'] = lambda x: TPrep(x)
-grammar['on_top_of.p'] = lambda x: TPrep(x)
+grammar['on_top_of.p'] = lambda x: TPred(x)
 grammar['close_to.p'] = lambda x: TPrep(x)
 grammar['near_to.p'] = lambda x: TPrep(x)
 grammar['far_from.p'] = lambda x: TPrep(x)
@@ -185,6 +185,7 @@ grammar['|texaco|.n'] = lambda x: TName(x)
 grammar['|target|.n'] = lambda x: TName(x)
 
 grammar['not.adv-s'] = lambda x: TNeg()
+grammar['not.adv-a'] = lambda x: TNeg()
 
 grammar['or.cc'] = lambda x: TConj(x)
 grammar['and.cc'] = lambda x: TConj(x)
@@ -203,6 +204,7 @@ grammar[("TTenseMarker", "TAspectMarker")] = lambda x, y: NSentenceParams(tense 
 #Adjective modifier rules
 grammar[("TSuperMarker", "TAdj")] = lambda x, y: TAdj(content = y.content, mod = x)
 grammar[("TAdvAdjMod", "TAdj")] = lambda x, y: TAdj(content = y.content, mod = x)
+grammar[("TNeg", "TAdj")] = lambda x, y: TAdj(content = y.content, mod = x)
 
 #Determiner rules
 grammar[("TQuanMarker", "TAdj")] = lambda x, y: NDet(y) if (y.content != "many.a" or y.mod is None or y.mod.content != "how.mod-a") else NCardDet()
@@ -221,11 +223,13 @@ grammar[("TNReifierMarker", "NArg")] = lambda x, y: y
 grammar[("TRelNoun", "NArg")] = lambda x, y: NArg(obj_type = x.content[:-5], obj_id = x.content[:-5].upper(), mods = [y])
 
 grammar[("TNumber", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = y.plur)
+grammar[("TNeg", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = y.plur)
 
 grammar[("TConj", "NArg")] = lambda x, y: NConjArg(x, children = [y])
 grammar[("NArg", "TConj")] = lambda x, y: NConjArg(y, children = [x])
 grammar[("Narg", "NConjArg")] = lambda x, y: NConjArg(y.content, children = y.children + [x])
 grammar[("NConjArg", "NArg")] = lambda x, y: NConjArg(x.content, children = x.children + [y])
+grammar[("NArg", "NArg")] = lambda x, y: NConjArg(children = [x, y])
 
 grammar[("TEqualsMarker", "NArg")] = lambda x, y: y
 grammar[("NRel", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = y.plur)
@@ -243,6 +247,7 @@ grammar[("TNeg", "NPred")] = lambda x, y: NPred(content=y.content, children=y.ch
 grammar[("NSentenceParams", "NPred")] = lambda x, y: y
 grammar[("TCopulaBe", "TPred")] = lambda x, y: y
 grammar[("TCopulaBe", "NPred")] = lambda x, y: y
+grammar[("TCopulaBe", "NArg")] = lambda x, y: NPred(content = x, children = [y])
 
 #grammar[("NVP", "NRel")] = lambda x, y: y
 

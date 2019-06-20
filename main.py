@@ -419,7 +419,7 @@ def main():
         idx = ulfs.index(ulf)
         print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
         ulf = ulf.lower().strip().replace("{", "").replace("}", "")
-        if ";;" not in ulf and ulf != "" and "row" not in ulf and "stack" not in ulf and "face" not in ulf and "-of" not in ulf:
+        if ";;" not in ulf and ulf != "" and "row" not in ulf and "stack" not in ulf and "face" not in ulf and "-of" not in ulf and "right.a (red.a block.n)" not in ulf:
             query_frame = QueryFrame(surface_forms[idx], ulf, ulf_parser.parse(ulf))
             #fit_line(np.array([[-1, 0, 0], [-2, 0, 0], [0, 1.0, 0], [2.0, 0, 0], [10, 0, 1000.0]]))
             #fit_line(np.array([[-1, -1, 0], [-2, -2, 0], [1.0, 1.0, 0], [2.0, 2.0, 0]]))
@@ -450,7 +450,7 @@ def main():
             print (query_frame.raw)
             print ("\n" + ulf + "\n")
             answer_set = process_query(query_frame, world.entities)
-            print (answer_set)
+            print ("ANSWER SET: ", answer_set)
             
             #query_frame = QueryFrame(query.query_tree)
             #side = get_region("side", "front", tbl)
