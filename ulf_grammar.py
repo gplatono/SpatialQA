@@ -229,7 +229,7 @@ grammar[("TConj", "NArg")] = lambda x, y: NConjArg(x, children = [y])
 grammar[("NArg", "TConj")] = lambda x, y: NConjArg(y, children = [x])
 grammar[("Narg", "NConjArg")] = lambda x, y: NConjArg(y.content, children = y.children + [x])
 grammar[("NConjArg", "NArg")] = lambda x, y: NConjArg(x.content, children = x.children + [y])
-grammar[("NArg", "NArg")] = lambda x, y: NConjArg(children = [x, y])
+grammar[("NArg", "NArg")] = lambda x, y: NConjArg(TConj(), children = [x, y])
 
 grammar[("TEqualsMarker", "NArg")] = lambda x, y: y
 grammar[("NRel", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = y.plur)

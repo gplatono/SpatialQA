@@ -14,7 +14,7 @@ class QueryFrame(object):
 	class QueryType(enum.Enum):
 		"""Possible categories of questions (subject to a change)."""
 		EXIST = 0
-		CONFRM = 1
+		CONFIRM = 1
 		IDENT = 2
 		DESCR = 3
 		COUNT = 4
@@ -63,6 +63,7 @@ class QueryFrame(object):
 		if self.referent is not None:
 			self.resolve_referent = self.resolve_arg(self.referent)
 
+		print ("BEFORE ENTERING QUERY TPYE:")
 		self.scan_type()
 
 		print ("QUERY CONTENT:")
@@ -83,7 +84,15 @@ class QueryFrame(object):
 	def scan_type(self):
 		self.YN_FLAG = True if re.search('^\(*(pres|past|pres perf\)|pres prog\)|prog) (be.v|do.aux|can.aux)', self.ulf, re.IGNORECASE) else False
 		self.COUNT_FLAG = True if re.search('^\(*(how.adv-a many.a|how_many.d)', self.ulf, re.IGNORECASE) else False
+		
+		if re.search('^.*(how.mod-a many.a|how_many.d)', self.ulf, re.IGNORECASE):
+			self.COUNT_FLAG = True
+		
 		self.IDENT_FLAG = True if re.search('^\(*(what.d|which.d).*(block.n).*(be.v)', self.ulf, re.IGNORECASE) else False
+
+		if re.search('^\(*what.pro', self.ulf, re.IGNORECASE):
+			self.IDENT_FLAG = True
+
 		self.DESCR_FLAG = True if re.search('^\(*(where).*(be.v).*\|.*\|.* block.n', self.ulf, re.IGNORECASE) else False
 
 		if self.COUNT_FLAG:
@@ -94,4 +103,7 @@ class QueryFrame(object):
 
 		if self.DESCR_FLAG:
 			self.query_type = self.QueryType.DESCR
+
+		if self.YN_FLAG:
+			self.query_type = self.QueryType.CONFIRM
 

@@ -449,8 +449,11 @@ def main():
 
             print (query_frame.raw)
             print ("\n" + ulf + "\n")
-            answer_set = process_query(query_frame, world.entities)
-            print ("ANSWER SET: ", answer_set)
+            answer_set_rel, answer_set_ref = process_query(query_frame, world.entities)
+            response_surface = hci_manager.generate_response(query_frame, answer_set_rel, [1.0])
+            print (query_frame.query_type)
+            print ("ANSWER SET: ", answer_set_rel)
+            print ("RESPONSE: ", response_surface)
             
             #query_frame = QueryFrame(query.query_tree)
             #side = get_region("side", "front", tbl)

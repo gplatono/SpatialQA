@@ -7,6 +7,7 @@ from threading import Thread, RLock
 import time
 import operator
 import collections
+from query_frame import QueryFrame
 
 class HCIManager(object):
 	"""Manages the high-level interaction loop between the user and the system."""
@@ -43,6 +44,9 @@ class HCIManager(object):
 		self.lissa_reaction = self.lissa_path + "reaction.lisp"
 		self.lissa_output = self.lissa_path + "output.txt"
 
+
+		if self.debug_mode:
+			self.state = self.STATE.QUESTION_PENDING
 		# print (self.lissa_input)
 		# print (self.lissa_ulf)
 		# print (self.lissa_reaction)
@@ -102,6 +106,8 @@ class HCIManager(object):
 									
 					if ulf_counter == 7:
 						continue
+
+					self.state = self.STATE.QUESTION_PENDING
 
 					print ("WRITING REACTION...")
 					lisp_formatted_response = "(setq *next-reaction* \"" + "test" + "\")"
@@ -263,7 +269,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 	A: Yes.
 
 	'''
-	def generate_response(self, user_input_surface, query_object, question_type, answer_set, certainty):
+	def generate_response(self, query_object, answer_set, certainty):
 
 		# Check which state we're in...
 		if self.state == self.STATE.INIT:
@@ -286,22 +292,29 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 			# Need to work on initial pre-processing as well
 
 			# pre-processing
-			user_input_surface = lower(user_input_surface)
-			user_input_list = english_sentence_to_list(user_input_surface)
+			user_input_surface = query_object.surface.lower()
+			user_input_list = re.findall("[a-zA-Z'-]+", user_input_surface)#self.english_sentence_to_list(user_input_surface)
+			print ("USER INPUT LIST:", user_input_list)
 			while not user_input_surface[-1].isalpha():
 				user_input_surface = user_input_surface[:-1]
 
 			type_surf = "thing"
-			pos_types = ["block", "row", "stack", "group", "blocks", "rows", "stacks", "groups"]
-			for t in range(0, len(pos_types)):
+			pos_types = ["block", "row", "stack", "group"]#, "blocks", "rows", "stacks", "groups"]			
+			
+			for t in pos_types:
+				if t in user_input_list or t+"s" in user_input_list:
+					type_surf = t
+					break
+			
+			"""for t in range(0, len(pos_types)):
 				if t == user_input_list[t]:
 					type_surf = user_input_list[t%4]
-					break
+					break"""
 			plural_type_surf = type_surf + "s"
 
 			threashold = 0.7
 
-			if question_type == question_type.IDENT:
+			if query_object.query_type == QueryFrame.QueryType.IDENT:#question_type == question_type.IDENT:
 				# These are the questions like "Which blocks are touching the SRI
 				# block?" and "What block is above the Toyota block?"...  This
 				# presuposes that the answer exists, but this will be treated very
@@ -345,7 +358,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 					# give an uncertain "it doesn't exist answer"
 						return "That probably doesn't exist."
 
-				ans_list = entities_to_english_list(answer_set, 'name')
+				ans_list = self.entities_to_english_list(answer_set, 'name')
 
 				if len(answer_set) == 1:
 				# identify the only answer
@@ -373,9 +386,9 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						# identify the multiple answers with mixed certainty
 
 							# split the answers by certainty
-							cert_lists = entities_split_by_certainty(answer_set, certainty, threashold)
-							cert_items = entities_to_english_list(cert_lists[0])
-							uncert_items = entities_to_english_list(cert_lists[1])
+							cert_lists = self.entities_split_by_certainty(answer_set, certainty, threashold)
+							cert_items = self.entities_to_english_list(cert_lists[0])
+							uncert_items = self.entities_to_english_list(cert_lists[1])
 
 							if use_grounding:
 							# identify the multiple answers with mixed certainty and grounding
@@ -406,7 +419,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						# identify the multiple answers with certainty without grounding
 							return capitalize(ans_list) + " do."
 
-			elif question_type == question_type.CONFIRM:
+			elif query_object.query_type == QueryFrame.QueryType.CONFIRM:
 				# These are the questions like "Is the SRI block near the Toyota
 				# block?" and "The Toyota block is red, right?"
 				# How these will be handled depends very much on what the answer set
@@ -424,7 +437,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 					else:
 					# return uncerain yes
 						return "Probably."
-			elif question_type == question_type.EXIST:
+			elif query_object.query_type == QueryFrame.QueryType.EXIST:
 				# These are the questions like "Is there a block at height 3?"
 				# or "Is there a block to the left of the SRI block?"
 				# In these cases, the answer set will be empty if the answer is no,
@@ -478,7 +491,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 				# give a positive answer and identify it
 
 					# identify the entity
-					ans_list = entities_to_english_list(answer_set, 'name')
+					ans_list = self.entities_to_english_list(answer_set, 'name')
 					# ex. "the Nvidia block", "the afsk32313 stack"
 
 					if certainty[0] > threashold:
@@ -522,9 +535,9 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 							# give a mixed certainty positive answer
 
 							# split the answers by certainty
-							cert_lists = entities_split_by_certainty(answer_set, certainty, threashold)
-							cert_items = entities_to_english_list(cert_lists[0])
-							uncert_items = entities_to_english_list(cert_lists[1])
+							cert_lists = self.entities_split_by_certainty(answer_set, certainty, threashold)
+							cert_items = self.entities_to_english_list(cert_lists[0])
+							uncert_items = self.entities_to_english_list(cert_lists[1])
 
 							if use_grounding:
 							# give a mixed certainty postive answer with grounding
@@ -555,7 +568,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						else:
 						# give a certain positive answer without grounding
 							return "Yes."
-			elif question_type == question_type.ATTR_COLOR:
+			elif query_object.query_type == QueryFrame.QueryType.ATTR_COLOR:
 				# These are the questions like "What is the color of the leftmost
 				# block?" or "Which color blocks are touching the Nvidia block"
 
@@ -576,8 +589,8 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 					return "There is no such " + type_surf + "."
 
 				# a simple list of colors
-				ans_list_simple = entities_to_color_list(answer_set)
-				ans_list_complex = entities_to_english_list(answer_set, 'color')
+				ans_list_simple = self.entities_to_color_list(answer_set)
+				ans_list_complex = self.entities_to_english_list(answer_set, 'color')
 
 				if len(answer_set) == 1:
 					if certainty[0] > threashold:
@@ -613,11 +626,12 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						else:
 						# give an uncertain answer w/out grounding
 							return "They may be " + ans_list_simple + "."
-			elif question_type == question_type.ATTR_ORIENT:
+			elif query_object.query_type == QueryFrame.QueryType.ATTR_ORIENT:
 				# These are the questions like "What is the orientation of the SRI
 				# block?"
 				pass
-			elif question_type == question_type.COUNT:
+			elif query_object.query_type == QueryFrame.QueryType.COUNT:
+				print ("ENTERING COUNTING RESPONSE GENERATION...")
 				# These are questions like "How many blocks are to the left of the
 				# NVidia block" and "How many blocks touch the McDonals block?"
 				# If it is just one, we want to say that and name it, otherwise
@@ -658,7 +672,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 					# say flatly there are none
 						return "There are 0."
 
-				ans_list = entities_to_english_list(answer_set, 'name')
+				ans_list = self.entities_to_english_list(answer_set, 'name')
 
 				# This part is very much like the identification
 				if len(answer_set) == 1:
@@ -689,28 +703,29 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 				# give the number AND list them out, also very much like identification
 				elif len(answer_set) < 4:
 				# identify the reasonably enumerable answers
+					print ("HERE")
 					if certainty[0] > threashold:
 					# identify the reasonably enumerable answers with certainty
 						if use_grounding:
 						# identify the reasonably enumerable answers with certainty and grounding
 							if surf_aux == "is" or surf_aux == "are":
-								return "There are " + str(len(ans_set)) + " that are " + des_prop + ": " + ans_list + "."
+								return "There are " + str(len(answer_set)) + " that are " + des_prop + ": " + ans_list + "."
 							else:
-								return "There are " + str(len(ans_set)) + " that " + des_prop + ": " + ans_list + "."
+								return "There are " + str(len(answer_set)) + " that " + des_prop + ": " + ans_list + "."
 						else:
 						# identify the reasonably enumerable answers with certainty and without grounding
-							return "There are " + str(len(ans_set)) + ": " + ans_list + "."
+							return "There are " + str(len(answer_set)) + ": " + ans_list + "."
 					else:
 					# identify the reasonably enumerable answers with uncertainty
 						if use_grounding:
 						# identify the reasonably enumerable answers with uncertainty and grounding
 							if surf_aux == "is" or surf_aux == "are":
-								return "There are probably " + str(len(ans_set)) + " that are " + des_prop + ": " + ans_list + "."
+								return "There are probably " + str(len(answer_set)) + " that are " + des_prop + ": " + ans_list + "."
 							else:
-								return "There are probably " + str(len(ans_set)) + " that " + des_prop + ": " + ans_list + "."
+								return "There are probably " + str(len(answer_set)) + " that " + des_prop + ": " + ans_list + "."
 						else:
 						# identify the reasonably enumerable answers with uncertainty and without grounding
-							return "Probably " + ans_list + " is the only one."
+							return "Probably " + answer_list + " is the only one."
 
 				else:
 				# give the number
@@ -719,26 +734,26 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						if use_grounding:
 						# give the number certaintly with grounding
 							if surf_aux == "is" or surf_aux == "are":
-								return "There are " + str(len(ans_set)) + plural_type_surf + " that are " + des_prop + "."
+								return "There are " + str(len(answer_set)) + plural_type_surf + " that are " + des_prop + "."
 							else:
-								return "There are " + str(len(ans_set)) + plural_type_surf + " that " + des_prop + "."
+								return "There are " + str(len(answer_set)) + plural_type_surf + " that " + des_prop + "."
 						else:
 						# give the number certaintly without grounding
-							return "There are " + str(len(ans_set)) + "."
+							return "There are " + str(len(answer_set)) + "."
 					else:
 					# give the number, with uncertainty
 						if use_grounding:
 						# give the number uncertaintly with grounding
 							if surf_aux == "is" or surf_aux == "are":
-								return "There may be " + str(len(ans_set)) + plural_type_surf + " that are " + des_prop + "."
+								return "There may be " + str(len(answer_set)) + plural_type_surf + " that are " + des_prop + "."
 							else:
-								return "There may be " + str(len(ans_set)) + plural_type_surf + " that " + des_prop + "."
+								return "There may be " + str(len(answer_set)) + plural_type_surf + " that " + des_prop + "."
 						else:
 						# give the number uncertaintly without grounding
-							return "Perhaps there are " + str(len(ans_set)) + "."
-			elif question_type == question_type.ERROR:
+							return "Perhaps there are " + str(len(answer_set)) + "."
+			elif query_object.query_type == QueryFrame.QueryType.ERROR:
 				return "There is no object that satisfies those parameters, please rephrase and ask again."
-			elif question_type == question_type.DESCR:
+			elif query_object.query_type == QueryFrame.QueryType.COUNT:
 				pass
 
 		elif self.state == self.STATE.USER_BYE:
@@ -753,25 +768,26 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 	# takes an entity list and returns an english list with no excess whitespace
 	# the list must be of length at least 1
 	# ents is the answer set, attribute is the attribute that should be listed
-	def entities_to_english_list(ents, attribute):
-		types = map(lambda x: lower(x.type_structure[:-1][0]), ents)
-		attribs = map(operator.attrgetter(attribute), ents)
-		uniform_type = all(x == type[0] for x in type)
+	def entities_to_english_list(self, ents, attribute):
+		types = list(map(lambda x: x.type_structure[:-1][0].lower(), ents))
+		attribs = list(map(operator.attrgetter(attribute), ents))
+		uniform_type = all(x == types[0] for x in types)
 
-		if len(list) == 1:
+		#Entities?
+		if len(ents) == 1:#if len(list) == 1:
 			return 'the ' + attribs[0]
-		elif len(list) == 2:
+		elif len(ents) == 2:
 			return 'the ' + attribs[0] + ' ' + types[0] + ' and the ' + attribs[1] + types[1]
 		else:
 			if uniform_type:
 				out = 'the ' + attribs[0]
-				for i in range(1, len(list)-1):
+				for i in range(1, len(ents)-1):
 					out += ', ' + attribs[i]
 				out += ', and ' + attribs[-1] + ' ' + types[-1] + 's'
 				return out
 			else:
 				out = 'the ' + attribs[0] + ' ' + types[0]
-				for i in range(1, len(list)-1):
+				for i in range(1, len(ents)-1):
 					out += ', ' + attribs[i] + ' ' + types[i]
 				out += ', and ' + attribs[-1] + ' ' + types[-1]
 				return out
@@ -785,7 +801,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 	#  (...are) "the SRI block, the Mercedes block, and the Support stack" (are...)
 
 	# use this when we only want colors, without types or specifier
-	def entities_to_color_list(ents):
+	def entities_to_color_list(self, ents):
 		# similar to entities_to_english_list here
 		types = map(lambda x: lower(x.type_structure[:-1][0]), ents)
 		cols = map(operator.attrgetter('color'), ents)
@@ -809,7 +825,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 	# returns two lists divided by the certainty about each entity
 	# used in mixed certainty answers
 	# assumes answers are already sorted by certainty
-	def entities_split_by_certainty(ents, certainty, threashold):
+	def entities_split_by_certainty(self, ents, certainty, threashold):
 		out = []
 		for i in range(0, len(ents)):
 			if certainty[i] < threashold:
@@ -819,7 +835,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 		out.append(ents)
 		return out
 
-	def english_sentence_to_list(sentence):
+	def english_sentence_to_list(self, sentence):
 		# Divide the sentence into words
 		list = sentence.split()
 
@@ -849,7 +865,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 
 	# There needs to be a better way to do this...  To cover cases where it is
 	# non-obvious
-	def get_verb_phrase(user_input_surface, is_are):
+	def get_verb_phrase(self, user_input_surface, is_are):
 		if not is_are == "*":
 			return is_are + user_input_surface.split(is_are)[1]
 		else:

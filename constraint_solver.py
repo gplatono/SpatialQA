@@ -255,15 +255,16 @@ def process_query(query, entities):
 				predicate_values = filter_by_predicate_modifier(predicate_values, mod)
 		"""
 		relata = [arg[0] for (arg, val) in predicate_values]
+		#relata_certainties = [val for (arg, val) in predicate_values]
 		referents = [arg[1] for (arg, val) in predicate_values] if referents is not None else None
 
-		return relata
+		return relata, referents
 	elif query.arg is not None:#type(arg) == NArg:
 		print ("ENTERING TOP LEVEL ARG PROCESSING...")
 		arg = query.arg
 		relata = resolve_argument(arg, entities)
 		print ("RESOLVED RELATA:", relata)
-		return relata		
+		return relata, None	
 	else:
 		return "FAIL"
 	ret_set = entities
