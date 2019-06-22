@@ -4,6 +4,8 @@ from entity import Entity
 from geometry_utils import *
 from queue import Queue
 from mathutils import Vector
+import bpy_extras
+from functools import reduce
 #from main import *
 
 #Dictionary that maps the relation names to the names of the functions that implement them
@@ -29,6 +31,7 @@ rf_mapping = {'to the left of': 'to_the_left_of_deic',
 }
 
 entities = []
+world = None
 
 def dist_obj(a, b):
     if type(a) is not Entity or type(b) is not Entity:
@@ -140,6 +143,29 @@ def v_offset(a, b):
     h_dist = math.sqrt((center_a[0] - center_b[0]) ** 2 + (center_a[1] - center_b[1]) ** 2)    
     return gaussian(2 * (center_a[2] - center_b[2] - 0.5*(dim_a[2] + dim_b[2])) /  \
                     (1e-6 + dim_a[2] + dim_b[2]), 0, 1 / math.sqrt(2*math.pi))
+
+
+def scaled_axial_distance(a_bbox, b_bbox):
+    a_span = (a_bbox[1] - a_bbox[0], a_bbox[3] - a_bbox[2])
+    b_span = (b_bbox[1] - b_bbox[0], b_bbox[3] - b_bbox[2])
+    a_center = ((a_bbox[0] + a_bbox[1]) / 2, (a_bbox[2] + a_bbox[3]) / 2)
+    b_center = ((b_bbox[0] + b_bbox[1]) / 2, (b_bbox[2] + b_bbox[3]) / 2)
+    axis_dist = (a_center[0] - b_center[0], a_center[1] - b_center[1])
+    return (2 * axis_dist[0] / max(a_span[0] + b_span[0], 2), 2 * axis_dist[1] / max(a_span[1] + b_span[1], 2))
+
+
+#Computes the projection of an entity onto the observer's visual plane
+#Inputs: entity - entity, observer - object, representing observer's position
+#and orientation
+#Return value: list of pixel coordinates in the observer's plane if vision
+def vp_project(entity, observer):
+    points = reduce((lambda x,y: x + y), [[obj.matrix_world * v.co for v in obj.data.vertices] for obj in entity.constituents if (obj is not None and hasattr(obj.data, 'vertices') and hasattr(obj, 'matrix_world'))])   
+    co_2d = [bpy_extras.object_utils.world_to_camera_view(world.scene, observer.camera, point) for point in points]
+    render_scale = world.scene.render.resolution_percentage / 100
+    render_size = (int(world.scene.render.resolution_x * render_scale), int(world.scene.render.resolution_y * render_scale),)
+    pixel_coords = [(round(point.x * render_size[0]),round(point.y * render_size[1]),) for point in co_2d]
+    return pixel_coords
+
 
 
 #==========================================================================================
@@ -307,7 +333,7 @@ def in_front_of_deic(a, b):
     max_dim_a = max(bbox_a[7][0] - bbox_a[0][0],
                     bbox_a[7][1] - bbox_a[0][1],
                     bbox_a[7][2] - bbox_a[0][2]) + 0.0001
-    dist = get_distance_from_line(get_observer().centroid, b.centroid, a.centroid)
+    dist = get_distance_from_line(world.get_observer().centroid, b.centroid, a.centroid)
     #print ("{}, {}, CLOSER: {}, WC_DEIC: {}, WC_EXTR: {}, DIST: {}".format(a.name, b.name, closer_than(a, b, observer), within_cone(b.centroid - observer.centroid, a.centroid - observer.centroid, 0.95), within_cone(b.centroid - a.centroid, Vector((0, -1, 0)) - a.centroid, 0.8), e ** (- 0.1 * get_centroid_distance_scaled(a, b))))
     return math.e ** (- 0.01 * get_centroid_distance_scaled(a, b)) * within_cone(b.centroid - a.centroid, Vector((1, 0, 0)), 0.7)
     '''0.3 * closer_than(a, b, observer) + \
@@ -400,8 +426,8 @@ def asym_inv_exp_left(x, cutoff, left, right):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def to_the_right_of_deic(a, b):
-    a_bbox = get_2d_bbox(vp_project(a, observer))
-    b_bbox = get_2d_bbox(vp_project(b, observer))
+    a_bbox = get_2d_bbox(vp_project(a, world.get_observer()))
+    b_bbox = get_2d_bbox(vp_project(b, world.get_observer()))
     axial_dist = scaled_axial_distance(a_bbox, b_bbox)
     if axial_dist[0] <= 0:
         return 0
@@ -467,21 +493,27 @@ def higher_than_centroidwise(a, b):
 
     a0 = a.get_centroid()
     b0 = b.get_centroid()    
-    return a0[2] > b0[2]#1 / (1 + math.exp(-(a0[2] - b0[2])))
+    return a0[2] > b0[2]#1 / (1 + math.exp(-(a0[2] - b0[2]))
+
+def higher_than(a, b):
+    return higher_than_centroidwise(a, b)
 
 def taller_than(a, b):
-    pass
+    return a.dimensions[2] > b.dimensions[2]
 
-def superlative(relation, arg, entities):
-    func = globals()[rf_mapping[relation]]
-    if arg != None:
-        result = max([(e, func(e, arg)) for e in entities if e != arg], key=lambda x: x[1])[0]
+def superlative(predicate, entities, background):
+    """Compute the "most" object from a given set of entities against a background."""
+
+    #If the backgound is given, compare every entity against it and pick the max
+    if background != None:
+        result = max([(entity, predicate(entity, background)) for entity in entities if entity != background], key=lambda x: x[1])[0]
+    #If the is no background, e.g., for "topmost", just compare entities pairwise
     else:
         result = entities[0]
         if len(entities) > 1:
-            for e in entities[1:]:
-                if func(e, result) > func(result, e):
-                    result = e
+            for entities in entities[1:]:
+                if predicate(entity, result) > predicate(result, entity):
+                    result = entity
     return result
 
 def in_front_of_extr(obj, world):

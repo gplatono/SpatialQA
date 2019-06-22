@@ -38,6 +38,10 @@ class World(object):
 		#List of  possible color modifiers
 		self.color_mods = ['black', 'red', 'blue', 'brown', 'green', 'yellow']
 
+	def get_observer(self):
+		if not hasattr(self, 'observer') or self.observer == None:
+			self.observer = self.create_observer()
+		return self.observer
 
 	def create_observer(self):
 		"""Create and configure the special "observer" object

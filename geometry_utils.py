@@ -41,7 +41,7 @@ def get_distance_from_plane(point, a, b, c):
 #Inputs: x1, x2, x3 - point coordinates as tuples or lists
 #Return value: real number
 def get_distance_from_line(x1, x2, x3):
-    if x1 == x2:
+    if np.linalg.norm(x1 - x2) <= 0.001:
         return point_distance(x1, x3)    
     #print ("POINTS: {}, {}, {}".format(x1, x2, x3))
     v1 = np.array(x3) - np.array(x1)

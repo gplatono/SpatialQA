@@ -88,7 +88,7 @@ class QueryFrame(object):
 		if re.search('^.*(how.mod-a many.a|how_many.d)', self.ulf, re.IGNORECASE):
 			self.COUNT_FLAG = True
 		
-		self.IDENT_FLAG = True if re.search('^\(*(what.d|which.d).*(block.n).*(be.v)', self.ulf, re.IGNORECASE) else False
+		self.IDENT_FLAG = True if re.search('^.*(what.d|which.d).*(block.n).*(be.v)', self.ulf, re.IGNORECASE) else False
 
 		if re.search('^\(*what.pro', self.ulf, re.IGNORECASE):
 			self.IDENT_FLAG = True

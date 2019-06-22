@@ -187,6 +187,7 @@ def resolve_predicate(predicate_object):
 	'to_the_left_of.p': spatial.to_the_left_of_deic,
 	'to_the_right_of.p': spatial.to_the_right_of_deic,
 	'near.p': spatial.near,
+	'near_to.p': spatial.near,
 	'close_to.p': spatial.near,
 	'close.a': spatial.near,
 	'on.p': spatial.on,
