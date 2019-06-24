@@ -64,8 +64,10 @@ class World(object):
 			cam_ob = bpy.data.objects.new("Camera", cam)
 			self.scene.objects.link(cam_ob)    
 
-		lamp_obj.location = (-20, 0, 10)
-		cam_ob.location = (-15.5, 0, 7)
+		#lamp_obj.location = (-20, 0, 10)
+		#cam_ob.location = (-15.5, 0, 7)
+		lamp_obj.location = (0, -20, 10)
+		cam_ob.location = (0, -9, 3)
 		cam_ob.rotation_mode = 'XYZ'
 		cam_ob.rotation_euler = (1.1, 0, -1.57)
 		bpy.data.cameras['Camera'].lens = 20
@@ -85,6 +87,10 @@ class World(object):
 			observer = bpy.data.objects["Observer"]            
 		observer_entity = Entity(observer)
 		observer_entity.camera = cam_ob
+		observer_entity.location = np.array(cam_ob.location)
+		observer_entity.up = np.array([0, 1, 3])
+		observer_entity.right = np.array([1, 0, 0])
+		observer_entity.set_frontal(-observer_entity.location)
 		return observer_entity
 
 	def get_dimensions(self):

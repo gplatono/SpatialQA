@@ -95,15 +95,19 @@ class Entity(object):
         #Entity's mesh centroid
         self.centroid = self.compute_centroid()
 
+        self.location = self.centroid
+
+        #The frontal vector
+        self.frontal = np.array(self.components.get('frontal')) \
+            if self.components.get('frontal') is not None else None
+
+        #The longitudinal vector and left-to-right vector
+        self.up = []
+        self.right = []
+
         self.radius = self.compute_radius()
         self.volume = self.compute_volume()
        
-        #The longitudinal vector
-        self.longitudinal = []
-
-        #The frontal vector
-        self.frontal = []
-
         #The parent offset
         self.parent_offset = self.compute_parent_offset()
 
@@ -227,12 +231,12 @@ class Entity(object):
             return None
         
     #Sets the direction of the longitudinal axis of the entity    
-    def set_longitudinal(self, direction):
-        self.longitudinal = direction
+    def set_longitudinal(self, longitudinial):
+        self.longitudinal = longitudinal
 
     #Sets the direction of the frontal axis of the entity
-    def set_frontal(self, direction):
-       	self.frontal = direction      
+    def set_frontal(self, frontal):
+       	self.frontal = frontal      
 
     #Checks if the entity has a given property
     def get(self, property):

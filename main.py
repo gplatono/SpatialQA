@@ -267,26 +267,8 @@ def save_screenshot():
     scene.render.filepath = filepath + current_scene + ".jpg"
     bpy.ops.render.render(write_still=True)
 
-#Computes the projection of an entity onto the observer's visual plane
-#Inputs: entity - entity, observer - object, representing observer's position
-#and orientation
-#Return value: list of pixel coordinates in the observer's plane if vision
-def vp_project(entity, observer):
-    points = reduce((lambda x,y: x + y), [[obj.matrix_world * v.co for v in obj.data.vertices] for obj in entity.constituents if (obj is not None and hasattr(obj.data, 'vertices') and hasattr(obj, 'matrix_world'))])   
-    co_2d = [bpy_extras.object_utils.world_to_camera_view(scene, observer.camera, point) for point in points]
-    render_scale = scene.render.resolution_percentage / 100
-    render_size = (int(scene.render.resolution_x * render_scale), int(scene.render.resolution_y * render_scale),)
-    pixel_coords = [(round(point.x * render_size[0]),round(point.y * render_size[1]),) for point in co_2d]
-    return pixel_coords
 
 
-def scaled_axial_distance(a_bbox, b_bbox):
-    a_span = (a_bbox[1] - a_bbox[0], a_bbox[3] - a_bbox[2])
-    b_span = (b_bbox[1] - b_bbox[0], b_bbox[3] - b_bbox[2])
-    a_center = ((a_bbox[0] + a_bbox[1]) / 2, (a_bbox[2] + a_bbox[3]) / 2)
-    b_center = ((b_bbox[0] + b_bbox[1]) / 2, (b_bbox[2] + b_bbox[3]) / 2)
-    axis_dist = (a_center[0] - b_center[0], a_center[1] - b_center[1])
-    return (2 * axis_dist[0] / max(a_span[0] + b_span[0], 2), 2 * axis_dist[1] / max(a_span[1] + b_span[1], 2))
 
 def get_weighted_measure(a, b, observer):
     a_bbox = get_2d_bbox(vp_project(a, observer))
@@ -420,7 +402,7 @@ def main():
         idx = ulfs.index(ulf)
         print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
         ulf = ulf.lower().strip().replace("{", "").replace("}", "")
-        if ";;" not in ulf and ulf != "" and "row" not in ulf and "stack" not in ulf and "face" not in ulf and "-of" not in ulf and "right.a (red.a block.n)" not in ulf and "and.cc" not in ulf and "most-n" not in ulf:
+        if ulf != "" and "row" not in ulf and "stack" not in ulf and "face" not in ulf and "-of" not in ulf and "right.a (red.a block.n)" not in ulf and "and.cc" not in ulf and "most-n" not in ulf:
             query_frame = QueryFrame(surface_forms[idx], ulf, ulf_parser.parse(ulf))
             #fit_line(np.array([[-1, 0, 0], [-2, 0, 0], [0, 1.0, 0], [2.0, 0, 0], [10, 0, 1000.0]]))
             #fit_line(np.array([[-1, -1, 0], [-2, -2, 0], [1.0, 1.0, 0], [2.0, 2.0, 0]]))
@@ -455,6 +437,11 @@ def main():
             print (query_frame.query_type)
             print ("ANSWER SET: ", answer_set_rel)
             print ("RESPONSE: ", response_surface)
+
+            #print (to_the_left_of_deic(mrc, tex))
+            
+            #print (rotation_matrix(0, -math.pi/4, -math.pi/4).dot(np.array([1,0,0])))
+            #print (eye_projection(np.array([2, 0, 0]), np.array([0, 1.0, 3.0]), np.array([1.0, 0, 0]), 10, 2))
             
             #query_frame = QueryFrame(query.query_tree)
             #side = get_region("side", "front", tbl)

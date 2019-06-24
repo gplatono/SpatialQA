@@ -150,8 +150,8 @@ def scaled_axial_distance(a_bbox, b_bbox):
     b_span = (b_bbox[1] - b_bbox[0], b_bbox[3] - b_bbox[2])
     a_center = ((a_bbox[0] + a_bbox[1]) / 2, (a_bbox[2] + a_bbox[3]) / 2)
     b_center = ((b_bbox[0] + b_bbox[1]) / 2, (b_bbox[2] + b_bbox[3]) / 2)
-    axis_dist = (a_center[0] - b_center[0], a_center[1] - b_center[1])
-    return (2 * axis_dist[0] / max(a_span[0] + b_span[0], 2), 2 * axis_dist[1] / max(a_span[1] + b_span[1], 2))
+    axis_dist = (a_center[0] - b_center[0], a_center[1] - b_center[1])    
+    return (axis_dist[0] / (a_span[0] + b_span[0] + 0.01), axis_dist[1] / (a_span[1] + b_span[1] + 0.01))
 
 
 #Computes the projection of an entity onto the observer's visual plane
@@ -159,11 +159,12 @@ def scaled_axial_distance(a_bbox, b_bbox):
 #and orientation
 #Return value: list of pixel coordinates in the observer's plane if vision
 def vp_project(entity, observer):
-    points = reduce((lambda x,y: x + y), [[obj.matrix_world * v.co for v in obj.data.vertices] for obj in entity.constituents if (obj is not None and hasattr(obj.data, 'vertices') and hasattr(obj, 'matrix_world'))])   
-    co_2d = [bpy_extras.object_utils.world_to_camera_view(world.scene, observer.camera, point) for point in points]
-    render_scale = world.scene.render.resolution_percentage / 100
-    render_size = (int(world.scene.render.resolution_x * render_scale), int(world.scene.render.resolution_y * render_scale),)
-    pixel_coords = [(round(point.x * render_size[0]),round(point.y * render_size[1]),) for point in co_2d]
+    #points = reduce((lambda x,y: x + y), [[obj.matrix_world * v.co for v in obj.data.vertices] for obj in entity.constituents if (obj is not None and hasattr(obj.data, 'vertices') and hasattr(obj, 'matrix_world'))])   
+    #co_2d = [bpy_extras.object_utils.world_to_camera_view(world.scene, observer.camera, point) for point in points]
+    #render_scale = world.scene.render.resolution_percentage / 100
+    #render_size = (int(world.scene.render.resolution_x * render_scale), int(world.scene.render.resolution_y * render_scale),)
+    #pixel_coords = [(round(point.x * render_size[0]),round(point.y * render_size[1]),) for point in co_2d]
+    pixel_coords = [(eye_projection(point, observer.up, observer.right, np.linalg.norm(observer.location), 2)) for point in entity.vertex_set]
     return pixel_coords
 
 
@@ -428,7 +429,10 @@ def asym_inv_exp_left(x, cutoff, left, right):
 def to_the_right_of_deic(a, b):
     a_bbox = get_2d_bbox(vp_project(a, world.get_observer()))
     b_bbox = get_2d_bbox(vp_project(b, world.get_observer()))
-    axial_dist = scaled_axial_distance(a_bbox, b_bbox)
+    axial_dist = scaled_axial_distance(a_bbox, b_bbox)    
+    #print ("AX_DIST:", axial_dist)
+    #print (a_bbox, b_bbox)
+    
     if axial_dist[0] <= 0:
         return 0
     horizontal_component = asym_inv_exp(axial_dist[0], 1, 1, 0.05)#sigmoid(axial_dist[0], 2.0, 5.0) - 1.0

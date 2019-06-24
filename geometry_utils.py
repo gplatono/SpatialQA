@@ -381,3 +381,69 @@ def fit_line(points):
         D = -D
         
     return centroid, D, avg_dist, max_dist
+
+
+def rotation_matrix(alpha, beta, gamma):
+    """
+    Compute the rotation matrix.
+
+    params:
+    alpha, beta, gamma - rotation angles around the x, y and z axes,
+    respecticaly. The angles are in radians.
+
+    return: the 3x3 rotation matrix
+    """
+
+    #Unit test: rotation_matrix(0, -math.pi/4, -math.pi/4).dot(np.array([1,0,0])) = [0.5, 0.5, 0.7071]
+    
+    cosa = math.cos(alpha)
+    cosb = math.cos(beta)
+    cosg = math.cos(gamma)
+    sina = math.sin(alpha)
+    sinb = math.sin(beta)
+    sing = math.sin(gamma)
+    R = np.array([[cosb*cosg, cosa*sing - sina*cosg*sinb, sina*sing + cosa*cosg*sinb],\
+                     [-sing*cosb, cosg*cosa + sing*sinb*sina, cosg*sina - sing*sinb*cosa],\
+                     [-sinb, -sina*cosb, cosa*cosb]])
+
+    return R
+
+def get_axis_angles(vect):
+    vx = vect[0]
+    vy = vect[1]
+    vz = vect[2]
+
+    if vz == 0 and vy == 0:
+        return (math.pi / 2, 0, math.pi / 2)
+
+    if vz == 0 and vx == 0:
+        return (math.pi / 2, 0, 0)
+
+    if vx == 0 and vy == 0:
+        return (0, 0, 0)
+
+    cosa = vz / math.sqrt(vz*vz + vy*vy)
+    alpha = math.acos(cosa)
+    if vy > 0:
+        alpha = -alpha
+
+    cosb = vz / math.sqrt(vz*vz + vx*vx)
+    beta = math.acos(cosb)
+    if vx > 0:
+        beta = -beta
+
+    cosg = vy / math.sqrt(vy*vy + vx*vx)
+    gamma = math.acos(cosg)
+    if vx > 0:
+        gamma = -gamma
+
+    return alpha, beta, gamma
+
+def eye_projection(point, up, right, focus_dist, eye_dist):
+    scaling_factor = (focus_dist - eye_dist) / focus_dist
+    up0 = scaling_factor * point.dot(up) / np.linalg.norm(up)
+    right0 = scaling_factor * point.dot(right) / np.linalg.norm(right)
+    return right0, up0
+
+def camera_matrix(location, direction):
+    pass
