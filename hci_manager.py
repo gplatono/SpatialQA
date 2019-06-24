@@ -58,11 +58,11 @@ class HCIManager(object):
 
 	def start(self):
 		"""Initiate the listening loop."""
-		if self.debug_mode == False:			
+		if self.debug_mode == False:
 			print ("Starting the listening thread...")
 			mic_thread = Thread(target = self.mic_loop)
 			mic_thread.start()
-			#thread.join()			
+			#thread.join()
 
 		print ("Starting the processing loop...")
 		while True:
@@ -71,7 +71,7 @@ class HCIManager(object):
 				if re.search(r'\b(exit|quit)\b', self.current_input, re.I):
 					self.speech_lock.release()
 					break
-				
+
 				print ("you said: " + self.current_input)
 
 				if self.debug_mode == False:
@@ -85,25 +85,25 @@ class HCIManager(object):
 					time.sleep(0.5)
 
 					print ("WAITING FOR ULF...")
-					
-					lissa_ulf_file = open(self.lissa_ulf, 'r+')					
+
+					lissa_ulf_file = open(self.lissa_ulf, 'r+')
 					ulf = lissa_ulf_file.readline()
 					lissa_ulf_file.truncate(0)
 					lissa_ulf_file.close()
-					
+
 					ulf_counter = 1
 					while ulf is None or ulf == "":
 						time.sleep(0.2)
 						lissa_ulf_file = open(self.lissa_ulf, 'r+')
 						ulf = lissa_ulf_file.readline()
 						lissa_ulf_file.truncate(0)
-						lissa_ulf_file.close()					
+						lissa_ulf_file.close()
 						ulf_counter += 1
 						if ulf_counter==7:
 							break
 
 					print (ulf)
-									
+
 					if ulf_counter == 7:
 						continue
 
@@ -111,7 +111,7 @@ class HCIManager(object):
 
 					print ("WRITING REACTION...")
 					lisp_formatted_response = "(setq *next-reaction* \"" + "test" + "\")"
-					lissa_react_file = open(self.lissa_reaction, 'w+')					
+					lissa_react_file = open(self.lissa_reaction, 'w+')
 					lissa_react_file.write(lisp_formatted_response)
 					lissa_react_file.close()
 
@@ -299,13 +299,13 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 				user_input_surface = user_input_surface[:-1]
 
 			type_surf = "thing"
-			pos_types = ["block", "row", "stack", "group"]#, "blocks", "rows", "stacks", "groups"]			
-			
+			pos_types = ["block", "row", "stack", "group"]#, "blocks", "rows", "stacks", "groups"]
+
 			for t in pos_types:
 				if t in user_input_list or t+"s" in user_input_list:
 					type_surf = t
 					break
-			
+
 			"""for t in range(0, len(pos_types)):
 				if t == user_input_list[t]:
 					type_surf = user_input_list[t%4]
@@ -313,6 +313,19 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 			plural_type_surf = type_surf + "s"
 
 			threashold = 0.7
+
+			index = 0
+			if not type_surf in user_input_list:
+				index = user_input_list.index(plural_type_surf) + 1
+			elif not plural_type_surf in user_input_list:
+				index = user_input_list.index(type_surf) + 1
+			else:
+				index = min(user_input_list.index(plural_type_surf), user_input_list.index(type_surf)) + 1
+
+			while user_input_list[index] == "are" or user_input_list[index] == "is" or user_input_list[index] == "that":
+				index += 1
+
+			des_prop = " ".join(user_input_list[index:])
 
 			if query_object.query_type == QueryFrame.QueryType.IDENT:#question_type == question_type.IDENT:
 				# These are the questions like "Which blocks are touching the SRI
@@ -322,12 +335,6 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 				# identification and less on the existance
 
 				# PREPROCESSING: --------------------------------------------------
-				# first we want to isolate the desired property that we will use for
-				# grounding, i.e. "touching the SRI block" or "above the Toyota block"
-				des_prop = user_input_surface.split(type_surf)[1].split(' ', 1)[1]
-				# NOTE: consider using the query_object, much (MUCH) more reliable
-				#       and consistant with the system
-
 				# it is helpful to know how the question was posed so that it can
 				# be answered more naturally
 				surf_aux = "*"
@@ -444,13 +451,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 				# and contain the applicable items if it is yes
 
 				# PREPROCESSING: --------------------------------------------------
-				# first let's isolate the property that we're looking for, i.e.
-				# "at height 3" or "to the left of the SRI block"
-				des_prop = user_input_surface.split(type_surf)[1].strip()
-				# NOTE: consider using the query_object, much more reliable
-				#       and consistant with the system
-
-				# now, decide if we will ground the answer
+				# decide if we will ground the answer
 				use_grounding = user_input_surface.startswith("is there") or user_input_surface.startswith("are there")
 				# I think this is a good policy, if the user asks "does there exist
 				# a block at height 3" we can respond simply "Yes.", and if there
@@ -573,13 +574,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 				# block?" or "Which color blocks are touching the Nvidia block"
 
 				# PREPROCESSING: --------------------------------------------------
-				# first let's isolate the property that we're looking for, i.e.
-				# "the leftmost block" or "touching the Nvidia block"
-				des_prop = user_input_surface.split(surf_aux)[1].strip()
-				# NOTE: consider using the query_object, much more reliable
-				#       and consistant with the system
-
-				# now, decide if we will ground the answer
+				# decide if we will ground the answer
 				use_grounding = user_input_surface.startswith("what color")
 				# I'm not sure what a good policy is here, I'll write code even if it's
 				# unreachable in case it sounds unnatural and this is changed
@@ -639,16 +634,9 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 				# adjust for certainty
 
 				# PREPROCESSING: --------------------------------------------------
-				# first let's isolate the property that we're looking for, i.e.
-				# "to the left of the Nvidia block" or "touch the McDonals block"
-				des_prop = user_input_surface.split(type_surf)[1].strip()
-				if des_prop.startswith("are") or des_prop.startswith("is"):
-					des_prop = des_prop.split(surf_aux)[1].strip()
-				# NOTE: consider using the query_object, much more reliable
-				#       and consistant with the system
-
-				# now, decide if we will ground the answer
+				# decide if we will ground the answer
 				use_grounding = not user_input_surface.startswith("what is")
+				use_grounding = use_grounding and not des_prop == "*"
 				# I think this is workable...  if they ask for what is the number
 				# we simply want to give the number, if how many we should elaborate
 
@@ -734,9 +722,9 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						if use_grounding:
 						# give the number certaintly with grounding
 							if surf_aux == "is" or surf_aux == "are":
-								return "There are " + str(len(answer_set)) + plural_type_surf + " that are " + des_prop + "."
+								return "There are " + str(len(answer_set)) + " " + plural_type_surf + " that are " + des_prop + "."
 							else:
-								return "There are " + str(len(answer_set)) + plural_type_surf + " that " + des_prop + "."
+								return "There are " + str(len(answer_set)) + " " + plural_type_surf + " that " + des_prop + "."
 						else:
 						# give the number certaintly without grounding
 							return "There are " + str(len(answer_set)) + "."
@@ -753,8 +741,6 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 							return "Perhaps there are " + str(len(answer_set)) + "."
 			elif query_object.query_type == QueryFrame.QueryType.ERROR:
 				return "There is no object that satisfies those parameters, please rephrase and ask again."
-			elif query_object.query_type == QueryFrame.QueryType.COUNT:
-				pass
 
 		elif self.state == self.STATE.USER_BYE:
 			pass
@@ -769,15 +755,15 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 	# the list must be of length at least 1
 	# ents is the answer set, attribute is the attribute that should be listed
 	def entities_to_english_list(self, ents, attribute):
-		types = list(map(lambda x: x.type_structure[:-1][0].lower(), ents))
+		types = list(map(lambda x: x.type_structure[:-1][-1], ents))
 		attribs = list(map(operator.attrgetter(attribute), ents))
 		uniform_type = all(x == types[0] for x in types)
 
-		#Entities?
+		#Entities? [yes, deciding to change varible names is troublesome]
 		if len(ents) == 1:#if len(list) == 1:
-			return 'the ' + attribs[0]
+			return 'the ' + attribs[0] + ' ' + types[0]
 		elif len(ents) == 2:
-			return 'the ' + attribs[0] + ' ' + types[0] + ' and the ' + attribs[1] + types[1]
+			return 'the ' + attribs[0] + ' ' + types[0] + ' and the ' + attribs[1] + ' ' + types[1]
 		else:
 			if uniform_type:
 				out = 'the ' + attribs[0]
@@ -803,7 +789,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 	# use this when we only want colors, without types or specifier
 	def entities_to_color_list(self, ents):
 		# similar to entities_to_english_list here
-		types = map(lambda x: lower(x.type_structure[:-1][0]), ents)
+		types = map(lambda x: x.type_structure[:-1][0], ents)
 		cols = map(operator.attrgetter('color'), ents)
 		cols = list(dict.fromkeys(cols))
 		uniform_type = all(x == type[0] for x in type)
