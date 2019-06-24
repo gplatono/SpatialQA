@@ -556,7 +556,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						# give an uncertain positive answer
 							if use_grounding:
 							# give an uncertain postive answer with grounding
-								return "I think there are " + plural_type_surf + " that are " + post_there + "."
+								return "I think there are " + plural_type_surf + " that are " + des_prop + "."
 							else:
 							# give an uncertain postive answer without grounding
 								return "Yes, there probably " + surf_aux + "."
@@ -733,9 +733,9 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						if use_grounding:
 						# give the number uncertaintly with grounding
 							if surf_aux == "is" or surf_aux == "are":
-								return "There may be " + str(len(answer_set)) + plural_type_surf + " that are " + des_prop + "."
+								return "There may be " + str(len(answer_set)) + " " + plural_type_surf + " that are " + des_prop + "."
 							else:
-								return "There may be " + str(len(answer_set)) + plural_type_surf + " that " + des_prop + "."
+								return "There may be " + str(len(answer_set)) + " " + plural_type_surf + " that " + des_prop + "."
 						else:
 						# give the number uncertaintly without grounding
 							return "Perhaps there are " + str(len(answer_set)) + "."
