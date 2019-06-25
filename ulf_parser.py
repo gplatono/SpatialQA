@@ -9,14 +9,20 @@ class ULFParser(object):
         ulf = self.preprocess(ulf)
         self.query_tree = self.parse_tree(ulf)
         return self.query_tree
+
+    # def add_pipes(self, ulf):
+    #     ulf = ulf.replace("Target", "|Target|")
+    #     ulf = ulf.replace("Toyota", "|Toyota|")
         
     def preprocess(self, ulf):
+        ulf = ulf.lower()
         ulf = self.lispify(ulf)
         print ("QUERY: ", ulf)
         ulf = self.process_sub_rep(ulf)
         print ("PRECONJPROP QUERY: ", ulf)
         ulf = self.lift(ulf, ['pres', 'prog', 'pref'])
-        ulf = self.propagate_conj(ulf, [])[0]
+        #ulf = self.propagate_conj(ulf, [])[0]
+        print ("AFTER LIFTING: ", ulf)        
         ulf = self.add_brackets(ulf)
         print ("PREPROC QUERY: ", ulf, "\n")
         return ulf
@@ -38,7 +44,7 @@ class ULFParser(object):
             ret = NArg(obj_type=tree[1].obj_type, obj_id=tree[1].obj_id, mods = tree[1].mods + tree[2:], det=tree[1].det, plur=tree[1].plur)
             #ret = tree[1].update(mods=tree[2:])
             #print ("POSTNOM MODS: ", ret.__str__())
-            return ret            
+            return ret
 
         while len(tree) >= 2 and (tree[0].__name__, tree[1].__name__) in grammar:
            # if tree[0].__name__ == "NArg" and tree[1].__name__ == "NRel" and tree[1] in tree[0].mods:
