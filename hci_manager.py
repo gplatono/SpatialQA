@@ -8,6 +8,8 @@ import time
 import operator
 import collections
 from query_frame import QueryFrame
+from ulf_parser import ULFParser
+from constraint_solver import *
 
 class HCIManager(object):
 	"""Manages the high-level interaction loop between the user and the system."""
@@ -20,7 +22,7 @@ class HCIManager(object):
 		USER_BYE = 4
 		END = 5
 
-	def __init__(self, debug_mode = False):
+	def __init__(self, world, debug_mode = False):
 
 		#Stores the context of the conversation. For future use.
 		self.context = None
@@ -38,12 +40,14 @@ class HCIManager(object):
 
 		self.speech_lock = RLock()
 
-		self.lissa_path = ".." + os.sep + "lissa-blocksworld" + os.sep
-		self.lissa_input = self.lissa_path + "input.lisp"
-		self.lissa_ulf = self.lissa_path + "ulf.lisp"
-		self.lissa_reaction = self.lissa_path + "reaction.lisp"
-		self.lissa_output = self.lissa_path + "output.txt"
+		self.eta_path = ".." + os.sep + "eta-blocksworld" + os.sep
+		self.eta_input = self.eta_path + "input.lisp"
+		self.eta_ulf = self.eta_path + "ulf.lisp"
+		self.eta_reaction = self.eta_path + "reaction.lisp"
+		self.eta_output = self.eta_path + "output.txt"
 
+		self.ulf_parser = ULFParser()
+		self.world = world
 
 		if self.debug_mode:
 			self.state = self.STATE.QUESTION_PENDING
@@ -55,6 +59,13 @@ class HCIManager(object):
 		# print (os.path.isfile(self.lissa_ulf))
 		# print (os.path.isfile(self.lissa_reaction))
 		# print (os.path.isfile(self.lissa_output))
+
+	def send_to_eta(self, mode, text):
+		filename = self.eta_input if mode == "INPUT" else self.eta_reaction
+		formatted_msg = "(setq *next-input* \"" + text + "\")" if mode == "INPUT" \
+									else "(setq *next-reaction* " + text + ")"
+		with open(filename, 'w+') as file:
+			file.write(formatted_msg)
 
 	def start(self):
 		"""Initiate the listening loop."""
@@ -76,64 +87,87 @@ class HCIManager(object):
 
 				if self.debug_mode == False:
 					print ("ENTERING LISSA EXCHANGE BLOCK...")
-					lisp_formatted_input = "(setq *next-input* \"" + self.current_input + "\")"
-
-					lissa_inp_file = open(self.lissa_input, 'w+')
-					lissa_inp_file.write(lisp_formatted_input)
-					lissa_inp_file.close()
-
+					self.send_to_eta("INPUT", self.current_input)					
 					time.sleep(0.5)
 
 					print ("WAITING FOR ULF...")
-
-					lissa_ulf_file = open(self.lissa_ulf, 'r+')
-					ulf = lissa_ulf_file.readline()
-					lissa_ulf_file.truncate(0)
-					lissa_ulf_file.close()
+					eta_ulf_file = open(self.eta_ulf, 'r+')
+					ulf = eta_ulf_file.readlines()
+					#lissa_ulf_file.truncate(0)
+					eta_ulf_file.close()
 
 					ulf_counter = 1
+
+					# def str_to_list_str(text):
+					# 	ret_val = text.split()
+					# 	for item in ret_val:
+					# 		item = "\"" + item + "\""
+						
+					# 	ret_val = "'(" + " ".join					
+
 					while ulf is None or ulf == "":
-						time.sleep(0.2)
-						lissa_ulf_file = open(self.lissa_ulf, 'r+')
-						ulf = lissa_ulf_file.readline()
-						lissa_ulf_file.truncate(0)
-						lissa_ulf_file.close()
+						time.sleep(0.3)
+						eta_ulf_file = open(self.lissa_ulf, 'r+')
+						ulf = eta_ulf_file.readlines()						
+						#lissa_ulf_file.truncate(0)
+						eta_ulf_file.close()
 						ulf_counter += 1
 						if ulf_counter==7:
 							break
 
-					print (ulf)
+					print ("RETURNED FORM RAW: ", ulf)
+					ulf = "".join([line for line in ulf])
+					ulf = ulf.replace("\n", "")
+					ulf = (ulf.split("'")[1])[:-1]
+					print ("CLEANED ULF: ", ulf)					
 
 					if ulf_counter == 7:
 						continue
 
 					self.state = self.STATE.QUESTION_PENDING
 
-					print ("WRITING REACTION...")
-					lisp_formatted_response = "(setq *next-reaction* \"" + "test" + "\")"
-					lissa_react_file = open(self.lissa_reaction, 'w+')
-					lissa_react_file.write(lisp_formatted_response)
-					lissa_react_file.close()
+					response_surface = "NIL"
+					if ulf is not None and ulf != "" and ulf != "NIL":
+						try:
+							query_tree = self.ulf_parser.parse(ulf)
+							print ("QUERY TREE", query_tree)
+							query_frame = QueryFrame(self.current_input, ulf, query_tree)
+							answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
+							response_surface = self.generate_response(query_frame, answer_set_rel, [1.0])
+							print (query_frame.query_type)
+							print ("ANSWER SET: ", answer_set_rel)
+							print ("RESPONSE: ", response_surface)
+							
+						except Exception as e:
+							print (str(e))							
 
-					print ("WAITING FOR RESPONSE...")
+					print ("SENDING REACTION AND WAITING FOR RESPONSE...")
+					#self.send_to_eta("REACTION", "'(\"" + response_surface + "\" NIL)")					
+					self.send_to_eta("REACTION", "\"" + response_surface + "\"")					
+										
+					if response_surface != "NIL":
+						time.sleep(0.2)
 
-					time.sleep(0.2)
+						eta_out_file = open(self.eta_output, 'r+')
+						responses = eta_out_file.readlines()
+						eta_out_file.truncate(0)
+						eta_out_file.close()
+						while responses is None or responses == "" or responses == []:
+							eta_out_file = open(self.eta_output, 'r+')
+							responses = eta_out_file.readlines()
+							eta_out_file.truncate(0)
+							eta_out_file.close()
+							time.sleep(0.1)
 
-					lissa_out_file = open(self.lissa_output, 'r+')
-					responses = lissa_out_file.readlines()
-					lissa_out_file.truncate(0)
-					lissa_out_file.close()
-					while responses is None or responses == "" or responses == []:
-						lissa_out_file = open(self.lissa_output, 'r+')
-						responses = lissa_out_file.readlines()
-						lissa_out_file.truncate(0)
-						lissa_out_file.close()
-						time.sleep(0.1)
-
-					response = ""
-					responses = [r.strip() for r in responses if r.strip() != ""]
-					print ("response: " + str(responses))
-
+						response = ""
+						responses = [r.strip() for r in responses if r.strip() != ""]
+						print ("response: " + str(responses))
+						for resp in responses:
+							if "#: ANSWER" in resp:
+								resp = resp.split(":")[2]
+								self.say(resp)
+								break
+					
 				self.current_input = ""
 			self.speech_lock.release()
 			time.sleep(0.1)

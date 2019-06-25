@@ -26,6 +26,7 @@ from constraint_solver import *
 from world import World
 from hci_manager import HCIManager
 from query_frame import QueryFrame
+from bw_tracker import Tracker
 #from query_proc import *
 
 link = False
@@ -37,8 +38,8 @@ settings = {}
 for line in conf_list:
     setting = line.split("=")[0]
     val = line.split("=")[1]
-    if setting == "DEBUG_MODE":
-        val = (val == "True")
+    if setting == "DEBUG_MODE" or setting == "SIMULATION_MODE":
+        val = (val == "1")
     settings[setting] = val
 
 #List of  possible color modifiers
@@ -86,10 +87,6 @@ entities = []
 
 #Average distance between entities in the scene
 #avg_dist = 0
-
-
-
-
     
 #The following functions are for precomputing the corresponding
 #relation for every pair of entities
@@ -352,12 +349,18 @@ def main():
     spatial.entities = world.entities
     spatial.world = world
 
-    hci_manager = HCIManager(debug_mode = True)#settings['DEBUG_MODE'])
-    #hci_manager.start()
-
+    hci_manager = HCIManager(world, debug_mode = False)
+    hci_manager.start()    
+    tracker = None
+    
     global observer
     observer = world.observer
 
+
+    #if not settings["SIMULATION_MODE"]:
+    #    tracker = Tracker()
+
+    
     #print (filepath, sys.path)
     if "--" in sys.argv:
         args = sys.argv[sys.argv.index("--") + 1:]
