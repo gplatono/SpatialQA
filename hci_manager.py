@@ -86,7 +86,7 @@ class HCIManager(object):
 				print ("you said: " + self.current_input)
 
 				if self.debug_mode == False:
-					print ("ENTERING LISSA EXCHANGE BLOCK...")
+					print ("ENTERING LISSA EXCHANGE BLOCK...")					
 					self.send_to_eta("INPUT", self.current_input)					
 					time.sleep(0.5)
 
@@ -124,8 +124,11 @@ class HCIManager(object):
 					if ulf_counter == 7:
 						continue
 
-					self.state = self.STATE.QUESTION_PENDING
 
+					self.state = self.STATE.QUESTION_PENDING
+					self.current_input = "what block is to the left of the Target block?"
+					ulf = "(((which.d block.n) ((pres be.v) (to_the_left_of.p (the.d (Target block.n))))) ?)"
+					
 					response_surface = "NIL"
 					if ulf is not None and ulf != "" and ulf != "NIL":
 						try:

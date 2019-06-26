@@ -441,7 +441,7 @@ def main():
             print ("ANSWER SET: ", answer_set_rel)
             print ("RESPONSE: ", response_surface)
 
-            #print (to_the_left_of_deic(mrc, tex))
+            print (to_the_left_of_deic(tar, tar))
             
             #print (rotation_matrix(0, -math.pi/4, -math.pi/4).dot(np.array([1,0,0])))
             #print (eye_projection(np.array([2, 0, 0]), np.array([0, 1.0, 3.0]), np.array([1.0, 0, 0]), 10, 2))

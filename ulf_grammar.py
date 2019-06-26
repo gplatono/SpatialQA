@@ -23,8 +23,8 @@ relations = ['on.p', 'to_the_left_of.p', 'to_the_right_of.p', 'in_front_of.p', '
 grammar = {}
 
 grammar['on.p'] = lambda x: TPrep(x)
-grammar['to_the_left_of.p'] = lambda x: TPrep(x)
-grammar['to_the_right_of.p'] = lambda x: TPrep(x)
+grammar['to_the_left_of.p'] = lambda x: TPred(x)
+grammar['to_the_right_of.p'] = lambda x: TPred(x)
 grammar['in_front_of.p'] = lambda x: TPrep(x)
 grammar['behind.p'] = lambda x: TPrep(x)
 grammar['above.p'] = lambda x: TPrep(x)
@@ -269,6 +269,7 @@ grammar[("TNeg", "NPred")] = lambda x, y: NPred(content=y.content, children=y.ch
 grammar[("NSentenceParams", "NPred")] = lambda x, y: y
 grammar[("TCopulaBe", "TPred")] = lambda x, y: y
 grammar[("TCopulaBe", "NPred")] = lambda x, y: y
+# grammar[("TCopulaBe", "NRel")] = lambda x, y: y
 grammar[("TCopulaBe", "NArg")] = lambda x, y: NPred(content = x, children = [y])
 
 #grammar[("NVP", "NRel")] = lambda x, y: y
