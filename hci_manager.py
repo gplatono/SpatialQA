@@ -67,7 +67,7 @@ class HCIManager(object):
 		filename = self.eta_input if mode == "INPUT" else self.eta_reaction
 		formatted_msg = "(setq *next-input* \"" + text + "\")" if mode == "INPUT" \
 									else "(setq *next-reaction* " + text + ")"
-		with open(filename, 'w+') as file:
+		with open(filename, 'w') as file:
 			file.write(formatted_msg)
 
 	def read_from_eta(self, mode):
@@ -90,7 +90,7 @@ class HCIManager(object):
 		if mode == "ULF":
 			#print ("RETURNED FORM RAW: ", msg)
 			result = "".join([line for line in msg])
-			result = result.replace("\n", "").replace(re.compile(r"[\s]+"), " ")
+			result = re.sub(" +", " ", result.replace("\n", ""))
 			result = (result.split("'")[1])[:-1]
 		else:
 			result = ""
@@ -155,18 +155,21 @@ class HCIManager(object):
 					
 					self.state = self.STATE.QUESTION_PENDING
 					#self.current_input = "what block is to the left of the Target block?"
-					#ulf = "(((which.d block.n) ((pres be.v) (to_the_left_of.p (the.d (Target block.n))))) ?)"
-					if ":out" in ulf:
-						ulf = (ulf.split(":out ")[1])[:-1]
-						self.send_to_avatar('SAY', ulf)
-						print ("ASR BLOCKED...")
-						asr_lock.clear()
-						time.sleep(3.0)
-						print ("SPEAK...")						
-						continue
-
+					#ulf = "(((which.d block.n) ((pres be.v) (to_the_left_of.p (the.d (Target block.n))))) ?)"					
 					response_surface = "NIL"
 					if ulf is not None and ulf != "" and ulf != "NIL":
+						if ":out" in ulf:
+							self.send_to_avatar('ULF', ulf)
+							ulf = (ulf.split(":out ")[1])[:-1]
+							self.send_to_avatar('SAY', ulf)						
+							print ("ASR BLOCKED...")
+							#asr_lock.clear()
+							#self.speech_lock.acquire()
+							time.sleep(3.0)
+							self.speech_lock.release()
+							#self.speech_lock.release()
+							print ("SPEAK...")						
+							continue
 						try:
 							POSS_FLAG = False
 							if "poss-question" in ulf:
@@ -179,11 +182,13 @@ class HCIManager(object):
 							answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
 							response_surface = self.generate_response(query_frame, answer_set_rel, [1.0])
 							if POSS_FLAG:
-								response_surface = "(poss-ans " + response_surface + ")"
+								response_surface = "poss-ans " + response_surface
 							print (query_frame.query_type)
 							print ("ANSWER SET: ", answer_set_rel)
-							print ("RESPONSE: ", response_surface)							
+							#print ("RESPONSE: ", response_surface)							
 						except Exception as e:
+							query_frame.query_type = query_frame.QueryType.ERROR
+							response_surface = self.generate_response(query_frame, [], [1.0])
 							print (str(e))
 
 					print ("SENDING REACTION AND WAITING FOR RESPONSE...")
@@ -195,13 +200,13 @@ class HCIManager(object):
 					response = self.read_and_vocalize_from_eta()
 					print ("ORIGINAL INPUT: " + input)
 					print ("CLEANED ULF: ", ulf)
-					print ("FINAL RESPONSE: " + response)
+					print ("RETURNED RESPONSE: " + response)
 
-					if "GOOD BYE" in response or "TAKE A BREAK" in response:
+					if "GOOD BYE" in response or "TAKE A BREAK" in response:						
 						break
 
 					print ("ASR BLOCKED...")
-					asr_lock.clear()
+					#asr_lock.clear()
 					time.sleep(3.0)
 					print ("SPEAK...")
 					#print (to_the_left_of_deic)									
@@ -212,9 +217,9 @@ class HCIManager(object):
 
 	def send_to_avatar(self, mode, text):
 		#print ("Avatar's response: " + text)
-		print ("SENDING TO AVATAR " + mode + " " + text)
+		#print ("SENDING TO AVATAR " + mode + " " + text)
 		if mode == 'SAY':
-			print ("MODE = " + mode)
+			#print ("MODE = " + mode)
 			req = requests.get(self.avatar_speech_servlet + "?say=" + text)
 		elif mode == 'ULF':
 			req = requests.get(self.avatar_speech_servlet + "?ulf=" + text)

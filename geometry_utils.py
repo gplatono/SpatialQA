@@ -457,3 +457,13 @@ def projection_bbox_center(bbox):
 
 def projection_bbox_area(bbox):
     return (bbox[1] - bbox[0]) * (bbox[3] - bbox[2])
+
+def get_2d_size(bbox):
+    center = projection_bbox_center(bbox)
+    x_max = bbox[1]
+    x_min = bbox[0]
+    y_max = bbox[3]
+    y_min = bbox[2]
+    diag = np.linalg.norm(np.array([x_max - x_min, y_max - y_min]))
+    radius = diag / 2
+    return radius

@@ -324,7 +324,7 @@ def closer_than(a, b, pivot):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def in_front_of_deic(a, b):
-#def in_front_of_extr(a, b, observer):
+#def in_front_of_extr(a, b, observer):    
     bbox_a = a.bbox
     max_dim_a = max(bbox_a[7][0] - bbox_a[0][0],
                     bbox_a[7][1] - bbox_a[0][1],
@@ -337,8 +337,16 @@ def in_front_of_deic(a, b):
     a_center = projection_bbox_center(a_bbox)
     b_center = projection_bbox_center(b_bbox)
     dist = np.linalg.norm(a_center - b_center)
-    scaled_dist = dist*dist / max(projection_bbox_area(a_bbox), projection_bbox_area(a_bbox) + 0.001)
-    return closer_than(a, b, world.observer) * math.e ** (-0.1 * scaled_dist)
+    scaled_proj_dist = dist / (max(get_2d_size(a_bbox), get_2d_size(b_bbox)) + 0.001)
+
+    #print ("BBOX :", a_bbox, b_bbox)
+    #print ("PROJ DIST:" ,scaled_proj_dist)
+    a_dist = np.linalg.norm(a.location - world.observer.location)
+    b_dist = np.linalg.norm(b.location - world.observer.location)
+    #print ("SIGM, OVERLAP :  ", sigmoid(b_dist - a_dist, 1, 0.5), math.e ** (-0.2 * scaled_proj_dist))
+    return 0.5 * (sigmoid(b_dist - a_dist, 1, 0.5) + math.e ** (-0.2 * scaled_proj_dist))
+    #return closer_than(a, b, world.observer) * math.e ** (-0.1 * scaled_dist)
+    #return math.e ** (- 0.01 * get_centroid_distance_scaled(a, b)) * within_cone(b.centroid - a.centroid, world.front_axis, 0.7)
     #return math.e ** (- 0.01 * get_centroid_distance_scaled(a, b)) * within_cone(b.centroid - a.centroid, Vector((1, 0, 0)), 0.7)
     '''0.3 * closer_than(a, b, observer) + \
                   0.7 * (max(within_cone(b.centroid - observer.centroid, a.centroid - observer.centroid, 0.95),
@@ -348,12 +356,17 @@ def in_front_of_deic(a, b):
 def in_front_of_extr(a, b):
     proj_dist = math.fabs(world.front_axis.dot(a.location)) - math.fabs(world.front_axis.dot(b.location))
     proj_dist_scaled = proj_dist / max(a.size, b.size)
-    print ("PROJ_DISTANCE", proj_dist_scaled)    
-    return sigmoid(proj_dist_scaled, 1, 1)
+    print ("PROJ_DISTANCE", proj_dist_scaled)
+    return math.e ** (- 0.01 * get_centroid_distance_scaled(a, b)) * within_cone(b.centroid - a.centroid, -world.front_axis, 0.7)
+    #return sigmoid(proj_dist_scaled, 1, 1)
 
 def in_front_of(a, b):
-    print ("IN_FRONT_OF: ", a, b, in_front_of_deic(a, b), in_front_of_extr(a, b))
-    return max(in_front_of_deic(a, b), in_front_of_extr(a, b))
+    if a == b:
+        return 0
+    front_deic = in_front_of_deic(a, b)
+    front_extr = in_front_of_extr(a, b)
+    print ("IN_FRONT_OF: ", a, b, front_deic, front_extr)
+    return max(front_deic, front_extr)
 
 #Enable SVA
 #Computes the deictic version of the "behind" relation
