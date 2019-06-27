@@ -86,7 +86,7 @@ class HCIManager(object):
 
 		if msg == "" or msg is None or msg == []:
 			return None
-	 		
+
 		if mode == "ULF":
 			#print ("RETURNED FORM RAW: ", msg)
 			result = "".join([line for line in msg])
@@ -103,7 +103,7 @@ class HCIManager(object):
 					result += resp.split(":")[1]
 
 		return result
-			
+
 	def read_and_vocalize_from_eta(self):
 		response = self.read_from_eta(mode = "OUTPUT")
 		if response != "" and response is not None:
@@ -128,7 +128,7 @@ class HCIManager(object):
 				self.state = self.STATE.SYSTEM_GREET
 
 			asr_lock.set()
-			
+
 			self.speech_lock.acquire()
 			if self.current_input != "":
 				if re.search(r'\b(exit|quit)\b', self.current_input, re.I):
@@ -152,7 +152,7 @@ class HCIManager(object):
 
 					if ulf != "" and ulf is not None:
 						self.send_to_avatar('ULF', ulf)
-					
+
 					self.state = self.STATE.QUESTION_PENDING
 					#self.current_input = "what block is to the left of the Target block?"
 					#ulf = "(((which.d block.n) ((pres be.v) (to_the_left_of.p (the.d (Target block.n))))) ?)"					
@@ -193,8 +193,8 @@ class HCIManager(object):
 
 					print ("SENDING REACTION AND WAITING FOR RESPONSE...")
 					#self.send_to_eta("REACTION", "'(\"" + response_surface + "\" NIL)")
-					print ("RESPONSE SURFACE: " + response_surface)					
-					self.send_to_eta("REACTION", "\"" + response_surface + "\"")										
+					print ("RESPONSE SURFACE: " + response_surface)
+					self.send_to_eta("REACTION", "\"" + response_surface + "\"")
 					#if response_surface != "NIL":
 					time.sleep(1.0)
 					response = self.read_and_vocalize_from_eta()
@@ -209,8 +209,8 @@ class HCIManager(object):
 					#asr_lock.clear()
 					time.sleep(3.0)
 					print ("SPEAK...")
-					#print (to_the_left_of_deic)									
-				
+					#print (to_the_left_of_deic)
+
 				self.current_input = ""
 			self.speech_lock.release()
 			time.sleep(0.1)
@@ -375,6 +375,10 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 			# empty types: DESCR
 			# Need to work on initial pre-processing as well
 
+			# handle the error case then begin pre-processing
+			if query_object.query_type == QueryFrame.QueryType.ERROR:
+				return "Sorry, I was unable to find an object that satisfies your constraints, please rephrase in a simpler way."
+
 			# pre-processing
 			user_input_surface = query_object.surface.lower()
 			user_input_list = re.findall("[a-zA-Z'-]+", user_input_surface)#self.english_sentence_to_list(user_input_surface)
@@ -382,11 +386,11 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 			while not user_input_surface[-1].isalpha():
 				user_input_surface = user_input_surface[:-1]
 
-			type_surf = "thing"
+			type_surf = "block"
 			pos_types = ["block", "row", "stack", "group"]#, "blocks", "rows", "stacks", "groups"]
 
 			for t in pos_types:
-				if t in user_input_list or t+"s" in user_input_list:
+				if (t + ".n") in query_object.ulf:
 					type_surf = t
 					break
 
@@ -399,7 +403,9 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 			threashold = 0.7
 
 			index = 0
-			if not type_surf in user_input_list:
+			if not type_surf in user_input_list and not plural_type_surf in user_index_list:
+				grounding = false
+			elif not type_surf in user_input_list:
 				index = user_input_list.index(plural_type_surf) + 1
 			elif not plural_type_surf in user_input_list:
 				index = user_input_list.index(type_surf) + 1
@@ -410,6 +416,8 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 				index += 1
 
 			des_prop = " ".join(user_input_list[index:])
+
+
 
 			if query_object.query_type == QueryFrame.QueryType.IDENT:#question_type == question_type.IDENT:
 				# These are the questions like "Which blocks are touching the SRI
@@ -428,7 +436,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 					surf_aux = "are"
 
 				# decide when it will sound natural to ground our response
-				use_grounding = not surf_aux == "*"
+				use_grounding = grounding and not surf_aux == "*"
 				# this is kinda an easy way out and somewhat arbitrary but
 				# it probably won't sound unnatural
 
@@ -469,6 +477,47 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						else:
 						# identify the only answer with uncertainty and without grounding
 							return "Probably just " + ans_list + " is."
+
+				elif len(answer_set) > 5 and not contains_a_number(query_object.ulf):
+				# identify the listable answers
+					ans_list = self.entities_to_english_list(answer_set[0:5], 'name')
+					if min(certainty) < threashold:
+						if max(certainty) > threashold:
+						# identify the multiple answers with mixed certainty
+
+							# split the answers by certainty
+							cert_lists = self.entities_split_by_certainty(answer_set, certainty, threashold)
+							cert_items = self.entities_to_english_list(cert_lists[0])
+							uncert_items = self.entities_to_english_list(cert_lists[1])
+
+							if use_grounding:
+							# identify the multiple answers with mixed certainty and grounding
+								if len(cert_lists[0]) == 1:
+									return cert_items.capitalize() + " is " + des_prop + ", but it is less certain for " + uncert_items + "."
+								else:
+									return cert_items.capitalize() + " are " + des_prop + ", but it is less certain for " + uncert_items + "."
+							else:
+							# identify the multiple answers with mixed certainty and without grounding
+								if len(cert_lists[0]) == 1:
+									return cert_items.capitalize() + " does, but it is less certain for " + uncert_items + "."
+								else:
+									return cert_items.capitalize() + " do, but it is less certain for " + uncert_items + "."
+						else:
+						# identify the multiple answers uncertainly
+							if use_grounding:
+							# identify the multiple answers uncertainly with grounding
+								return "There probably are " + str(len(answer_set)) + " " + plural_type_surf + " that are " + des_prop + ", possibly including " + ans_list + " are " + des_prop + "."
+							else:
+							# identify the multiple answers uncertainly without grounding
+								return "There probably are " + str(len(answer_set)) + " " + plural_type_surf + ", possibly including " + ans_list + "."
+					else:
+					# identify the multiple answers with certainty
+						if use_grounding:
+						# identify the multiple answers with certainty with grounding
+							return "There are " + str(len(answer_set)) + " that are " + des_prop + ", including " ans_list + "."
+						else:
+						# identify the multiple answers with certainty without grounding
+							return capitalize(ans_list) + " do, as well as " + str(len(answer_set) - 4) + " others."
 
 				else:
 				# identify the multiple answers
@@ -536,7 +585,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 
 				# PREPROCESSING: --------------------------------------------------
 				# decide if we will ground the answer
-				use_grounding = user_input_surface.startswith("is there") or user_input_surface.startswith("are there")
+				use_grounding = grounding and (user_input_surface.startswith("is there") or user_input_surface.startswith("are there"))
 				# I think this is a good policy, if the user asks "does there exist
 				# a block at height 3" we can respond simply "Yes.", and if there
 				# is only one we can name it
@@ -659,7 +708,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 
 				# PREPROCESSING: --------------------------------------------------
 				# decide if we will ground the answer
-				use_grounding = user_input_surface.startswith("what color")
+				use_grounding = grounding and user_input_surface.startswith("what color")
 				# I'm not sure what a good policy is here, I'll write code even if it's
 				# unreachable in case it sounds unnatural and this is changed
 
@@ -719,7 +768,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 
 				# PREPROCESSING: --------------------------------------------------
 				# decide if we will ground the answer
-				use_grounding = not user_input_surface.startswith("what is")
+				use_grounding = grounding and not user_input_surface.startswith("what is")
 				use_grounding = use_grounding and not des_prop == "*"
 				# I think this is workable...  if they ask for what is the number
 				# we simply want to give the number, if how many we should elaborate
@@ -823,8 +872,6 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						else:
 						# give the number uncertaintly without grounding
 							return "Perhaps there are " + str(len(answer_set)) + "."
-			elif query_object.query_type == QueryFrame.QueryType.ERROR:
-				return "Sorry, I was unable to find an object that satisfies your constraints, please rephrase in a simpler way."
 
 		elif self.state == self.STATE.USER_BYE:
 			pass
@@ -904,6 +951,10 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 				return out
 		out.append(ents)
 		return out
+
+	# returns true if the ULF contains a number, false it is doesn't
+	def contains_a_number(ulf):
+		return 'one' in ulf or 'two' in ulf or 'three' in ulf or 'four' in ulf or 'five' in ulf or 'six' in ulf or 'seven' in ulf or 'eight' in ulf or 'nine' in ulf or 'ten' in ulf
 
 	def english_sentence_to_list(self, sentence):
 		# Divide the sentence into words
