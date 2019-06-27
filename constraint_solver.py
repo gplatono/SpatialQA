@@ -180,10 +180,10 @@ def resolve_argument(arg_object, entities):
 			print ("CURRENT MOD: ", modifier)
 			ret_args = filter_by_mod(ret_args, modifier, entities)
 
-	if FOUND_ARG == 0:
-		ret_args.sort(key = lambda x: x[1]).reverse()
-		if arg_plur == False and len(ret_args) > 0:
-			ret_args = [ret_args[-1]]
+	# if FOUND_ARG == 0:
+	# 	ret_args.sort(key = lambda x: x[1]).reverse()
+	# 	if arg_plur == False and len(ret_args) > 0:
+	# 		ret_args = [ret_args[-1]]
 
 	print ("AFTER MOD APPLICATION:", ret_args)
 	return ret_args
