@@ -413,7 +413,7 @@ def main():
             bgk = world.find_entity_by_name("BurgerKing")
             tar = world.find_entity_by_name("Target")
             tbl = world.find_entity_by_name("Table")
-            ent = [toy, tex, mcd, bgk, tar, sri, stb, tbl,mrc,nvd]
+            ent = [toy, tex, mcd, bgk, tar, stb, tbl,mrc]
             #print (toy, tex, mcd, sri, nvd, touching(tar, stb))
             #print (near(tbl, toy))
             #print (extract_contiguous(world.entities))
@@ -436,9 +436,9 @@ def main():
 
             #print (stb.location, tar.location)
             
-            print ([(bl, in_front_of(bl, tar)) for bl in ent if bl != tbl])
-            #print ([(bl, in_front_of(bl, sri)) for bl in ent if bl != tbl])
-            print ([(bl, clear(bl)) for bl in ent])
+            #print ([(bl, in_front_of(bl, tar)) for bl in ent if bl != tbl])
+            print ([(bl, above(bl, tar)) for bl in ent if bl != tbl])            
+            #print ([(bl, clear(bl)) for bl in ent])
             #print (extract_contiguous([entity for entity in ent if entity != tbl]))
             
             #print (rotation_matrix(0, -math.pi/4, -math.pi/4).dot(np.array([1,0,0])))
