@@ -150,8 +150,9 @@ def scaled_axial_distance(a_bbox, b_bbox):
     b_span = (b_bbox[1] - b_bbox[0], b_bbox[3] - b_bbox[2])
     a_center = ((a_bbox[0] + a_bbox[1]) / 2, (a_bbox[2] + a_bbox[3]) / 2)
     b_center = ((b_bbox[0] + b_bbox[1]) / 2, (b_bbox[2] + b_bbox[3]) / 2)
-    axis_dist = (a_center[0] - b_center[0], a_center[1] - b_center[1])    
-    return (axis_dist[0] / (a_span[0] + b_span[0] + 0.01), axis_dist[1] / (a_span[1] + b_span[1] + 0.01))
+    axis_dist = (a_center[0] - b_center[0], a_center[1] - b_center[1])
+    print ("SPANS:", a_span, b_span, a_center, b_center)
+    return (axis_dist[0] / (max(a_span[0], b_span[0]) + 0.01), axis_dist[1] / (max(a_span[1], b_span[1]) + 0.01))
 
 
 #Computes the projection of an entity onto the observer's visual plane
@@ -167,13 +168,7 @@ def vp_project(entity, observer):
     pixel_coords = [(eye_projection(point, observer.up, observer.right, np.linalg.norm(observer.location), 2)) for point in entity.vertex_set]
     return pixel_coords
 
-
-
 #==========================================================================================
-
-
-    
-
 #Raw metric for the nearness relation
 #Doesn't take into account the nearness statistics in the scene
 #Inputs: a, b - entities
@@ -336,11 +331,21 @@ def in_front_of_deic(a, b):
                     bbox_a[7][2] - bbox_a[0][2]) + 0.0001
     dist = get_distance_from_line(world.get_observer().centroid, b.centroid, a.centroid)
     #print ("{}, {}, CLOSER: {}, WC_DEIC: {}, WC_EXTR: {}, DIST: {}".format(a.name, b.name, closer_than(a, b, observer), within_cone(b.centroid - observer.centroid, a.centroid - observer.centroid, 0.95), within_cone(b.centroid - a.centroid, Vector((0, -1, 0)) - a.centroid, 0.8), e ** (- 0.1 * get_centroid_distance_scaled(a, b))))
+    #print ("WITHIN CONE:")
     return math.e ** (- 0.01 * get_centroid_distance_scaled(a, b)) * within_cone(b.centroid - a.centroid, Vector((1, 0, 0)), 0.7)
     '''0.3 * closer_than(a, b, observer) + \
                   0.7 * (max(within_cone(b.centroid - observer.centroid, a.centroid - observer.centroid, 0.95),
                   within_cone(b.centroid - a.centroid, Vector((1, 0, 0)), 0.7)) * \
                   e ** (- 0.2 * get_centroid_distance_scaled(a, b)))#e ** (-dist / max_dim_a))'''
+
+def in_front_of_extr(a, b):
+    proj_dist = math.fabs(world.front_axis.dot(a.location)) - math.fabs(world.front_axis.dot(b.location))
+    proj_dist_scaled = proj_dist / max(a.size, b.size)
+    print ("PROJ_DISTANCE", proj_dist_scaled)    
+    return sigmoid(proj_dist_scaled, 1, 1)
+
+def in_front_of(a, b):
+    return max(in_front_of_deic(a, b), in_front_of_extr(a, b))
 
 #Enable SVA
 #Computes the deictic version of the "behind" relation
@@ -349,6 +354,9 @@ def in_front_of_deic(a, b):
 #Return value: real number from [0, 1]
 def behind_deic(a, b):
     return in_front_of_deic(b, a)
+
+def behind(a, b):
+    in_front_of(b, a)
 
 #Computes the "at" relation
 #Inputs: a, b - entities
@@ -429,8 +437,9 @@ def asym_inv_exp_left(x, cutoff, left, right):
 def to_the_right_of_deic(a, b):
     a_bbox = get_2d_bbox(vp_project(a, world.get_observer()))
     b_bbox = get_2d_bbox(vp_project(b, world.get_observer()))
+    print ("\n2d bbox: ", a_bbox,"\n", b_bbox, "\n")
     axial_dist = scaled_axial_distance(a_bbox, b_bbox)    
-    #print ("AX_DIST:", axial_dist)
+    print ("AX_DIST:", axial_dist)
     #print (a_bbox, b_bbox)
     
     if axial_dist[0] <= 0:
@@ -438,7 +447,7 @@ def to_the_right_of_deic(a, b):
     horizontal_component = asym_inv_exp(axial_dist[0], 1, 1, 0.05)#sigmoid(axial_dist[0], 2.0, 5.0) - 1.0
     vertical_component = math.exp(- 0.5 * math.fabs(axial_dist[1]))
     distance_factor = math.exp(- 0.1 * axial_dist[0])
-    #print ("Hor:", horizontal_component, "VERT:", vertical_component, "DIST:", distance_factor)
+    print ("Hor:", horizontal_component, "VERT:", vertical_component, "DIST:", distance_factor)
     weighted_measure = 0.5 * horizontal_component + 0.5 * vertical_component #+ 0.1 * distance_factor
     return weighted_measure
 
@@ -519,10 +528,6 @@ def superlative(predicate, entities, background):
                 if predicate(entity, result) > predicate(result, entity):
                     result = entity
     return result
-
-def in_front_of_extr(obj, world):
-    return 1
-
 
 def extract_contiguous(entities):
     """

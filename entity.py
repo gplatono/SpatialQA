@@ -101,12 +101,14 @@ class Entity(object):
         self.frontal = np.array(self.components.get('frontal')) \
             if self.components.get('frontal') is not None else None
 
-        #The longitudinal vector and left-to-right vector
+        #The fundamental intrinsic vectors
         self.up = []
         self.right = []
+        self.front = []
 
         self.radius = self.compute_radius()
         self.volume = self.compute_volume()
+        self.size = self.compute_size()
        
         #The parent offset
         self.parent_offset = self.compute_parent_offset()
@@ -284,3 +286,6 @@ class Entity(object):
             return self.ordering[-1]
         else:
             return None
+
+    def compute_size(self):
+        return self.radius

@@ -3,7 +3,7 @@ import os
 import sys
 import re
 import requests
-from threading import Thread, RLock
+from threading import Thread, RLock, Event
 import time
 import operator
 import collections
@@ -16,7 +16,8 @@ class HCIManager(object):
 
 	class STATE(enum.Enum):
 		"""Enumeration of all the states that the system can assume."""
-		INIT = 1
+		INIT = 0
+		SYSTEM_GREET = 1
 		USER_GREET = 2
 		QUESTION_PENDING = 3
 		USER_BYE = 4
@@ -49,6 +50,8 @@ class HCIManager(object):
 		self.ulf_parser = ULFParser()
 		self.world = world
 
+		self.state = self.STATE.INIT
+
 		if self.debug_mode:
 			self.state = self.STATE.QUESTION_PENDING
 		# print (self.lissa_input)
@@ -67,6 +70,46 @@ class HCIManager(object):
 		with open(filename, 'w+') as file:
 			file.write(formatted_msg)
 
+	def read_from_eta(self, mode):
+		filename = self.eta_ulf if mode == "ULF" else self.eta_output
+		attempt_counter = 0
+		with open(filename, "r+") as file:
+			msg = ""
+			while msg is None or msg == "":
+				time.sleep(0.3)
+				msg = file.readlines()
+				attempt_counter += 1
+				if attempt_counter == 7:
+					break
+				#print ("CURRENT MSG: ", msg)
+			file.truncate(0)
+
+		if msg == "" or msg is None or msg == []:
+			return None
+	 		
+		if mode == "ULF":
+			#print ("RETURNED FORM RAW: ", msg)
+			result = "".join([line for line in msg])
+			result = result.replace("\n", "")
+			result = (result.split("'")[1])[:-1]
+		else:
+			result = ""
+			responses = [r.strip() for r in msg if r.strip() != ""]
+			print ("\nresponse: " + str(responses))
+			for resp in responses:
+				if "#: ANSWER" in resp:
+					result += resp.split(":")[2]
+				elif "#: " in resp:
+					result += resp.split(":")[1]
+
+		return result
+			
+	def read_and_vocalize_from_eta(self):
+		response = self.read_from_eta(mode = "OUTPUT")
+		if response != "" and response is not None:
+			self.send_to_avatar('SAY', response)
+		return response
+
 	def start(self):
 		"""Initiate the listening loop."""
 		if self.debug_mode == False:
@@ -75,8 +118,17 @@ class HCIManager(object):
 			mic_thread.start()
 			#thread.join()
 
+		asr_lock = Event()
+
 		print ("Starting the processing loop...")
 		while True:
+
+			if self.state == self.STATE.INIT:
+				response = self.read_and_vocalize_from_eta()
+				self.state = self.STATE.SYSTEM_GREET
+
+			asr_lock.set()
+			
 			self.speech_lock.acquire()
 			if self.current_input != "":
 				if re.search(r'\b(exit|quit)\b', self.current_input, re.I):
@@ -86,48 +138,24 @@ class HCIManager(object):
 				print ("you said: " + self.current_input)
 
 				if self.debug_mode == False:
-					print ("ENTERING LISSA EXCHANGE BLOCK...")					
-					self.send_to_eta("INPUT", self.current_input)					
+					print ("ENTERING ETA DIALOG EXCHANGE BLOCK...")
+
+					input = self.current_input
+					self.send_to_eta("INPUT", self.current_input)
+
+					self.send_to_avatar('USER_SPEECH', self.current_input)
 					time.sleep(0.5)
 
 					print ("WAITING FOR ULF...")
-					eta_ulf_file = open(self.eta_ulf, 'r+')
-					ulf = eta_ulf_file.readlines()
-					#lissa_ulf_file.truncate(0)
-					eta_ulf_file.close()
+					ulf = self.read_from_eta(mode = "ULF")
+					print ("CLEANED ULF: ", ulf)
 
-					ulf_counter = 1
-
-					# def str_to_list_str(text):
-					# 	ret_val = text.split()
-					# 	for item in ret_val:
-					# 		item = "\"" + item + "\""
-						
-					# 	ret_val = "'(" + " ".join					
-
-					while ulf is None or ulf == "":
-						time.sleep(0.3)
-						eta_ulf_file = open(self.lissa_ulf, 'r+')
-						ulf = eta_ulf_file.readlines()						
-						#lissa_ulf_file.truncate(0)
-						eta_ulf_file.close()
-						ulf_counter += 1
-						if ulf_counter==7:
-							break
-
-					print ("RETURNED FORM RAW: ", ulf)
-					ulf = "".join([line for line in ulf])
-					ulf = ulf.replace("\n", "")
-					ulf = (ulf.split("'")[1])[:-1]
-					print ("CLEANED ULF: ", ulf)					
-
-					if ulf_counter == 7:
-						continue
-
-
+					if ulf != "" and ulf is not None:
+						self.send_to_avatar('ULF', ulf)
+					
 					self.state = self.STATE.QUESTION_PENDING
-					self.current_input = "what block is to the left of the Target block?"
-					ulf = "(((which.d block.n) ((pres be.v) (to_the_left_of.p (the.d (Target block.n))))) ?)"
+					#self.current_input = "what block is to the left of the Target block?"
+					#ulf = "(((which.d block.n) ((pres be.v) (to_the_left_of.p (the.d (Target block.n))))) ?)"
 					
 					response_surface = "NIL"
 					if ulf is not None and ulf != "" and ulf != "NIL":
@@ -139,45 +167,44 @@ class HCIManager(object):
 							response_surface = self.generate_response(query_frame, answer_set_rel, [1.0])
 							print (query_frame.query_type)
 							print ("ANSWER SET: ", answer_set_rel)
-							print ("RESPONSE: ", response_surface)
-							
+							print ("RESPONSE: ", response_surface)							
 						except Exception as e:
-							print (str(e))							
+							print (str(e))
 
 					print ("SENDING REACTION AND WAITING FOR RESPONSE...")
-					#self.send_to_eta("REACTION", "'(\"" + response_surface + "\" NIL)")					
-					self.send_to_eta("REACTION", "\"" + response_surface + "\"")					
-										
-					if response_surface != "NIL":
-						time.sleep(0.2)
+					#self.send_to_eta("REACTION", "'(\"" + response_surface + "\" NIL)")
+					print ("RESPONSE SURFACE: " + response_surface)					
+					self.send_to_eta("REACTION", "\"" + response_surface + "\"")										
+					#if response_surface != "NIL":
+					time.sleep(1.0)
+					response = self.read_and_vocalize_from_eta()
+					print ("ORIGINAL INPUT: " + input)
+					print ("CLEANED ULF: ", ulf)
+					print ("FINAL RESPONSE: " + response)
 
-						eta_out_file = open(self.eta_output, 'r+')
-						responses = eta_out_file.readlines()
-						eta_out_file.truncate(0)
-						eta_out_file.close()
-						while responses is None or responses == "" or responses == []:
-							eta_out_file = open(self.eta_output, 'r+')
-							responses = eta_out_file.readlines()
-							eta_out_file.truncate(0)
-							eta_out_file.close()
-							time.sleep(0.1)
+					if "GOOD BYE" in response or "TAKE A BREAK" in response:
+						break
 
-						response = ""
-						responses = [r.strip() for r in responses if r.strip() != ""]
-						print ("response: " + str(responses))
-						for resp in responses:
-							if "#: ANSWER" in resp:
-								resp = resp.split(":")[2]
-								self.say(resp)
-								break
-					
+					print ("ASR BLOCKED...")
+					asr_lock.clear()
+					time.sleep(3.0)
+					print ("SPEAK...")
+					#print (to_the_left_of_deic)									
+				
 				self.current_input = ""
 			self.speech_lock.release()
 			time.sleep(0.1)
 
-	def say(self, text):
-		print ("Avatar's response: " + text)
-		req = requests.get(self.avatar_speech_servlet + "?say=" + text)
+	def send_to_avatar(self, mode, text):
+		#print ("Avatar's response: " + text)
+		print ("SENDING TO AVATAR " + mode + " " + text)
+		if mode == 'SAY':
+			print ("MODE = " + mode)
+			req = requests.get(self.avatar_speech_servlet + "?say=" + text)
+		elif mode == 'ULF':
+			req = requests.get(self.avatar_speech_servlet + "?ulf=" + text)
+		elif mode == 'USER_SPEECH':
+			req = requests.get(self.avatar_speech_servlet + "?user_speech=" + text)
 		avatar_status = str(req.status_code)
 		print ("STATUS: " + avatar_status)
 
@@ -777,7 +804,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						# give the number uncertaintly without grounding
 							return "Perhaps there are " + str(len(answer_set)) + "."
 			elif query_object.query_type == QueryFrame.QueryType.ERROR:
-				return "There is no object that satisfies those parameters, please rephrase and ask again."
+				return "Sorry, I was unable to find an object that satisfies your constraints, please rephrase in a simpler way."
 
 		elif self.state == self.STATE.USER_BYE:
 			pass

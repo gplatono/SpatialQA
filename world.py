@@ -35,6 +35,11 @@ class World(object):
 		
 		self.observer = self.create_observer()
 
+		#Set the fundamental extrinsic axes
+		self.right_axis = np.array([1, 0, 0])
+		self.front_axis = np.array([0, -1.0, 0])
+		self.up_axis = np.array([0, 0, 1.0])
+		
 		#List of  possible color modifiers
 		self.color_mods = ['black', 'red', 'blue', 'brown', 'green', 'yellow']
 

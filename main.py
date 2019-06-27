@@ -350,18 +350,17 @@ def main():
     spatial.world = world
 
     hci_manager = HCIManager(world, debug_mode = False)
-    hci_manager.start()    
+    hci_manager.start()
     tracker = None
+
+    #return
     
     global observer
     observer = world.observer
 
-
     #if not settings["SIMULATION_MODE"]:
     #    tracker = Tracker()
 
-    
-    #print (filepath, sys.path)
     if "--" in sys.argv:
         args = sys.argv[sys.argv.index("--") + 1:]
         init_parser([entity.name for entity in entities])
@@ -393,14 +392,8 @@ def main():
     min_len = min(len(ulfs), len(surface_forms))
     surface_forms = surface_forms[:min_len]
 
-    #test = ["the.d", ["red.a", ["block.n", "or.cc", "stack.n"]]]
-    #test2 = ["sub", ["what.d", "color.n"], [["pres", "be.v"], ["rep", [["farthest.a", "*p"], "block.n"], ["to.p", ["the.d", "right.n"]]], "*h"]]
-    #testt = [[['pres', 'be.v'], ['the.d', [['|nvidia|', 'and.cc', '|sri|'], ['plur', 'block.n']]], ['in.p', ['the.d', ['same.a', 'stack.n']]]], '?']
-    #print (memberof("and.cc", testt))
-
     ulf_parser = ULFParser()
 
-    print (entities)
     for ulf in ulfs:
         idx = ulfs.index(ulf)
         print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
@@ -441,7 +434,8 @@ def main():
             print ("ANSWER SET: ", answer_set_rel)
             print ("RESPONSE: ", response_surface)
 
-            print (to_the_left_of_deic(tar, tar))
+            #print (stb.location, tar.location)
+            print (in_front_of_extr(stb, tar))
             
             #print (rotation_matrix(0, -math.pi/4, -math.pi/4).dot(np.array([1,0,0])))
             #print (eye_projection(np.array([2, 0, 0]), np.array([0, 1.0, 3.0]), np.array([1.0, 0, 0]), 10, 2))

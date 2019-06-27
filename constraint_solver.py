@@ -131,7 +131,7 @@ def process_predicate(predicate, modifiers, *arglists):
 	predicate.
 
 	"""
-	print ("PREDICATE COMPONENTS: ",  predicate, modifiers, arglists)
+	print ("PREDICATE COMPONENTS: ", predicate, modifiers, arglists)
 
 	predicate_values = compute_predicate(predicate, *arglists)
 
@@ -142,6 +142,7 @@ def process_predicate(predicate, modifiers, *arglists):
 			#print ("PREDICATE VALUES AFTER MOD: ", predicate, modifier, predicate_values)
 	else:
 		predicate_values = [(arg, val) for (arg, val) in predicate_values if val >= 0.7]
+
 
 	print ("RESULTING ARGLISTS AFTER PRED FILTERING: ",  predicate_values)
 	return predicate_values
@@ -170,10 +171,19 @@ def resolve_argument(arg_object, entities):
 
 	print ("AFTER NAME RESOLUTION:", ret_args)
 
+	FOUND_ARG = 0
+	if len(ret_args) == 1:
+		FOUND_ARG = 1
+
 	if arg_mods is not None and arg_mods != []:
 		for modifier in arg_mods:
 			print ("CURRENT MOD: ", modifier)
 			ret_args = filter_by_mod(ret_args, modifier, entities)
+
+	if FOUND_ARG == 0:
+		ret_args.sort(key = lambda x: x[1]).reverse()
+		if arg_plur == False and len(ret_args) > 0:
+			ret_args = [ret_args[-1]]
 
 	print ("AFTER MOD APPLICATION:", ret_args)
 	return ret_args
@@ -203,9 +213,9 @@ def resolve_predicate(predicate_object):
     'right.p': spatial.to_the_right_of_deic,
     'left.p': spatial.to_the_left_of_deic,
     'at.p': spatial.at,
-    'in_front_of.p': spatial.in_front_of_deic,
-    'front.p': spatial.in_front_of_deic,
-    'behind.p': spatial.behind_deic,
+    'in_front_of.p': spatial.in_front_of,
+    'front.p': spatial.in_front_of,
+    'behind.p': spatial.behind,
     'between.p': spatial.between,
     'next_to.p': spatial.at,
     'clear.a': spatial.clear
