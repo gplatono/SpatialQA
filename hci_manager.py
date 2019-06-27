@@ -88,10 +88,10 @@ class HCIManager(object):
 			return None
 
 		if mode == "ULF":
-			#print ("RETURNED FORM RAW: ", msg)
+			print ("RAW ULF: ", msg)
 			result = "".join([line for line in msg])
 			result = re.sub(" +", " ", result.replace("\n", ""))
-			result = (result.split("'")[1])[:-1]
+			result = (result.split("* '")[1])[:-1]
 		else:
 			result = ""
 			responses = [r.strip() for r in msg if r.strip() != ""]
@@ -99,16 +99,29 @@ class HCIManager(object):
 			for resp in responses:
 				if "#: ANSWER" in resp:
 					result += resp.split(":")[2]
-				elif "#: " in resp:
+				elif "#: " in resp and "DO YOU HAVE ANOTHER SPATIAL QUESTION" not in resp and "NIL" not in resp:
 					result += resp.split(":")[1]
 
 		return result
+
+	def clear_file(self, filename):
+		open(filename, 'w').close()
 
 	def read_and_vocalize_from_eta(self):
 		response = self.read_from_eta(mode = "OUTPUT")
 		if response != "" and response is not None:
 			self.send_to_avatar('SAY', response)
 		return response
+
+	def preprocess(self, input):
+		input = input.lower()
+		misspells = [(' book', ' block'), (' blog', ' block'), (' black', ' block'), (' walk', ' block'), (' wok', ' block'), \
+					(' lock', ' block'), (' vlog', ' block'), (' blocked', ' block'), (' glock', ' block'), (' look', ' block'),\
+					(' talk', ' block'), \
+					(' merced us', ' mercedes'), (' merced is', ' mercedes'), (' in the table', ' on the table')]
+		for misspell, fix in misspells:
+			input = input.replace(misspell, fix)
+		return input
 
 	def start(self):
 		"""Initiate the listening loop."""
@@ -140,7 +153,9 @@ class HCIManager(object):
 				if self.debug_mode == False:
 					print ("ENTERING ETA DIALOG EXCHANGE BLOCK...")
 
+					self.current_input = self.preprocess(self.current_input)
 					input = self.current_input
+
 					self.send_to_eta("INPUT", self.current_input)
 
 					self.send_to_avatar('USER_SPEECH', self.current_input)
@@ -153,23 +168,26 @@ class HCIManager(object):
 					if ulf != "" and ulf is not None:
 						self.send_to_avatar('ULF', ulf)
 
-					self.state = self.STATE.QUESTION_PENDING
-					#self.current_input = "what block is to the left of the Target block?"
-					#ulf = "(((which.d block.n) ((pres be.v) (to_the_left_of.p (the.d (Target block.n))))) ?)"					
 					response_surface = "NIL"
+					self.state = self.STATE.QUESTION_PENDING
 					if ulf is not None and ulf != "" and ulf != "NIL":
-						if ":out" in ulf:
+						if re.search(r"^\((\:OUT|OUT|OUT:)", ulf):
 							self.send_to_avatar('ULF', ulf)
-							ulf = (ulf.split(":out ")[1])[:-1]
-							self.send_to_avatar('SAY', ulf)						
-							print ("ASR BLOCKED...")
+							if "(OUT " in ulf:
+								ulf = (ulf.split("(OUT ")[1])[:-1]
+							else:
+								ulf = (ulf.split("(:OUT ")[1])[:-1]
+							response_surface = ulf
+							#self.send_to_avatar('SAY', ulf)
+							#print ("ASR BLOCKED...")
 							#asr_lock.clear()
 							#self.speech_lock.acquire()
-							time.sleep(3.0)
-							self.speech_lock.release()
+							#time.sleep(3.0)
 							#self.speech_lock.release()
-							print ("SPEAK...")						
-							continue
+							#self.speech_lock.release()
+							#print ("SPEAK...")						
+
+					if ulf is not None and ulf != "" and ulf != "NIL" and response_surface == "NIL":						
 						try:
 							POSS_FLAG = False
 							if "poss-question" in ulf:
@@ -177,10 +195,10 @@ class HCIManager(object):
 								ulf = (ulf.split("poss-question ")[1])[:-1]
 
 							query_tree = self.ulf_parser.parse(ulf)
-							print ("QUERY TREE", query_tree)
+							print ("\nQUERY TREE", query_tree, '\n')
 							query_frame = QueryFrame(self.current_input, ulf, query_tree)
 							answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
-							response_surface = self.generate_response(query_frame, answer_set_rel, [1.0])
+							response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
 							if POSS_FLAG:
 								response_surface = "poss-ans " + response_surface
 							print (query_frame.query_type)
@@ -192,17 +210,16 @@ class HCIManager(object):
 							print (str(e))
 
 					print ("SENDING REACTION AND WAITING FOR RESPONSE...")
-					#self.send_to_eta("REACTION", "'(\"" + response_surface + "\" NIL)")
 					print ("RESPONSE SURFACE: " + response_surface)
 					self.send_to_eta("REACTION", "\"" + response_surface + "\"")
-					#if response_surface != "NIL":
 					time.sleep(1.0)
 					response = self.read_and_vocalize_from_eta()
+					self.clear_file(self.eta_reaction)
 					print ("ORIGINAL INPUT: " + input)
 					print ("CLEANED ULF: ", ulf)
-					print ("RETURNED RESPONSE: " + response)
+					print ("RETURNED RESPONSE: " + str(response))
 
-					if "GOOD BYE" in response or "TAKE A BREAK" in response:						
+					if response is not None and ("GOOD BYE" in response or "TAKE A BREAK" in response):						
 						break
 
 					print ("ASR BLOCKED...")
@@ -377,7 +394,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 
 			# handle the error case then begin pre-processing
 			if query_object.query_type == QueryFrame.QueryType.ERROR:
-				return "Sorry, I was unable to find an object that satisfies your constraints, please rephrase in a simpler way."
+				return "Sorry, I was unable to find an object that satisfies given constraints, please rephrase in a simpler way."
 
 			# pre-processing
 			user_input_surface = query_object.surface.lower()
@@ -403,7 +420,11 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 			threashold = 0.7
 
 			index = 0
-			if not type_surf in user_input_list and not plural_type_surf in user_index_list:
+
+			#ADDED BY GEORGIY
+			grounding = True
+
+			if not type_surf in user_input_list and not plural_type_surf in user_input_list:
 				grounding = false
 			elif not type_surf in user_input_list:
 				index = user_input_list.index(plural_type_surf) + 1
@@ -478,7 +499,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						# identify the only answer with uncertainty and without grounding
 							return "Probably just " + ans_list + " is."
 
-				elif len(answer_set) > 5 and not contains_a_number(query_object.ulf):
+				elif len(answer_set) > 5 and not self.contains_a_number(query_object.ulf):
 				# identify the listable answers
 					ans_list = self.entities_to_english_list(answer_set[0:5], 'name')
 					if min(certainty) < threashold:
@@ -514,7 +535,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 					# identify the multiple answers with certainty
 						if use_grounding:
 						# identify the multiple answers with certainty with grounding
-							return "There are " + str(len(answer_set)) + " that are " + des_prop + ", including " ans_list + "."
+							return "There are " + str(len(answer_set)) + " that are " + des_prop + ", including " + ans_list + "."
 						else:
 						# identify the multiple answers with certainty without grounding
 							return capitalize(ans_list) + " do, as well as " + str(len(answer_set) - 4) + " others."
@@ -830,9 +851,9 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						if use_grounding:
 						# identify the reasonably enumerable answers with certainty and grounding
 							if surf_aux == "is" or surf_aux == "are":
-								return "There are " + str(len(answer_set)) + " that are " + des_prop + ": " + ans_list + "."
+								return "There are " + str(len(answer_set)) + " that are " + des_prop + ". " + ans_list + "."
 							else:
-								return "There are " + str(len(answer_set)) + " that " + des_prop + ": " + ans_list + "."
+								return "There are " + str(len(answer_set)) + " that " + des_prop + ". " + ans_list + "."
 						else:
 						# identify the reasonably enumerable answers with certainty and without grounding
 							return "There are " + str(len(answer_set)) + ": " + ans_list + "."
@@ -841,9 +862,9 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 						if use_grounding:
 						# identify the reasonably enumerable answers with uncertainty and grounding
 							if surf_aux == "is" or surf_aux == "are":
-								return "There are probably " + str(len(answer_set)) + " that are " + des_prop + ": " + ans_list + "."
+								return "There are probably " + str(len(answer_set)) + " that are " + des_prop + ". " + ans_list + "."
 							else:
-								return "There are probably " + str(len(answer_set)) + " that " + des_prop + ": " + ans_list + "."
+								return "There are probably " + str(len(answer_set)) + " that " + des_prop + ". " + ans_list + "."
 						else:
 						# identify the reasonably enumerable answers with uncertainty and without grounding
 							return "Probably " + answer_list + " is the only one."
@@ -953,7 +974,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 		return out
 
 	# returns true if the ULF contains a number, false it is doesn't
-	def contains_a_number(ulf):
+	def contains_a_number(self, ulf):
 		return 'one' in ulf or 'two' in ulf or 'three' in ulf or 'four' in ulf or 'five' in ulf or 'six' in ulf or 'seven' in ulf or 'eight' in ulf or 'nine' in ulf or 'ten' in ulf
 
 	def english_sentence_to_list(self, sentence):

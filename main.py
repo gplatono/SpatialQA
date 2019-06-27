@@ -348,9 +348,10 @@ def main():
     world = World(bpy.context.scene)
     spatial.entities = world.entities
     spatial.world = world
+    #constraint_solver.world = world
 
     hci_manager = HCIManager(world, debug_mode = False)
-    #hci_manager.start()
+    hci_manager.start()
     tracker = None
 
     #return
@@ -410,7 +411,7 @@ def main():
             nvd = world.find_entity_by_name("NVidia")
             stb = world.find_entity_by_name("Starbucks")
             mrc = world.find_entity_by_name("Mercedes")
-            bgk = world.find_entity_by_name("BurgerKing")
+            bgk = world.find_entity_by_name("Burger King")
             tar = world.find_entity_by_name("Target")
             tbl = world.find_entity_by_name("Table")
             ent = [toy, tex, mcd, bgk, tar, stb, tbl,mrc]
@@ -436,8 +437,8 @@ def main():
 
             #print (stb.location, tar.location)
             
-            #print ([(bl, in_front_of(bl, tar)) for bl in ent if bl != tbl])
-            print ([(bl, above(bl, tar)) for bl in ent if bl != tbl])            
+            print ([(bl, behind(bl, bgk)) for bl in ent if bl != tbl])
+            #print ([(bl, on(bl, tar)) for bl in ent if bl != tbl])            
             #print ([(bl, clear(bl)) for bl in ent])
             #print (extract_contiguous([entity for entity in ent if entity != tbl]))
             

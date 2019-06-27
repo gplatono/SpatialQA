@@ -82,18 +82,18 @@ class QueryFrame(object):
 		return False
 
 	def scan_type(self):
-		self.YN_FLAG = True if re.search('^\(*(pres|past|pres perf\)|pres prog\)|prog) (be.v|do.aux|can.aux)', self.ulf, re.IGNORECASE) else False
-		self.COUNT_FLAG = True if re.search('^\(*(how.adv-a many.a|how_many.d)', self.ulf, re.IGNORECASE) else False
+		self.YN_FLAG = True if re.search(r'^\(*(pres|past|pres perf\)|pres prog\)|prog) (be.v|do.aux|can.aux)', self.ulf, re.IGNORECASE) else False
+		self.COUNT_FLAG = True if re.search(r'^\(*(how.adv-a many.a|how_many.d)', self.ulf, re.IGNORECASE) else False
 		
 		if re.search('^.*(how.mod-a many.a|how_many.d)', self.ulf, re.IGNORECASE):
 			self.COUNT_FLAG = True
 		
 		self.IDENT_FLAG = True if re.search('^.*(what.d|which.d).*(block.n).*(be.v)', self.ulf, re.IGNORECASE) else False
 
-		if re.search('^\(*what.pro', self.ulf, re.IGNORECASE):
+		if re.search(r'^\(*what.pro', self.ulf, re.IGNORECASE):
 			self.IDENT_FLAG = True
 
-		self.DESCR_FLAG = True if re.search('^\(*(where).*(be.v).*\|.*\|.* block.n', self.ulf, re.IGNORECASE) else False
+		self.DESCR_FLAG = True if re.search(r'^\(*(where).*(be.v).*\|.*\|.* block.n', self.ulf, re.IGNORECASE) else False
 
 		if self.COUNT_FLAG:
 			self.query_type = self.QueryType.COUNT
