@@ -90,7 +90,7 @@ class HCIManager(object):
 		if mode == "ULF":
 			#print ("RETURNED FORM RAW: ", msg)
 			result = "".join([line for line in msg])
-			result = result.replace("\n", "")
+			result = result.replace("\n", "").replace(re.compile(r"[\s]+"), " ")
 			result = (result.split("'")[1])[:-1]
 		else:
 			result = ""
@@ -156,15 +156,30 @@ class HCIManager(object):
 					self.state = self.STATE.QUESTION_PENDING
 					#self.current_input = "what block is to the left of the Target block?"
 					#ulf = "(((which.d block.n) ((pres be.v) (to_the_left_of.p (the.d (Target block.n))))) ?)"
-					
+					if ":out" in ulf:
+						ulf = (ulf.split(":out ")[1])[:-1]
+						self.send_to_avatar('SAY', ulf)
+						print ("ASR BLOCKED...")
+						asr_lock.clear()
+						time.sleep(3.0)
+						print ("SPEAK...")						
+						continue
+
 					response_surface = "NIL"
 					if ulf is not None and ulf != "" and ulf != "NIL":
 						try:
+							POSS_FLAG = False
+							if "poss-question" in ulf:
+								POSS_FLAG = True
+								ulf = (ulf.split("poss-question ")[1])[:-1]
+
 							query_tree = self.ulf_parser.parse(ulf)
 							print ("QUERY TREE", query_tree)
 							query_frame = QueryFrame(self.current_input, ulf, query_tree)
 							answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
 							response_surface = self.generate_response(query_frame, answer_set_rel, [1.0])
+							if POSS_FLAG:
+								response_surface = "(poss-ans " + response_surface + ")"
 							print (query_frame.query_type)
 							print ("ANSWER SET: ", answer_set_rel)
 							print ("RESPONSE: ", response_surface)							
@@ -358,7 +373,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 			# pre-processing
 			user_input_surface = query_object.surface.lower()
 			user_input_list = re.findall("[a-zA-Z'-]+", user_input_surface)#self.english_sentence_to_list(user_input_surface)
-			print ("USER INPUT LIST:", user_input_list)
+			# print ("USER INPUT LIST:", user_input_list)
 			while not user_input_surface[-1].isalpha():
 				user_input_surface = user_input_surface[:-1]
 

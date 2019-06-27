@@ -440,6 +440,10 @@ def get_axis_angles(vect):
     return alpha, beta, gamma
 
 def eye_projection(point, up, right, focus_dist, eye_dist):
+    """
+    Compute the projection of an object onto the observer's visual plane.
+
+    """
     scaling_factor = (focus_dist - eye_dist) / focus_dist
     up0 = scaling_factor * point.dot(up) / np.linalg.norm(up)
     right0 = scaling_factor * point.dot(right) / np.linalg.norm(right)
@@ -447,3 +451,9 @@ def eye_projection(point, up, right, focus_dist, eye_dist):
 
 def camera_matrix(location, direction):
     pass
+
+def projection_bbox_center(bbox):
+    return np.array([(bbox[0] + bbox[1]) / 2, (bbox[2] + bbox[3]) / 2])
+
+def projection_bbox_area(bbox):
+    return (bbox[1] - bbox[0]) * (bbox[3] - bbox[2])

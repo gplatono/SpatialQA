@@ -350,7 +350,7 @@ def main():
     spatial.world = world
 
     hci_manager = HCIManager(world, debug_mode = False)
-    hci_manager.start()
+    #hci_manager.start()
     tracker = None
 
     #return
@@ -435,7 +435,11 @@ def main():
             print ("RESPONSE: ", response_surface)
 
             #print (stb.location, tar.location)
-            print (in_front_of_extr(stb, tar))
+            
+            print ([(bl, in_front_of(bl, tar)) for bl in ent if bl != tbl])
+            #print ([(bl, in_front_of(bl, sri)) for bl in ent if bl != tbl])
+            print ([(bl, clear(bl)) for bl in ent])
+            #print (extract_contiguous([entity for entity in ent if entity != tbl]))
             
             #print (rotation_matrix(0, -math.pi/4, -math.pi/4).dot(np.array([1,0,0])))
             #print (eye_projection(np.array([2, 0, 0]), np.array([0, 1.0, 3.0]), np.array([1.0, 0, 0]), 10, 2))

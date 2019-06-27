@@ -332,7 +332,14 @@ def in_front_of_deic(a, b):
     dist = get_distance_from_line(world.get_observer().centroid, b.centroid, a.centroid)
     #print ("{}, {}, CLOSER: {}, WC_DEIC: {}, WC_EXTR: {}, DIST: {}".format(a.name, b.name, closer_than(a, b, observer), within_cone(b.centroid - observer.centroid, a.centroid - observer.centroid, 0.95), within_cone(b.centroid - a.centroid, Vector((0, -1, 0)) - a.centroid, 0.8), e ** (- 0.1 * get_centroid_distance_scaled(a, b))))
     #print ("WITHIN CONE:")
-    return math.e ** (- 0.01 * get_centroid_distance_scaled(a, b)) * within_cone(b.centroid - a.centroid, Vector((1, 0, 0)), 0.7)
+    a_bbox = get_2d_bbox(vp_project(a, world.get_observer()))
+    b_bbox = get_2d_bbox(vp_project(b, world.get_observer()))
+    a_center = projection_bbox_center(a_bbox)
+    b_center = projection_bbox_center(b_bbox)
+    dist = np.linalg.norm(a_center - b_center)
+    scaled_dist = dist*dist / max(projection_bbox_area(a_bbox), projection_bbox_area(a_bbox) + 0.001)
+    return closer_than(a, b, world.observer) * math.e ** (-0.1 * scaled_dist)
+    #return math.e ** (- 0.01 * get_centroid_distance_scaled(a, b)) * within_cone(b.centroid - a.centroid, Vector((1, 0, 0)), 0.7)
     '''0.3 * closer_than(a, b, observer) + \
                   0.7 * (max(within_cone(b.centroid - observer.centroid, a.centroid - observer.centroid, 0.95),
                   within_cone(b.centroid - a.centroid, Vector((1, 0, 0)), 0.7)) * \
@@ -345,6 +352,7 @@ def in_front_of_extr(a, b):
     return sigmoid(proj_dist_scaled, 1, 1)
 
 def in_front_of(a, b):
+    print ("IN_FRONT_OF: ", a, b, in_front_of_deic(a, b), in_front_of_extr(a, b))
     return max(in_front_of_deic(a, b), in_front_of_extr(a, b))
 
 #Enable SVA
@@ -563,8 +571,9 @@ def extract_contiguous(entities):
             that originated the current group.
             """            
             while not q.empty():
-                curr_idx = q.get()
-                for idx1 in range(curr_idx, len(entities)):
+                curr_idx = q.get()                
+                for idx1 in range(len(entities)):
+                    #print (processed[idx1], entities[curr_idx], entities[idx1], touching(entities[curr_idx], entities[idx1]))
                     if processed[idx1] == 0 and touching(entities[curr_idx], entities[idx1]) > 0.85:
                         q.put(idx1)
                         processed[idx1] = 1
