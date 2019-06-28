@@ -26,13 +26,11 @@ rel_to_func_dict = {'to_the_left_of.p': 'to_the_left_of_deic',
               'next_to.p': 'at'
 }
 
-
 #Returns the sublist of the entity list having the specified color
 def filter_by_color(entities, color):
 	ret_val = [] if entities == [] or entities is None \
 			else [entity for entity in entities if entity.color_mod == color]
 	return ret_val
-	#return [entity for entity in entities if entity.color_mod == color]
 
 #Returns the list of entities having the specified type
 def filter_by_type(entities, type_id):
@@ -81,9 +79,6 @@ def filter_by_relation(relatums, relation, referents, modifier=None):
 
 def compute_predicate(predicate, *arglists):
 	arg_combinations = list(itertools.product(*arglists))
-	#print ("ARGLISTS: ", *arglists)
-	#print ("ARG_COMB: ", arg_combinations)
-	#print ("COMPUTING: " + str(predicate))	
 	predicate_values = [(arg, predicate(*arg)) for arg in arg_combinations]
 	return predicate_values
 
@@ -111,15 +106,8 @@ def filter_by_mod(entities, modifier, entity_list):
 		ret_val = filter_by_color(items, modifier.content)
 		return [(item, 1.0) for item in ret_val]
 	elif type(modifier) == TNumber:
-		#TODO!!!
 		pass
 	elif type(modifier) == NPred or type(modifier) == NRel:
-		#print ("ENTERING PRED MOD PROCESSING...", modifier, modifier.mods)
-		# if modifier.children is not None and modifier.children != []:
-		# 	referents = resolve_argument(modifier.children[0], global_entities)
-		# 	predicate_values = process_predicate(resolve_predicate(modifier), modifier.mods, entities, referents)
-		# else:
-		# 	predicate_values = process_predicate(resolve_predicate(modifier), modifier.mods, entities)
 		predicate_values = process_predicate(modifier, relata=entities, entity_list=entity_list)
 
 		answer_set = {}
@@ -129,10 +117,6 @@ def filter_by_mod(entities, modifier, entity_list):
 			answer_set[item[0]] = max(answer_set[item[0]], val)
 		
 		answer_set = [(item, answer_set[item]) for item in answer_set.keys()]
-		#answer_entities = list(set([arg[0] for (arg, val) in predicate_values if arg[0] in entities]))
-		#answer_set = [item for (item, val) in answer_set]
-		#print ("ANSWER ENTITIES: ", answer_set)
-
 		return answer_set
 
 def process_predicate(predicate, relata=None, referents=None, entity_list=None):
@@ -166,7 +150,7 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 	predicate_values = compute_predicate(predicate_func, relata, referents) if referents is not None\
 					else compute_predicate(predicate_func, relata)
 
-	#print ("PREDICATE VALUES: ", predicate, modifiers, predicate_values)	
+	print ("PREDICATE VALUES: ", predicate, modifiers, predicate_values)	
 	if modifiers is not None and modifiers != []:
 		for modifier in modifiers:
 			predicate_values = filter_by_predicate_modifier(predicate_values, modifier)

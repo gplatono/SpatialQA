@@ -278,7 +278,7 @@ def on(a, b):
     proj_dist = np.linalg.norm(np.array([a.location[0] - b.location[0], a.location[1] - b.location[1]]))
     proj_dist_scaled = proj_dist / (max(a.size, b.size) + 0.01)
     hor_offset = math.e ** (-proj_dist_scaled)
-    print ("PROJ DIST: ", a, b, hor_offset)
+    #print ("PROJ DIST: ", a, b, hor_offset)
 
     ret_val =  touching(a, b) * above(a, b) * hor_offset if hor_offset < 0.9 else above(a, b) * touching(a, b)        
 #    ret_val =  touching(a, b) * hor_offset if above(a, b) < 0.88 else above(a, b) * touching(a, b)        
@@ -372,7 +372,7 @@ def in_front_of(a, b):
         return 0
     front_deic = in_front_of_deic(a, b)
     front_extr = in_front_of_extr(a, b)
-    print ("IN_FRONT_OF: ", a, b, front_deic, front_extr)
+    #print ("IN_FRONT_OF: ", a, b, front_deic, front_extr)
     return max(front_deic, front_extr)
 
 #Enable SVA
@@ -418,7 +418,7 @@ def touching(a, b):
     rad_b = max(bbox_b[7][0] - bbox_b[0][0], \
                 bbox_b[7][1] - bbox_b[0][1], \
                 bbox_b[7][2] - bbox_b[0][2]) / 2
-    
+    print (a, b)
     '''for point in bbox_a:
         if point_distance(point, center_b) < rad_b:
             return 1
@@ -426,21 +426,24 @@ def touching(a, b):
         if point_distance(point, center_a) < rad_a:
             return 1'''
     mesh_dist = 1e9
-    #print ("MESH_DIST:", closest_mesh_distance_scaled(a, b))
+    planar_dist = 1e9
     shared_volume = shared_volume_scaled(a, b)
     #print ("SHARED VOLUME:", shared_volume)
-    planar_dist = 1e9
     if a.get("planar") is not None:
         planar_dist = get_planar_distance_scaled(b, a)
     elif b.get("planar") is not None:
-        planar_dist = get_planar_distance_scaled(a, b)
-    #print ("PLANAR DIST: ", planar_dist)    
+        planar_dist = get_planar_distance_scaled(a, b)        
+    print ("PLANAR DIST: ", planar_dist)    
     if get_centroid_distance_scaled(a, b) <= 1.5:
         mesh_dist = closest_mesh_distance_scaled(a, b)
+    print ("MESH DIST: ", mesh_dist)    
     mesh_dist = min(mesh_dist, planar_dist)
+    print ("MESH DIST: ", mesh_dist)
     if shared_volume == 0:
+        print ("SH_ZERO:" ,math.exp(- 4 * mesh_dist))
         return math.exp(- 4 * mesh_dist)
     else:
+        print (0.3 * math.exp(- 2 * mesh_dist) + 0.7 * (shared_volume > 0))
         return 0.3 * math.exp(- 2 * mesh_dist) + 0.7 * (shared_volume > 0)
 
 

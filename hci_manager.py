@@ -81,21 +81,17 @@ class HCIManager(object):
 				attempt_counter += 1
 				if attempt_counter == 7:
 					break
-				#print ("CURRENT MSG: ", msg)
 			file.truncate(0)
 
 		if msg == "" or msg is None or msg == []:
 			return None
-
-		if mode == "ULF":
-			print ("RAW ULF: ", msg)
+		elif mode == "ULF":
 			result = "".join([line for line in msg])
 			result = re.sub(" +", " ", result.replace("\n", ""))
 			result = (result.split("* '")[1])[:-1]
 		else:
 			result = ""
 			responses = [r.strip() for r in msg if r.strip() != ""]
-			print ("\nresponse: " + str(responses))
 			for resp in responses:
 				if "#: ANSWER" in resp:
 					result += resp.split(":")[2]
@@ -129,7 +125,6 @@ class HCIManager(object):
 			print ("Starting the listening thread...")
 			mic_thread = Thread(target = self.mic_loop)
 			mic_thread.start()
-			#thread.join()
 
 		asr_lock = Event()
 
@@ -157,64 +152,48 @@ class HCIManager(object):
 					input = self.current_input
 
 					self.send_to_eta("INPUT", self.current_input)
-
 					self.send_to_avatar('USER_SPEECH', self.current_input)
 					time.sleep(0.5)
 
 					print ("WAITING FOR ULF...")
 					ulf = self.read_from_eta(mode = "ULF")
-					print ("CLEANED ULF: ", ulf)
+					response_surface = "NIL"
 
 					if ulf != "" and ulf is not None:
 						self.send_to_avatar('ULF', ulf)
-
-					response_surface = "NIL"
-					self.state = self.STATE.QUESTION_PENDING
-					if ulf is not None and ulf != "" and ulf != "NIL":
 						if re.search(r"^\((\:OUT|OUT|OUT:)", ulf):
-							self.send_to_avatar('ULF', ulf)
 							if "(OUT " in ulf:
 								ulf = (ulf.split("(OUT ")[1])[:-1]
 							else:
 								ulf = (ulf.split("(:OUT ")[1])[:-1]
 							response_surface = ulf
-							#self.send_to_avatar('SAY', ulf)
-							#print ("ASR BLOCKED...")
-							#asr_lock.clear()
-							#self.speech_lock.acquire()
-							#time.sleep(3.0)
-							#self.speech_lock.release()
-							#self.speech_lock.release()
-							#print ("SPEAK...")						
-
-					if ulf is not None and ulf != "" and ulf != "NIL" and response_surface == "NIL":						
-						try:
-							POSS_FLAG = False
-							if "poss-question" in ulf:
-								POSS_FLAG = True
-								ulf = (ulf.split("poss-question ")[1])[:-1]
-
-							query_tree = self.ulf_parser.parse(ulf)
-							print ("\nQUERY TREE", query_tree, '\n')
-							query_frame = QueryFrame(self.current_input, ulf, query_tree)
-							answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
-							response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
-							if POSS_FLAG:
-								response_surface = "poss-ans " + response_surface
-							print (query_frame.query_type)
-							print ("ANSWER SET: ", answer_set_rel)
-							#print ("RESPONSE: ", response_surface)							
-						except Exception as e:
-							query_frame.query_type = query_frame.QueryType.ERROR
-							response_surface = self.generate_response(query_frame, [], [1.0])
-							print (str(e))
-
+						else:
+							self.state = self.STATE.QUESTION_PENDING
+							try:
+								POSS_FLAG = False
+								if "poss-question" in ulf:
+									POSS_FLAG = True
+									ulf = (ulf.split("poss-question ")[1])[:-1]
+								query_tree = self.ulf_parser.parse(ulf)
+								print ("\nQUERY TREE: ", query_tree, '\n')
+								query_frame = QueryFrame(self.current_input, ulf, query_tree)
+								answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
+								print ("ANSWER SET: ", answer_set_rel)								
+								response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
+								if POSS_FLAG:
+									response_surface = "poss-ans " + response_surface
+							except Exception as e:
+								query_frame.query_type = query_frame.QueryType.ERROR
+								response_surface = self.generate_response(query_frame, [], [])
+								print (str(e))
+			
 					print ("SENDING REACTION AND WAITING FOR RESPONSE...")
 					print ("RESPONSE SURFACE: " + response_surface)
 					self.send_to_eta("REACTION", "\"" + response_surface + "\"")
 					time.sleep(1.0)
 					response = self.read_and_vocalize_from_eta()
 					self.clear_file(self.eta_reaction)
+					
 					print ("ORIGINAL INPUT: " + input)
 					print ("CLEANED ULF: ", ulf)
 					print ("RETURNED RESPONSE: " + str(response))
@@ -223,10 +202,8 @@ class HCIManager(object):
 						break
 
 					print ("ASR BLOCKED...")
-					#asr_lock.clear()
 					time.sleep(3.0)
 					print ("SPEAK...")
-					#print (to_the_left_of_deic)
 
 				self.current_input = ""
 			self.speech_lock.release()

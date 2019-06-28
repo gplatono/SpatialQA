@@ -82,135 +82,6 @@ types_ids = {
     'wall': 'world.plane.wall'
 }
 
-#The list of entities
-entities = []
-
-#Average distance between entities in the scene
-#avg_dist = 0
-    
-#The following functions are for precomputing the corresponding
-#relation for every pair of entities
-#
-#
-
-def compute_at(entities):
-    obj = [[x, [y for y in entities if x != y and near(y, x) > 0.8]] for x in entities]
-    return "\n".join(", ".join(y.name for y in x[1]) + " is at the " + x[0].name for x in obj if x[1] != [])
-
-def compute_near(entities):
-    obj = [[x, [y for y in entities if x != y and near(y, x) > 0.6]] for x in entities]
-    return "\n".join(", ".join(y.name for y in x[1]) + " is near the " + x[0].name for x in obj if x[1] != [])
-
-def compute_on(entities):
-    obj = [[x, [y for y in entities if x != y and on(y, x) > 0.8]] for x in entities]
-    return "\n".join(", ".join(y.name for y in x[1]) + " is on the " + x[0].name for x in obj if x[1] != [])
-
-def compute_above(entities):
-    obj = [[x, [y for y in entities if x != y and above(y, x) > 0.7]] for x in entities]
-    return "\n".join(", ".join(y.name for y in x[1]) + " is above the " + x[0].name for x in obj if x[1] != [])
-
-def compute_below(entities):
-    obj = [[x, [y for y in entities if x != y and below(y, x) > 0.7]] for x in entities]
-    return "\n".join(", ".join(y.name for y in x[1]) + " is below the " + x[0].name for x in obj if x[1] != [])
-
-def compute_over(entities):
-    obj = [[x, [y for y in entities if x != y and over(y, x) > 0.7]] for x in entities]
-    return "\n".join(", ".join(y.name for y in x[1]) + " is over the " + x[0].name for x in obj if x[1] != [])
-
-#
-
-#Creates and configures the special "observer" object
-#(which is just a camera). Needed for deictic relations as
-#well as several other aspects requiring the POV concept,
-#e.g., taking screenshots.
-#Inputs: none
-#Return value: the camera object
-
-"""def get_observer():
-    lamp = bpy.data.lamps.new("Lamp", type = 'POINT')
-    lamp.energy = 30
-    cam = bpy.data.cameras.new("Camera")
-
-    if bpy.data.objects.get("Lamp") is not None:
-        lamp_obj = bpy.data.objects["Lamp"]
-    else:
-        lamp_obj = bpy.data.objects.new("Lamp", lamp)
-        scene.objects.link(lamp_obj)
-    if bpy.data.objects.get("Camera") is not None:
-        cam_ob = bpy.data.objects["Camera"]
-    else:
-        cam_ob = bpy.data.objects.new("Camera", cam)
-        scene.objects.link(cam_ob)    
-
-    lamp_obj.location = (-20, 0, 10)
-    cam_ob.location = (-15.5, 0, 7)
-    cam_ob.rotation_mode = 'XYZ'
-    cam_ob.rotation_euler = (1.1, 0, -1.57)
-    bpy.data.cameras['Camera'].lens = 20
-    
-    bpy.context.scene.camera = scene.objects["Camera"]
-
-
-    if bpy.data.objects.get("Observer") is None:
-        mesh = bpy.data.meshes.new("Observer")
-        bm = bmesh.new()
-        bm.verts.new(cam_ob.location)
-        bm.to_mesh(mesh)
-        observer = bpy.data.objects.new("Observer", mesh)    
-        scene.objects.link(observer)
-        bm.free()
-        scene.update()
-    else: 
-        observer = bpy.data.objects["Observer"]            
-    observer_entity = Entity(observer)
-    observer_entity.camera = cam_ob
-    return observer_entity
-"""
-
-'''
-#Places the entity at a specified location and with specified orientation
-#Inputs: entity, position - triple of point coordinates, rotation - triple of Euler angles
-#Return value: none
-def place_entity(entity, position=(0,0,0), rotation=(0,0,0)):
-    obj = entity.constituents[0]
-    obj.location = position
-    obj.rotation_mode = 'XYZ'
-    obj.rotation_euler = rotation
-    scene.update()
-
-#Places the set of entities within a certain region 
-#Inputs: reg - the bounding box of the region, collection - list of entities
-#Return value: none
-def arrange_entities(reg, collection):
-    for entity in collection:
-        if entity.get('fixed') is None:
-            #print (entity.name)
-            if reg[4] == reg[5]:
-                pos = (random.uniform(reg[0], reg[1]), random.uniform(reg[2], reg[3]), reg[4])#entity.get_parent_offset()[2])
-            else:
-                pos = (random.uniform(reg[0], reg[1]), random.uniform(reg[2], reg[3]), random.uniform(reg[4], reg[5]))
-            place_entity(entity, pos, (math.pi,0,0))
-            while check_collisions(entity):
-                print (entity.name, pos)
-                if reg[4] == reg[5]:
-                    pos = (random.uniform(reg[0], reg[1]), random.uniform(reg[2], reg[3]), reg[4])#entity.get_parent_offset()[2])
-                else:
-                    pos = (random.uniform(reg[0], reg[1]), random.uniform(reg[2], reg[3]), random.uniform(reg[4], reg[5]))
-                place_entity(entity, pos, (math.pi,0,0))
-'''
-
-
-'''
-#Checks if the projections of two entities onto a coordinate axis "collide" (overlap)
-#Inputs: int_a, int_b - the projections of two entities as intervals (pairs of numbers)
-#Return value: Boolean value                
-def axis_collision(int_a, int_b):
-    return int_a[1] <= int_b[1] and int_a[1] >= int_b[0] or \
-int_a[0] >= int_b[0] and int_a[0] <= int_b[1] or \
-int_b[0] >= int_a[0] and int_b[0] <= int_a[1] or \
-int_b[1] >= int_a[0] and int_b[1] <= int_a[1]
-'''
-
 #Checks if the entity "collides" (overlaps) with some other entity along any coordinate axis
 #Inputs: a - entity
 #Return value: Boolean value                
@@ -244,10 +115,6 @@ def check_collision(a, b):
     #return axis_collision((span_a[0], span_a[1]), (span_b[0], span_b[1])) and \
     #                      axis_collision((span_a[2], span_a[3]), (span_b[2], span_b[3])) and \
     #                      axis_collision((span_a[4], span_a[5]), (span_b[4], span_b[5]))
-
-#STUB
-def put_on_top(a, b):
-    pass
 
 
 #Render and save the current scene screenshot
@@ -321,46 +188,62 @@ def pick_descriptions(relatum):
     max_vals = [item[0] for item in max_vals]
     return tuple(max_vals[0:3])
 
-#The observer object (camera)
-#observer = get_observer()
-
-def get_entities():
-    print (entities)
-    return entities
 
 #Entry point
 #Implementation of the evaluation pipeline
 def main():
-    """
-    global entities
-    print ("OBJECT TYPE: ", type(scene.objects[0]))
-    for obj in scene.objects:
-        if obj.get('main') is not None:
-            entities.append(Entity(obj))
-    global avg_dist
-    if len(entities) != 0:
-        for pair in itertools.combinations(entities, r = 2):
-            avg_dist += dist_obj(pair[0], pair[1])
-        avg_dist = avg_dist * 2 / (len(entities) * (len(entities) - 1))
-
-    spatial.entities = entities"""
-
     world = World(bpy.context.scene)
     spatial.entities = world.entities
     spatial.world = world
-    #constraint_solver.world = world
-
-    hci_manager = HCIManager(world, debug_mode = False)
-    hci_manager.start()
+    
+    hci_manager = HCIManager(world, debug_mode = True)
+    #hci_manager.start()
     tracker = None
 
-    #return
+    surface_forms = open("sqa_dev_surface.bw").readlines()
+    ulfs = open("sqa_dev_ulf.bw").readlines()
+    min_len = min(len(ulfs), len(surface_forms))
+    surface_forms = surface_forms[:min_len]
+
+    ulf_parser = ULFParser()
+
     
     global observer
     observer = world.observer
 
     #if not settings["SIMULATION_MODE"]:
     #    tracker = Tracker()
+
+    toy = world.find_entity_by_name("Toyota")
+    tex = world.find_entity_by_name("Texaco")
+    mcd = world.find_entity_by_name("McDonald's")
+    sri = world.find_entity_by_name("SRI")
+    nvd = world.find_entity_by_name("NVidia")
+    stb = world.find_entity_by_name("Starbucks")
+    mrc = world.find_entity_by_name("Mercedes")
+    bgk = world.find_entity_by_name("Burger King")
+    tar = world.find_entity_by_name("Target")
+    tbl = world.find_entity_by_name("Table")
+    ent = [toy, tex, mcd, bgk, tar, stb, tbl,mrc]         
+
+    for ulf in ulfs:
+        idx = ulfs.index(ulf)
+        print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
+        ulf = ulf.lower().strip().replace("{", "").replace("}", "")
+        if "row" not in ulf and "stack" not in ulf and "face" not in ulf and "-of" not in ulf and "right.a (red.a block.n)" not in ulf and "and.cc" not in ulf and "most-n" not in ulf:
+            query_frame = QueryFrame(surface_forms[idx], ulf, ulf_parser.parse(ulf))
+            print (query_frame.raw)
+            print ("\n" + ulf + "\n")
+            answer_set_rel, answer_set_ref = process_query(query_frame, world.entities)
+            response_surface = hci_manager.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
+            print ("ANSWER SET: ", answer_set_rel)
+            print ("RESPONSE: ", response_surface)
+
+            #print ([(bl, behind(bl, bgk)) for bl in ent if bl != tbl])
+            print ([(bl, touching(bl, tbl)) for bl in ent if bl != tbl])           
+            #print ([(bl, clear(bl)) for bl in ent])
+            #print (extract_contiguous([entity for entity in ent if entity != tbl]))
+            input("Press Enter to continue...")
 
     if "--" in sys.argv:
         args = sys.argv[sys.argv.index("--") + 1:]
@@ -388,90 +271,7 @@ def main():
                 print("RESULT: {}".format("#".join(descr)))
         return
 
-    surface_forms = open("sqa_dev_surface.bw").readlines()
-    ulfs = open("sqa_dev_ulf.bw").readlines()
-    min_len = min(len(ulfs), len(surface_forms))
-    surface_forms = surface_forms[:min_len]
-
-    ulf_parser = ULFParser()
-
-    for ulf in ulfs:
-        idx = ulfs.index(ulf)
-        print ("\n" + str(1 + ulfs.index(ulf)) + " out of " + str(len(ulfs)))
-        ulf = ulf.lower().strip().replace("{", "").replace("}", "")
-        if ulf != "" and "row" not in ulf and "stack" not in ulf and "face" not in ulf and "-of" not in ulf and "right.a (red.a block.n)" not in ulf and "and.cc" not in ulf and "most-n" not in ulf:
-            query_frame = QueryFrame(surface_forms[idx], ulf, ulf_parser.parse(ulf))
-            #fit_line(np.array([[-1, 0, 0], [-2, 0, 0], [0, 1.0, 0], [2.0, 0, 0], [10, 0, 1000.0]]))
-            #fit_line(np.array([[-1, -1, 0], [-2, -2, 0], [1.0, 1.0, 0], [2.0, 2.0, 0]]))
-            #fit_line(np.array([[1, 1, 0.5], [1.2, 1.1, 1.5], [1.0, 0.9, 2.5], [1.6, 1.01, 4.0], [0.8, 1.1, 5.5]]))
-            toy = world.find_entity_by_name("Toyota")
-            tex = world.find_entity_by_name("Texaco")
-            mcd = world.find_entity_by_name("McDonald's")
-            sri = world.find_entity_by_name("SRI")
-            nvd = world.find_entity_by_name("NVidia")
-            stb = world.find_entity_by_name("Starbucks")
-            mrc = world.find_entity_by_name("Mercedes")
-            bgk = world.find_entity_by_name("Burger King")
-            tar = world.find_entity_by_name("Target")
-            tbl = world.find_entity_by_name("Table")
-            ent = [toy, tex, mcd, bgk, tar, stb, tbl,mrc]
-            #print (toy, tex, mcd, sri, nvd, touching(tar, stb))
-            #print (near(tbl, toy))
-            #print (extract_contiguous(world.entities))
-            #print ([(e, on(e, tar)) for e in ent])
-            #print (on(tar, tar))
-            #print ([(e, clear(e)) for e in ent])
-            #print ("\n" + ulf)
-            #row = Entity([sri, stb, bgk, toy, tex])
-            #print (row.ordering)
-            #print (row.get_first())
-            #print (row.get_last())
-
-            print (query_frame.raw)
-            print ("\n" + ulf + "\n")
-            answer_set_rel, answer_set_ref = process_query(query_frame, world.entities)
-            response_surface = hci_manager.generate_response(query_frame, answer_set_rel, [1.0])
-            print (query_frame.query_type)
-            print ("ANSWER SET: ", answer_set_rel)
-            print ("RESPONSE: ", response_surface)
-
-            #print (stb.location, tar.location)
-            
-            print ([(bl, behind(bl, bgk)) for bl in ent if bl != tbl])
-            #print ([(bl, on(bl, tar)) for bl in ent if bl != tbl])            
-            #print ([(bl, clear(bl)) for bl in ent])
-            #print (extract_contiguous([entity for entity in ent if entity != tbl]))
-            
-            #print (rotation_matrix(0, -math.pi/4, -math.pi/4).dot(np.array([1,0,0])))
-            #print (eye_projection(np.array([2, 0, 0]), np.array([0, 1.0, 3.0]), np.array([1.0, 0, 0]), 10, 2))
-            
-            #query_frame = QueryFrame(query.query_tree)
-            #side = get_region("side", "front", tbl)
-            #print (side)
-            #ulf1 = query.preprocess(ulf)
-            #print ("PROCESSED_ULF: ", ulf1)
-            #print ("LIFTED ULF: ", query.lift(ulf1, ['pres', 'prog', 'perf']))
-            #response = hci_manager.generate_response(ulf, query_fr, )
-            
-
-            input("Press Enter to continue...")
-
-    #bl4 = get_entity_by_name("Block 4")
-    #bl9 = get_entity_by_name("Block 9")
-    #bl11 = get_entity_by_name("Block 11")
-    #gb = get_entity_by_name("Green Book")
-    #rb = get_entity_by_name("Red Book")
-    #pict = get_entity_by_name("Picture 1")
-    #pen = get_entity_by_name("Black Pencil")
-    #print (entities)
-    #spatial.entities = get_entities()
-    #print (superlative("behind",None, [e for e in entities if e.name != "Table"]).name)
-
-def memberof (item, lst):
-    if type(lst) != list:
-        return item == lst
-    return reduce(lambda x, y: x or y, list(map(lambda x: memberof(item, x), lst)))
-
+    
 if __name__ == "__main__":
     #save_screenshot()
     #fix_ids()
