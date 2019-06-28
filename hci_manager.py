@@ -22,6 +22,7 @@ class HCIManager(object):
 		QUESTION_PENDING = 3
 		USER_BYE = 4
 		END = 5
+		SUSPEND = 6
 
 	def __init__(self, world, debug_mode = False):
 
@@ -114,7 +115,11 @@ class HCIManager(object):
 		misspells = [(' book', ' block'), (' blog', ' block'), (' black', ' block'), (' walk', ' block'), (' wok', ' block'), \
 					(' lock', ' block'), (' vlog', ' block'), (' blocked', ' block'), (' glock', ' block'), (' look', ' block'),\
 					(' talk', ' block'), \
-					(' merced us', ' mercedes'), (' merced is', ' mercedes'), (' in the table', ' on the table')]
+					(' involved', ' above'), (' about', ' above'), \
+					(' in a cup', ' on top'), \
+					(' merced us', ' mercedes'), (' messages', ' mercedes'), (' mercer does', ' mercedes'), (' merced is', ' mercedes'), \
+					(' merciless', ' mercedes'), \
+					(' in the table', ' on the table')]
 		for misspell, fix in misspells:
 			input = input.replace(misspell, fix)
 		return input
@@ -135,20 +140,37 @@ class HCIManager(object):
 				response = self.read_and_vocalize_from_eta()
 				self.state = self.STATE.SYSTEM_GREET
 
-			asr_lock.set()
+			#asr_lock.set()
 
 			self.speech_lock.acquire()
 			if self.current_input != "":
-				if re.search(r'\b(exit|quit)\b', self.current_input, re.I):
-					self.speech_lock.release()
-					break
+				#if re.search(r'\b(exit|quit)\b', self.current_input, re.I):
+				#	self.speech_lock.release()
+				#	break
 
 				print ("you said: " + self.current_input)
+				self.current_input = self.preprocess(self.current_input)
 
-				if self.debug_mode == False:
-					print ("ENTERING ETA DIALOG EXCHANGE BLOCK...")
+				if re.search(r".*(David).*(give).*(moment|minute)", self.current_input, re.I) and self.state != self.STATE.SUSPEND:
+					self.state = self.STATE.SUSPEND
+					self.send_to_avatar("USER_SPEECH", self.current_input)
+					self.send_to_avatar("SAY", "Sure, take your time")
+					self.speech_lock.release()
+					print ("DIALOG SUSPENDED...")
+					self.current_input = ""
+					
+					continue
+				elif re.search(r"(David)", self.current_input, re.I) and self.state == self.STATE.SUSPEND:
+					self.state = self.STATE.QUESTION_PENDING
+					self.send_to_avatar("USER_SPEECH", self.current_input)
+					self.send_to_avatar("SAY", "Yes, what is it?")
+					self.speech_lock.release()
+					print ("DIALOG RESUMED...")
+					self.current_input = ""
+					continue				
 
-					self.current_input = self.preprocess(self.current_input)
+				if self.debug_mode == False and self.state != self.STATE.SUSPEND:
+					print ("ENTERING ETA DIALOG EXCHANGE BLOCK...")					
 					input = self.current_input
 
 					self.send_to_eta("INPUT", self.current_input)
@@ -159,7 +181,7 @@ class HCIManager(object):
 					ulf = self.read_from_eta(mode = "ULF")
 					response_surface = "NIL"
 
-					if ulf != "" and ulf is not None:
+					if ulf != "" and ulf is not None and ulf != "NIL":
 						self.send_to_avatar('ULF', ulf)
 						if re.search(r"^\((\:OUT|OUT|OUT:)", ulf):
 							if "(OUT " in ulf:
@@ -177,8 +199,9 @@ class HCIManager(object):
 								query_tree = self.ulf_parser.parse(ulf)
 								print ("\nQUERY TREE: ", query_tree, '\n')
 								query_frame = QueryFrame(self.current_input, ulf, query_tree)
+								print ("QUERY TYPE: ", query_frame.query_type)								
 								answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
-								print ("ANSWER SET: ", answer_set_rel)								
+								print ("ANSWER SET: ", answer_set_rel)
 								response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
 								if POSS_FLAG:
 									response_surface = "poss-ans " + response_surface

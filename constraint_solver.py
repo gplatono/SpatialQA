@@ -77,8 +77,9 @@ def filter_by_relation(relatums, relation, referents, modifier=None):
 	else:
 		return filter_relation_by_threshold(relatums, relation, referents, 0.5)
 
-def compute_predicate(predicate, *arglists):
+def compute_predicate(predicate, *arglists):	
 	arg_combinations = list(itertools.product(*arglists))
+	#print ("ARG_LISTS: ", arglists, *arglists, arg_combinations)
 	predicate_values = [(arg, predicate(*arg)) for arg in arg_combinations]
 	return predicate_values
 
@@ -96,7 +97,7 @@ def filter_by_predicate_modifier(predicate_values, modifier):
 	elif modifier in ['halfway.adv-a', 'halfway.mod-a']:
 		return [(arg, val) for (arg, val) in predicate_values if val >= 0.8]
 	elif type(modifier) == TNeg or modifier in ['not.adv-s', 'not.adv-a', 'not.mod-a']:
-		return [(arg, 1 - val) for (arg, val) in predicate_values if val <= 0.3]
+		return [(arg, 1 - val*0.3/0.7) for (arg, val) in predicate_values if val < 0.7]
 	else:
 		return [(arg, val) for (arg, val) in predicate_values if val >= 0.7]
 
@@ -138,16 +139,23 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 			referents = resolve_argument(predicate.children[1], entity_list) if len(predicate.children) > 1 else None
 	elif referents is None:
 		referents = resolve_argument(predicate.children[0], entity_list) if len(predicate.children) > 0 else None
-	print ("PREDICATE COMPONENTS: ", predicate, modifiers)
+	print ("\nPREDICATE COMPONENTS: ", predicate, modifiers)
 	print ("RESOLVED RELATA:", relata)
 	print ("RESOLVED REFERENTS:", referents)	
 
 	if relata is not None and relata != []:
 		relata = [item for (item, val) in relata]
 	if referents is not None and referents != []:
-		referents = [item for (item, val) in referents]
+		#referents = [item for (item, val) in referents]
+		if type(referents[0][0]) == tuple:
+			arg_len = len(referents[0][0])
+			print ("GETTING TUPLE... ", referents[0], referents[0][0], arg_len)
+			referents = [[arg_tuple[idx] for (arg_tuple, val) in referents] for idx in range(arg_len)]
+		else:
+			referents = [[arg for (arg, val) in referents]]
 
-	predicate_values = compute_predicate(predicate_func, relata, referents) if referents is not None\
+	print ("PREPARED REFERENTS:", referents, "\n")
+	predicate_values = compute_predicate(predicate_func, relata, *referents) if referents is not None\
 					else compute_predicate(predicate_func, relata)
 
 	print ("PREDICATE VALUES: ", predicate, modifiers, predicate_values)	
@@ -157,14 +165,27 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 	else:
 		predicate_values = [(arg, val) for (arg, val) in predicate_values if val >= 0.7]
 
-	print ("RESULTING ARGLISTS AFTER PRED FILTERING: ",  predicate_values)
+	print ("RESULTING ARGLISTS AFTER PRED FILTERING: ",  predicate_values)	
+	if len(predicate_values) > 0 and type(predicate_values[0][0]) == tuple and \
+			len(predicate_values[0][0]) > 1:
+		predicate_values = [(arg, val) for (arg, val) in predicate_values if arg[0] != arg[1]]
+	print ("FINAL ARGLISTS RETURNED FROM PRED: ",  predicate_values)
 	return predicate_values
 
 def resolve_argument(arg_object, entities):
 	ret_args = entities
 
 	#print (arg_object, entities)
-	#print (arg_object.obj_type)
+	#print (arg_object.obj_type
+
+	if type(arg_object) == NConjArg:
+		args1 = resolve_argument(arg_object.children[0], entities)
+		args2 = resolve_argument(arg_object.children[1], entities)
+		ret_args = []
+		for arg1 in args1:
+			for arg2 in args2:
+				ret_args.append(((arg1[0], arg2[0]), (arg1[1]+arg2[1]) / 2))
+		return ret_args
 
 	arg_type = arg_object.obj_type
 	arg_id = arg_object.obj_id
@@ -213,8 +234,9 @@ def resolve_predicate(predicate_object):
 	'above.p': spatial.above,
     'below.p': spatial.below,
     'over.p': spatial.over,
-    'under.p': spatial.under,
+    'under.p': spatial.under,    
     'supporting.p': spatial.under,
+
     'in.p': spatial.inside,
     'in': spatial.inside,    
     'inside.p': spatial.inside,
@@ -257,24 +279,26 @@ def process_query(query, entities):
 		print ("ENTERING NPRED PROCESSING...")
 		pred = query.predicate
 		
+		relata = []
+		referents = []
+
 		predicate_values = process_predicate(pred, entity_list=entities)
-
-		relata = [(arg[0], val) for (arg, val) in predicate_values]
-		relata.sort(key = lambda x: x[1])
-		relata.reverse()
-		
-		if pred.children[0].plur == False:
-			relata = [relata[0]]
-
-		referents = None
-		if len(predicate_values) > 0 and len(predicate_values[0][0]) == 2:		
-			referents = [(arg[1], val) for (arg, val) in predicate_values]
-			if referents is not None:
-				referents.sort(key = lambda x: x[1])
-				referents.reverse()
-				if len(pred.children) > 1 and pred.chilren[1].plur == False:
-					referents = [referents[0]]		
-		
+		if predicate_values is not None and predicate_values != []:
+			relata = [(arg[0], val) for (arg, val) in predicate_values]
+			relata.sort(key = lambda x: x[1])
+			relata.reverse()
+			
+			if pred.children[0].plur == False:
+				relata = [relata[0]]
+			
+			if len(predicate_values[0][0]) == 2:		
+				referents = [(arg[1], val) for (arg, val) in predicate_values]
+				if referents is not None:
+					referents.sort(key = lambda x: x[1])
+					referents.reverse()
+					if len(pred.children) > 1 and pred.children[1].plur == False:
+						referents = [referents[0]]		
+			
 		return relata, referents
 	elif query.arg is not None:#type(arg) == NArg:
 		print ("ENTERING TOP LEVEL ARG PROCESSING...")
@@ -284,12 +308,13 @@ def process_query(query, entities):
 		if relata != None and relata != []:
 			if type(relata[0]) != tuple:
 				relata = [(item, 1.0) for item in relata]
-		relata.sort(key = lambda x: x[1])
-		relata.reverse()
 
-		if arg.plur == False:
-			relata = [relata[0]]
+			relata.sort(key = lambda x: x[1])
+			relata.reverse()
 
+			if arg.plur == False:
+				relata = [relata[0]]
+		
 		return relata, None
 	else:
 		return "FAIL"

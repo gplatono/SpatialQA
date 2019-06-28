@@ -243,17 +243,24 @@ def near(a, b):
 #Inputs: a, b, c - entities
 #Return value: real number from [0, 1]
 def between(a, b, c):
+    print ("ENTERING THE BETWEEN...", a, b, c)
     bbox_a = a.bbox
     bbox_b = a.bbox
     bbox_c = c.bbox
     center_a = a.bbox_centroid
     center_b = b.bbox_centroid
     center_c = c.bbox_centroid
+    #print ("1")
     vec1 = np.array(center_b) - np.array(center_a)
     vec2 = np.array(center_c) - np.array(center_a)
+    #print ("2", )
+    #print (np.dot(vec1, vec2))
     cos = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2) + 0.001)
-    dist = get_distance_from_line(center_b, center_c, center_a) / max(max(a.dimensions), max(b.dimensions), max(c.dimensions))    
-    return math.exp(- 2 * math.fabs(-1 - cos))
+    #print (cos, max([max(a.dimensions), max(b.dimensions), max(c.dimensions)]))
+    dist = get_distance_from_line(center_b, center_c, center_a) / max([max(a.dimensions), max(b.dimensions), max(c.dimensions)])
+    #print ("3")
+    print ("\nFINAL VALUE BETWEEN: ", a , b, c, math.exp(- math.fabs(-1 - cos)))
+    return math.exp(- math.fabs(-1 - cos))
 
 
 #Computes the "larger-than" relation
@@ -277,10 +284,14 @@ def on(a, b):
         return 0
     proj_dist = np.linalg.norm(np.array([a.location[0] - b.location[0], a.location[1] - b.location[1]]))
     proj_dist_scaled = proj_dist / (max(a.size, b.size) + 0.01)
-    hor_offset = math.e ** (-proj_dist_scaled)
+    print ("LOCA: ", proj_dist_scaled)
+    hor_offset = math.e ** (-0.3 * proj_dist_scaled)
     #print ("PROJ DIST: ", a, b, hor_offset)
 
-    ret_val =  touching(a, b) * above(a, b) * hor_offset if hor_offset < 0.9 else above(a, b) * touching(a, b)        
+    ret_val =  touching(a, b) * above(a, b) * hor_offset if hor_offset < 0.9 else above(a, b) #* touching(a, b)
+
+    
+    #print ("CURRENT ON: ", a, b, ret_val, above(a, b), touching(a, b), hor_offset)
 #    ret_val =  touching(a, b) * hor_offset if above(a, b) < 0.88 else above(a, b) * touching(a, b)        
     #print ("CURRENT ON:", ret_val)
     if b.get('planar') is not None and larger_than(b, a) and a.centroid[2] > 0.5 * a.dimensions[2]:
@@ -314,7 +325,7 @@ def over(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def under(a, b):
-    return over(b, a)
+    return on(b, a)
 
 
 #Computes the "closer-than" relation

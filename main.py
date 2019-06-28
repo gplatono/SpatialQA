@@ -196,8 +196,8 @@ def main():
     spatial.entities = world.entities
     spatial.world = world
     
-    hci_manager = HCIManager(world, debug_mode = True)
-    #hci_manager.start()
+    hci_manager = HCIManager(world, debug_mode = False)
+    hci_manager.start()
     tracker = None
 
     surface_forms = open("sqa_dev_surface.bw").readlines()
@@ -239,8 +239,8 @@ def main():
             print ("ANSWER SET: ", answer_set_rel)
             print ("RESPONSE: ", response_surface)
 
-            #print ([(bl, behind(bl, bgk)) for bl in ent if bl != tbl])
-            print ([(bl, touching(bl, tbl)) for bl in ent if bl != tbl])           
+            print ([(bl, on(bl, mrc)) for bl in ent if bl != tbl])
+            #print ([(bl, touching(bl, tbl)) for bl in ent if bl != tbl])           
             #print ([(bl, clear(bl)) for bl in ent])
             #print (extract_contiguous([entity for entity in ent if entity != tbl]))
             input("Press Enter to continue...")

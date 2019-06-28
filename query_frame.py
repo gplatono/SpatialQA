@@ -63,15 +63,15 @@ class QueryFrame(object):
 		if self.referent is not None:
 			self.resolve_referent = self.resolve_arg(self.referent)
 
-		print ("BEFORE ENTERING QUERY TPYE:")
+		#print ("BEFORE ENTERING QUERY TPYE:")
 		self.scan_type()
 
-		print ("QUERY CONTENT:")
-		print ("PREDICATE: ", self.predicate)
-		print ("RELATUM: ", self.relatum)
-		print ("REFERENT: ", self.referent)
-		print ("RESOLVE RELATUM: ", self.resolve_relatum)
-		print ("RESOLVE REFERENT: ", self.resolve_referent)
+		#print ("QUERY CONTENT:")
+		#print ("PREDICATE: ", self.predicate)
+		#print ("RELATUM: ", self.relatum)
+		#print ("REFERENT: ", self.referent)
+		#print ("RESOLVE RELATUM: ", self.resolve_relatum)
+		#print ("RESOLVE REFERENT: ", self.resolve_referent)
 
 	def resolve_arg(self, arg):
 		if arg.det is not None:
