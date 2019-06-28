@@ -286,9 +286,11 @@ grammar[("TPred", "NConjArg")] = lambda x, y: NPred(x.content, children=[y])
 grammar[("NConjArg", "NPred")] = lambda x, y: NPred(content=y.content, children=[x]+y.children, mods = y.mods)
 grammar[("NConjArg", "TPred")] = lambda x, y: NPred(content=y.content, children=[x])
 grammar[("TNeg", "NPred")] = lambda x, y: NPred(content=y.content, children=y.children, mods=y.mods+[x])
+grammar[("TNeg", "TPred")] = lambda x, y: NPred(content=y.content, mods=[x])
 grammar[("NSentenceParams", "NPred")] = lambda x, y: y
 grammar[("TCopulaBe", "TPred")] = lambda x, y: y
 grammar[("TCopulaBe", "NPred")] = lambda x, y: y
+grammar[("TCopulaBe", "TAdj")] = lambda x, y: NPred(content = y.content, mods=y.mods)
 # grammar[("TCopulaBe", "NRel")] = lambda x, y: y
 grammar[("TCopulaBe", "NArg")] = lambda x, y: NPred(content = x, children = [y])
 
