@@ -86,8 +86,15 @@ class Tracker(object):
         #print (bpy.data.objects)
         for ob in bpy.data.objects:
             print (ob.name, bpy.data.objects.get(ob.name))
-        blocks = [self.create_block(name, Vector((0, 0, self.block_edge / 2)), materials[block_names.index(name) % 3]) for name in block_names]
-        block_ids, block_locations = self.get_block_data()
+        self.blocks = [self.create_block(name, Vector((0, 0, self.block_edge / 2)), materials[block_names.index(name) % 3]) for name in block_names]
+
+        self.block_to_id = {}
+        for block in self.blocks:
+            self.block_to_id[block] = -1
+
+        block_data = self.get_block_data()
+        block_data.sort(key = lambda x : x[1][0])
+
                         
 
         print (blocks)
@@ -223,12 +230,14 @@ class Tracker(object):
         json_data = json.loads(response.text)
         block_ids = []
         block_locations = []
+        block_data = []
         for segment in json_data['BlockStates']:
             #print (segment)
             block_ids += [segment['ID']]
             str_loc = segment['Position']
             print (segment['Position'])
             block_locations += [np.array([float(x) for x in str_loc.split(",")])]
+            block_data.appned((segment['ID'], np.array([float(x) for x in segment['Position'].split(",")])))
 
         #print (json_data['BlockStates'][0]['ID'])
         #print (json_data['BlockStates'][0]['Position'])
@@ -245,7 +254,8 @@ class Tracker(object):
         #print ("\n")
         #for bl in json_data["Blocks"]:
         #    print (bl)
-        return (block_ids, block_locations)
+        print ("RETURNED VALS:", block_ids, block_locations, block_data)
+        return block_data#(block_ids, block_locations)
      
 #Timer operator
 
