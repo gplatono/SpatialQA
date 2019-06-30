@@ -243,17 +243,24 @@ def near(a, b):
 #Inputs: a, b, c - entities
 #Return value: real number from [0, 1]
 def between(a, b, c):
+    print ("ENTERING THE BETWEEN...", a, b, c)
     bbox_a = a.bbox
     bbox_b = a.bbox
     bbox_c = c.bbox
     center_a = a.bbox_centroid
     center_b = b.bbox_centroid
     center_c = c.bbox_centroid
+    #print ("1")
     vec1 = np.array(center_b) - np.array(center_a)
     vec2 = np.array(center_c) - np.array(center_a)
+    #print ("2", )
+    #print (np.dot(vec1, vec2))
     cos = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2) + 0.001)
-    dist = get_distance_from_line(center_b, center_c, center_a) / max(max(a.dimensions), max(b.dimensions), max(c.dimensions))    
-    return math.exp(- 2 * math.fabs(-1 - cos))
+    #print (cos, max([max(a.dimensions), max(b.dimensions), max(c.dimensions)]))
+    dist = get_distance_from_line(center_b, center_c, center_a) / max([max(a.dimensions), max(b.dimensions), max(c.dimensions)])
+    #print ("3")
+    print ("\nFINAL VALUE BETWEEN: ", a , b, c, math.exp(- math.fabs(-1 - cos)))
+    return math.exp(- math.fabs(-1 - cos))
 
 
 #Computes the "larger-than" relation
@@ -275,7 +282,17 @@ def larger_than(a, b):
 def on(a, b):
     if a == b:
         return 0
-    ret_val =  touching(a, b) if above(a, b) > 0.7 else above(a, b) * touching(a, b)        
+    proj_dist = np.linalg.norm(np.array([a.location[0] - b.location[0], a.location[1] - b.location[1]]))
+    proj_dist_scaled = proj_dist / (max(a.size, b.size) + 0.01)
+    print ("LOCA: ", proj_dist_scaled)
+    hor_offset = math.e ** (-0.3 * proj_dist_scaled)
+    #print ("PROJ DIST: ", a, b, hor_offset)
+
+    ret_val =  touching(a, b) * above(a, b) * hor_offset if hor_offset < 0.9 else above(a, b) #* touching(a, b)
+
+    
+    #print ("CURRENT ON: ", a, b, ret_val, above(a, b), touching(a, b), hor_offset)
+#    ret_val =  touching(a, b) * hor_offset if above(a, b) < 0.88 else above(a, b) * touching(a, b)        
     #print ("CURRENT ON:", ret_val)
     if b.get('planar') is not None and larger_than(b, a) and a.centroid[2] > 0.5 * a.dimensions[2]:
         ret_val = max(ret_val, touching(a, b))    
@@ -308,7 +325,7 @@ def over(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def under(a, b):
-    return over(b, a)
+    return on(b, a)
 
 
 #Computes the "closer-than" relation
@@ -324,7 +341,7 @@ def closer_than(a, b, pivot):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def in_front_of_deic(a, b):
-#def in_front_of_extr(a, b, observer):
+#def in_front_of_extr(a, b, observer):    
     bbox_a = a.bbox
     max_dim_a = max(bbox_a[7][0] - bbox_a[0][0],
                     bbox_a[7][1] - bbox_a[0][1],
@@ -337,8 +354,17 @@ def in_front_of_deic(a, b):
     a_center = projection_bbox_center(a_bbox)
     b_center = projection_bbox_center(b_bbox)
     dist = np.linalg.norm(a_center - b_center)
-    scaled_dist = dist*dist / max(projection_bbox_area(a_bbox), projection_bbox_area(a_bbox) + 0.001)
-    return closer_than(a, b, world.observer) * math.e ** (-0.1 * scaled_dist)
+    scaled_proj_dist = dist / (max(get_2d_size(a_bbox), get_2d_size(b_bbox)) + 0.001)
+    #scaled_proj_dist = gaussian(scaled_proj_dist, 0, 1)
+
+    #print ("BBOX :", a_bbox, b_bbox)
+    #print ("PROJ DIST:" ,scaled_proj_dist)
+    a_dist = np.linalg.norm(a.location - world.observer.location)
+    b_dist = np.linalg.norm(b.location - world.observer.location)
+    #print ("SIGM, OVERLAP :  ", sigmoid(b_dist - a_dist, 1, 0.5), math.e ** (-0.5 * scaled_proj_dist))
+    return 0.5 * (sigmoid(b_dist - a_dist, 1, 0.5) + math.e ** (-0.5 * scaled_proj_dist))
+    #return closer_than(a, b, world.observer) * math.e ** (-0.1 * scaled_dist)
+    #return math.e ** (- 0.01 * get_centroid_distance_scaled(a, b)) * within_cone(b.centroid - a.centroid, world.front_axis, 0.7)
     #return math.e ** (- 0.01 * get_centroid_distance_scaled(a, b)) * within_cone(b.centroid - a.centroid, Vector((1, 0, 0)), 0.7)
     '''0.3 * closer_than(a, b, observer) + \
                   0.7 * (max(within_cone(b.centroid - observer.centroid, a.centroid - observer.centroid, 0.95),
@@ -346,25 +372,30 @@ def in_front_of_deic(a, b):
                   e ** (- 0.2 * get_centroid_distance_scaled(a, b)))#e ** (-dist / max_dim_a))'''
 
 def in_front_of_extr(a, b):
-    proj_dist = math.fabs(world.front_axis.dot(a.location)) - math.fabs(world.front_axis.dot(b.location))
-    proj_dist_scaled = proj_dist / max(a.size, b.size)
-    print ("PROJ_DISTANCE", proj_dist_scaled)    
-    return sigmoid(proj_dist_scaled, 1, 1)
+    #proj_dist = math.fabs(world.front_axis.dot(a.location)) - math.fabs(world.front_axis.dot(b.location))
+    #proj_dist_scaled = proj_dist / max(a.size, b.size)
+    #print ("PROJ_DISTANCE", proj_dist_scaled)
+    return math.e ** (- 0.01 * get_centroid_distance_scaled(a, b)) * within_cone(b.centroid - a.centroid, -world.front_axis, 0.7)
+    #return sigmoid(proj_dist_scaled, 1, 1)
 
 def in_front_of(a, b):
-    print ("IN_FRONT_OF: ", a, b, in_front_of_deic(a, b), in_front_of_extr(a, b))
-    return max(in_front_of_deic(a, b), in_front_of_extr(a, b))
+    if a == b:
+        return 0
+    front_deic = in_front_of_deic(a, b)
+    front_extr = in_front_of_extr(a, b)
+    #print ("IN_FRONT_OF: ", a, b, front_deic, front_extr)
+    return max(front_deic, front_extr)
 
 #Enable SVA
 #Computes the deictic version of the "behind" relation
 #which is taken to be symmetric to "in-front-of"
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
-def behind_deic(a, b):
-    return in_front_of_deic(b, a)
+#def behind_deic(a, b):
+#    return in_front_of_deic(b, a)
 
 def behind(a, b):
-    in_front_of(b, a)
+    return in_front_of(b, a)
 
 #Computes the "at" relation
 #Inputs: a, b - entities
@@ -386,6 +417,8 @@ def inside(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def touching(a, b):
+    if a == b:
+        return 0
     bbox_a = a.bbox
     bbox_b = b.bbox
     center_a = a.bbox_centroid
@@ -396,7 +429,7 @@ def touching(a, b):
     rad_b = max(bbox_b[7][0] - bbox_b[0][0], \
                 bbox_b[7][1] - bbox_b[0][1], \
                 bbox_b[7][2] - bbox_b[0][2]) / 2
-    
+    print (a, b)
     '''for point in bbox_a:
         if point_distance(point, center_b) < rad_b:
             return 1
@@ -404,21 +437,24 @@ def touching(a, b):
         if point_distance(point, center_a) < rad_a:
             return 1'''
     mesh_dist = 1e9
-    #print ("MESH_DIST:", closest_mesh_distance_scaled(a, b))
+    planar_dist = 1e9
     shared_volume = shared_volume_scaled(a, b)
     #print ("SHARED VOLUME:", shared_volume)
-    planar_dist = 1e9
     if a.get("planar") is not None:
         planar_dist = get_planar_distance_scaled(b, a)
     elif b.get("planar") is not None:
-        planar_dist = get_planar_distance_scaled(a, b)
-    #print ("PLANAR DIST: ", planar_dist)    
+        planar_dist = get_planar_distance_scaled(a, b)        
+    print ("PLANAR DIST: ", planar_dist)    
     if get_centroid_distance_scaled(a, b) <= 1.5:
         mesh_dist = closest_mesh_distance_scaled(a, b)
+    print ("MESH DIST: ", mesh_dist)    
     mesh_dist = min(mesh_dist, planar_dist)
+    print ("MESH DIST: ", mesh_dist)
     if shared_volume == 0:
+        print ("SH_ZERO:" ,math.exp(- 4 * mesh_dist))
         return math.exp(- 4 * mesh_dist)
     else:
+        print (0.3 * math.exp(- 2 * mesh_dist) + 0.7 * (shared_volume > 0))
         return 0.3 * math.exp(- 2 * mesh_dist) + 0.7 * (shared_volume > 0)
 
 
@@ -482,8 +518,10 @@ def above(a, b):
     #center_b = b.get_bbox_centroid()
     #scaled_vertical_distance = (center_a[2] - center_b[2]) / ((span_a[5] - span_a[4]) + (span_b[5] - span_b[4]))
     #print ("ABOVE:", sigmoid(a.centroid[2] - b.centroid[2], 1, 0.1))
-    #print ("CONE:",within_cone(a.centroid - b.centroid, Vector((0, 0, 1)), 0.05))    
-    return within_cone(a.centroid - b.centroid, Vector((0, 0, 1)), 0.05) * sigmoid(a.centroid[2] - b.centroid[2], 1, 0.1)#math.e ** (- 0.01 * get_centroid_distance_scaled(a, b))
+    #print ("CONE:",within_cone(a.centroid - b.centroid, Vector((0, 0, 1)), 0.05))
+    vertical_dist_scaled = (a.centroid[2] - b.centroid[2]) / (max(a.dimensions[2], b.dimensions[2]) + 0.01)
+    #print ("WITHIN CONE: ", a, within_cone(a.centroid - b.centroid, np.array([0, 0, 1.0]), 0.1), sigmoid(vertical_dist_scaled, 1, 3), vertical_dist_scaled)    
+    return within_cone(a.centroid - b.centroid, np.array([0, 0, 1.0]), 0.1) * sigmoid(vertical_dist_scaled, 1, 3)#math.e ** (- 0.01 * get_centroid_distance_scaled(a, b))
 
 def below(a, b):
     """Computes the 'a below b' relation, returns the certainty value.
@@ -497,12 +535,12 @@ def below(a, b):
     return above(b, a)
 
 #STUB
-def in_front_of_intr(a, b):
-    pass
+#def in_front_of_intr(a, b):
+#    pass
 
 #STUB
-def behind_intr(a, b):
-    in_front_of_intr(b, a)
+#def behind_intr(a, b):
+#    in_front_of_intr(b, a)
 
 def clear(obj):
     """Return the degree to which the object obj is clear, i.e., has nothing on top."""

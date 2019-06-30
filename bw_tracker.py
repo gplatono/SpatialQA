@@ -6,8 +6,8 @@ import time
 import bmesh
 import math
 import numpy as np
-import geometry_utils
-import mathutils
+#import geometry_utils
+from mathutils import Vector
 import os
 from threading import *
 
@@ -20,6 +20,12 @@ print (os.getcwd())
 def bl_dist(vect1, vect2):    
     return np.linalg.norm(np.array(vect1) - np.array(vect2))
     #math.sqrt((vect1[0] - vect2[0]) ** 2 + (vect1[1] - vect2[1]) ** 2 + (vect1[2] - vect2[2]) ** 2)
+
+class Block(object):
+    def __init__(self, name="", location=None, color="", blender_object=None):
+        if blender_object is not None:
+            pass        
+
 class ModalTimerOp(bpy.types.Operator):    
         #metatags for Blender internal machinery
         bl_idname = "wm.modal_timer_operator"
@@ -39,12 +45,12 @@ class ModalTimerOp(bpy.types.Operator):
                 block_ids, block_locations = ModalTimerOp.tracker.get_block_data()
                 print (block_ids)
                 #print (len(block_dict.keys()))
-                if len(block_dict.keys()) == 0:
-                    self.flag = True
+                #if len(tracker.block_dict.keys()) == 0:
+                #    self.flag = True
                 ModalTimerOp.tracker.update_scene(block_ids, block_locations)
-                if self.flag:
-                    tracker.apply_material()
-                    self.flag = False                            
+                #if self.flag:
+                #    tracker.apply_material()
+                #    self.flag = False                            
             return {"PASS_THROUGH"}
         
         #Setup code (fires at the start)
@@ -59,35 +65,54 @@ class ModalTimerOp(bpy.types.Operator):
             context.window_manager.event_timer_remove(self._timer)
             return {"CANCELLED"}
 
-
 class Tracker(object):
     
     def __init__(self):
         #Sizes of BW objects in meters
-        self.block_edge = 0.155
+        self.block_edge = 1.0#0.155
         self.table_edge = 1.53
+        self.block_multiplier = 1.0 / 0.155
 
         self.kinectLeft = (-0.75, 0.27, 0.6)
         self.kinectRight = (0.75, 0.27, 0.6)
 
         bpy.utils.register_class(ModalTimerOp)
         ModalTimerOp.tracker = self
+
         self.scene_setup()
+
+        block_names = ['Target', 'Starbucks', 'Twitter', 'Texaco', 'McDonald\'s', 'Mercedes', 'Toyota', 'Burger King']
+        materials = [bpy.data.materials['Blue'], bpy.data.materials['Green'], bpy.data.materials['Red']]
+        #print (bpy.data.objects)
+        for ob in bpy.data.objects:
+            print (ob.name, bpy.data.objects.get(ob.name))
+        self.blocks = [self.create_block(name, Vector((0, 0, self.block_edge / 2)), materials[block_names.index(name) % 3]) for name in block_names]
+
+        self.block_to_id = {}
+        for block in self.blocks:
+            self.block_to_id[block] = -1
+
+        block_data = self.get_block_data()
+        block_data.sort(key = lambda x : x[1][0])
+
+                        
+
+        print (blocks)
         
-        bpy.ops.wm.modal_timer_operator()
+        #bpy.ops.wm.modal_timer_operator()
         #Dictionary that stores block IDs
         self.block_dict = {}
 
-    def apply_material(self):
-        print ("TEST")
-        blocks = list(self.block_dict.values())
-        print (blocks)    
-        blocks.sort(key = lambda x: x.location[0])
-        mats = [bpy.data.materials['Red'],\
-            bpy.data.materials['Green'],\
-            bpy.data.materials['Blue']]
-        for bl in blocks:
-            bl.data.materials.append(mats[blocks.index(bl) % 3])    
+    # def apply_material(self):
+    #     print ("TEST")
+    #     blocks = list(self.block_dict.values())
+    #     print (blocks)    
+    #     blocks.sort(key = lambda x: x.location[0])
+    #     mats = [bpy.data.materials['Red'],\
+    #         bpy.data.materials['Green'],\
+    #         bpy.data.materials['Blue']]
+    #     for bl in blocks:
+    #         bl.data.materials.append(mats[blocks.index(bl) % 3])    
 
     #Remove block from the scene and id dictionary
     def remove_block(self, block_id):
@@ -110,11 +135,32 @@ class Tracker(object):
         bpy.context.scene.objects.active = block
         block.select = True
         bm = bmesh.new()
-        bmesh.ops.create_cube(bm, size=block_edge)
+        bmesh.ops.create_cube(bm, size=self.block_edge)
         bm.to_mesh(block_mesh)
         bm.free()
         self.block_dict[block_id] = block
            
+    def create_block(self, name="", location=None, material=None):
+        #print (name, bpy.data.objects.get(name))
+        if bpy.data.objects.get(name) is not None:
+            return bpy.data.objects[name]
+        block_mesh = bpy.data.meshes.new('Block_mesh')
+        block = bpy.data.objects.new(name, block_mesh)
+        bpy.context.scene.objects.link(block)
+        bpy.context.scene.objects.active = block
+        block.select = True
+        bm = bmesh.new()
+        bmesh.ops.create_cube(bm, size=self.block_edge)
+        bm.to_mesh(block_mesh)
+        bm.free()
+        block.data.materials.append(material)
+        block.location = location
+        block['id'] = "bw.item.block." + name
+        block['color_mod'] = material.name
+        block['main'] = 1.0
+        bpy.context.scene.update()
+        return block        
+    
     #Reset the scene by removing all the meshes
     def clear_scene(self):
         #iterate over the objects in the scene
@@ -127,7 +173,7 @@ class Tracker(object):
 
     #Adds objects to the scene    
     def scene_setup(self):        
-        self.clear_scene()
+        #self.clear_scene()
         #Creating the materials
         bpy.data.materials.new(name="Red")
         bpy.data.materials.new(name="Blue")
@@ -136,7 +182,7 @@ class Tracker(object):
         bpy.data.materials['Green'].diffuse_color = (0, 1, 0)
         bpy.data.materials['Blue'].diffuse_color = (0, 0, 1)
         
-        bpy.ops.mesh.primitive_plane_add(location=(0,0,0), radius=self.table_edge/2)
+        #bpy.ops.mesh.primitive_plane_add(location=(0,0,0), radius=self.table_edge/2)
 
     def unoccluded(self, block):
         LeftBlocked = False
@@ -160,7 +206,7 @@ class Tracker(object):
             else:
                 min_dist = 10e9
                 cand = None
-                for key1 in block_dict:
+                for key1 in self.block_dict:
                     if key1 not in block_ids:
                         print (block_locations[block_ids.index(key)], self.block_dict[key1].location)                    
                         cur_dist = bl_dist(block_locations[block_ids.index(key)], self.block_dict[key1].location)
@@ -173,7 +219,7 @@ class Tracker(object):
                     self.block_dict[key] = block_dict[cand]
                     del self.block_dict[cand]
                 else:
-                    add_block(key)
+                    self.add_block(key)
                     self.block_dict[key].location = block_locations[block_ids.index(key)]
                
             
@@ -184,12 +230,14 @@ class Tracker(object):
         json_data = json.loads(response.text)
         block_ids = []
         block_locations = []
+        block_data = []
         for segment in json_data['BlockStates']:
             #print (segment)
             block_ids += [segment['ID']]
             str_loc = segment['Position']
             print (segment['Position'])
-            block_locations += [[float(x) for x in str_loc.split(",")]]
+            block_locations += [np.array([float(x) for x in str_loc.split(",")])]
+            block_data.appned((segment['ID'], np.array([float(x) for x in segment['Position'].split(",")])))
 
         #print (json_data['BlockStates'][0]['ID'])
         #print (json_data['BlockStates'][0]['Position'])
@@ -206,7 +254,8 @@ class Tracker(object):
         #print ("\n")
         #for bl in json_data["Blocks"]:
         #    print (bl)
-        return (block_ids, block_locations)
+        print ("RETURNED VALS:", block_ids, block_locations, block_data)
+        return block_data#(block_ids, block_locations)
      
 #Timer operator
 
@@ -282,3 +331,8 @@ class Tracker(object):
                 ob.location = loc
     '''    
         #ob = bpy.data.objects[1]#how to identify with ID?
+
+tracker = Tracker()
+
+#for ob in bpy.data.objects:
+#    print (ob.name, bpy.data.objects.get(ob.name))

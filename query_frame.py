@@ -1,6 +1,6 @@
 import enum
 import re
-from ulf_grammar import NArg, NRel, NPred, NCardDet
+from ulf_grammar import NArg, NRel, NPred, NCardDet, TAdj, NColor
 
 class QueryFrame(object):
 	"""Represents and incapsulates the query data in a frame-like format."""
@@ -63,15 +63,18 @@ class QueryFrame(object):
 		if self.referent is not None:
 			self.resolve_referent = self.resolve_arg(self.referent)
 
-		print ("BEFORE ENTERING QUERY TPYE:")
+		#print ("BEFORE ENTERING QUERY TPYE:")
 		self.scan_type()
 
-		print ("QUERY CONTENT:")
-		print ("PREDICATE: ", self.predicate)
-		print ("RELATUM: ", self.relatum)
-		print ("REFERENT: ", self.referent)
-		print ("RESOLVE RELATUM: ", self.resolve_relatum)
-		print ("RESOLVE REFERENT: ", self.resolve_referent)
+		self.is_subject_plural = self.subj_plural()
+
+
+		#print ("QUERY CONTENT:")
+		#print ("PREDICATE: ", self.predicate)
+		#print ("RELATUM: ", self.relatum)
+		#print ("REFERENT: ", self.referent)
+		#print ("RESOLVE RELATUM: ", self.resolve_relatum)
+		#print ("RESOLVE REFERENT: ", self.resolve_referent)
 
 	def resolve_arg(self, arg):
 		if arg.det is not None:
@@ -82,18 +85,18 @@ class QueryFrame(object):
 		return False
 
 	def scan_type(self):
-		self.YN_FLAG = True if re.search('^\(*(pres|past|pres perf\)|pres prog\)|prog) (be.v|do.aux|can.aux)', self.ulf, re.IGNORECASE) else False
-		self.COUNT_FLAG = True if re.search('^\(*(how.adv-a many.a|how_many.d)', self.ulf, re.IGNORECASE) else False
+		self.YN_FLAG = True if re.search(r'^\(*(pres|past|pres perf\)|pres prog\)|prog) (be.v|do.aux|can.aux)', self.ulf, re.IGNORECASE) else False
+		self.COUNT_FLAG = True if re.search(r'^\(*(how.adv-a many.a|how_many.d)', self.ulf, re.IGNORECASE) else False
 		
 		if re.search('^.*(how.mod-a many.a|how_many.d)', self.ulf, re.IGNORECASE):
 			self.COUNT_FLAG = True
 		
 		self.IDENT_FLAG = True if re.search('^.*(what.d|which.d).*(block.n).*(be.v)', self.ulf, re.IGNORECASE) else False
 
-		if re.search('^\(*what.pro', self.ulf, re.IGNORECASE):
+		if re.search(r'^\(*what.pro', self.ulf, re.IGNORECASE):
 			self.IDENT_FLAG = True
 
-		self.DESCR_FLAG = True if re.search('^\(*(where).*(be.v).*\|.*\|.* block.n', self.ulf, re.IGNORECASE) else False
+		self.DESCR_FLAG = True if re.search(r'^\(*(where).*(be.v).*\|.*\|.* block.n', self.ulf, re.IGNORECASE) else False
 
 		if self.COUNT_FLAG:
 			self.query_type = self.QueryType.COUNT
@@ -106,4 +109,22 @@ class QueryFrame(object):
 
 		if self.YN_FLAG:
 			self.query_type = self.QueryType.CONFIRM
+
+	def extract_subject_adj_modifiers(self):
+		if self.arg is not None:
+			mods = self.arg.mods
+		else:
+			mods = self.predicate.children[0].mods
+		adjectives = []
+		if mods is not None:
+			for mod in mods:
+				if type(mod) == TAdj or type(mod) == NColor:
+					adjectives.append(mod.content.replace(".a", ""))
+		return adjectives
+
+	def subj_plural(self):
+		if self.arg is not None:
+			return self.arg.plur
+		else: 
+			return self.predicate.children[0].plur
 

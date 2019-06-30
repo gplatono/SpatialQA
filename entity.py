@@ -185,9 +185,9 @@ class Entity(object):
 
     def compute_bbox_centroid(self):
         """Compute and return the bounding box centroid."""
-        return [self.bbox[0][0] + (self.bbox[7][0] - self.bbox[0][0]) / 2,
-                self.bbox[0][1] + (self.bbox[7][1] - self.bbox[0][1]) / 2,
-                self.bbox[0][2] + (self.bbox[7][2] - self.bbox[0][2]) / 2]
+        return np.array([self.bbox[0][0] + (self.bbox[7][0] - self.bbox[0][0]) / 2,
+                         self.bbox[0][1] + (self.bbox[7][1] - self.bbox[0][1]) / 2,
+                         self.bbox[0][2] + (self.bbox[7][2] - self.bbox[0][2]) / 2])
    
     def compute_centroid(self):
         """Compute and return the centroid the vertex set."""        

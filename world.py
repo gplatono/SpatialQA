@@ -16,7 +16,7 @@ class World(object):
 		self.entities = []
 
 		for obj in self.scene.objects:
-			if obj.get('main') is not None:
+			if obj.get('main') is not None and obj.get('enabled') is None:
 				self.entities.append(Entity(obj))
 
 		#self.test = shared_volume(self.entities[0], self.entities[1])

@@ -41,6 +41,8 @@ grammar['on_top_of.p'] = lambda x: TPred(x)
 grammar['close_to.p'] = lambda x: TPred(x)
 grammar['near_to.p'] = lambda x: TPred(x)
 grammar['far_from.p'] = lambda x: TPred(x)
+grammar['touching.p'] = lambda x: TPred(x)
+grammar['supporting.p'] = lambda x: TPred(x)
 
 grammar['touch.v'] = lambda x: TPred(x)
 grammar['contain.v'] = lambda x: TPred(x)
@@ -171,6 +173,11 @@ grammar['Texaco'] = lambda x: TName(x)
 grammar['Target'] = lambda x: TName(x)
 grammar['Burger_King'] = lambda x: TName(x)
 grammar['Mercedes'] = lambda x: TName(x)
+grammar['Twitter'] = lambda x: TName(x)
+grammar['HP'] = lambda x: TName(x)
+grammar['Shell'] = lambda x: TName(x)
+grammar['Heineken'] = lambda x: TName(x)
+
 grammar['nvidia|'] = lambda x: TName(x)
 grammar['toyota'] = lambda x: TName(x)
 grammar['mcdonalds'] = lambda x: TName(x)
@@ -180,6 +187,12 @@ grammar['texaco'] = lambda x: TName(x)
 grammar['target'] = lambda x: TName(x)
 grammar['burger_king'] = lambda x: TName(x)
 grammar['mercedes'] = lambda x: TName(x)
+grammar['twitter'] = lambda x: TName(x)
+grammar['hp'] = lambda x: TName(x)
+grammar['shell'] = lambda x: TName(x)
+grammar['heineken'] = lambda x: TName(x)
+grammar['burger'] = lambda x: TName(x)
+grammar['king'] = lambda x: TName(x)
 
 grammar['|Nvidia|'] = lambda x: TName(x)
 grammar['|Toyota|'] = lambda x: TName(x)
@@ -190,6 +203,10 @@ grammar['|Texaco|'] = lambda x: TName(x)
 grammar['|Target|'] = lambda x: TName(x)
 grammar['|Burger_King|'] = lambda x: TName(x)
 grammar['|Mercedes|'] = lambda x: TName(x)
+grammar['|Twitter|'] = lambda x: TName(x)
+grammar['|HP|'] = lambda x: TName(x)
+grammar['|Shell|'] = lambda x: TName(x)
+grammar['|Heineken|'] = lambda x: TName(x)
 
 grammar['|nvidia|'] = lambda x: TName(x)
 grammar['|toyota|'] = lambda x: TName(x)
@@ -211,6 +228,9 @@ grammar['not.adv-a'] = lambda x: TNeg()
 
 grammar['or.cc'] = lambda x: TConj(x)
 grammar['and.cc'] = lambda x: TConj(x)
+
+
+grammar[("TName", "TName")] = lambda x, y: TName(content=x.content + " " + y.content)
 
 #Verb + tense/aspect rules
 grammar[("TTenseMarker", "TCopulaBe")] = lambda x, y: NVP(content=y, children=[NSentenceParams(tense=x)])
@@ -266,9 +286,11 @@ grammar[("TPred", "NConjArg")] = lambda x, y: NPred(x.content, children=[y])
 grammar[("NConjArg", "NPred")] = lambda x, y: NPred(content=y.content, children=[x]+y.children, mods = y.mods)
 grammar[("NConjArg", "TPred")] = lambda x, y: NPred(content=y.content, children=[x])
 grammar[("TNeg", "NPred")] = lambda x, y: NPred(content=y.content, children=y.children, mods=y.mods+[x])
+grammar[("TNeg", "TPred")] = lambda x, y: NPred(content=y.content, mods=[x])
 grammar[("NSentenceParams", "NPred")] = lambda x, y: y
 grammar[("TCopulaBe", "TPred")] = lambda x, y: y
 grammar[("TCopulaBe", "NPred")] = lambda x, y: y
+grammar[("TCopulaBe", "TAdj")] = lambda x, y: NPred(content = y.content, mods=y.mods)
 # grammar[("TCopulaBe", "NRel")] = lambda x, y: y
 grammar[("TCopulaBe", "NArg")] = lambda x, y: NPred(content = x, children = [y])
 
