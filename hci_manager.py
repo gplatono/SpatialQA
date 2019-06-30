@@ -169,8 +169,28 @@ class HCIManager(object):
 					self.current_input = ""
 					continue				
 
+				if re.search(r".*(David).*(give).*(moment|minute)", self.current_input, re.I) and self.state != self.STATE.SUSPEND:
+					self.state = self.STATE.SUSPEND
+					self.send_to_avatar("USER_SPEECH", self.current_input)
+					self.send_to_avatar("SAY", "Sure, take your time")
+					self.speech_lock.release()
+					print ("DIALOG SUSPENDED...")
+					self.current_input = ""
+
+					continue
+				elif re.search(r"(David)", self.current_input, re.I) and self.state == self.STATE.SUSPEND:
+					self.state = self.STATE.QUESTION_PENDING
+					self.send_to_avatar("USER_SPEECH", self.current_input)
+					self.send_to_avatar("SAY", "Yes, what is it?")
+					self.speech_lock.release()
+					print ("DIALOG RESUMED...")
+					self.current_input = ""
+					continue
+
 				if self.debug_mode == False and self.state != self.STATE.SUSPEND:
-					print ("ENTERING ETA DIALOG EXCHANGE BLOCK...")					
+					print ("ENTERING ETA DIALOG EXCHANGE BLOCK...")
+
+
 					input = self.current_input
 
 					self.send_to_eta("INPUT", self.current_input)
@@ -180,6 +200,52 @@ class HCIManager(object):
 					print ("WAITING FOR ULF...")
 					ulf = self.read_from_eta(mode = "ULF")
 					response_surface = "NIL"
+
+					if ulf is not None and ulf != "" and ulf != "NIL":
+						try:
+							POSS_FLAG = False
+							if "poss-question" in ulf:
+								POSS_FLAG = True
+								ulf = (ulf.split("poss-question ")[1])[:-1]
+
+							query_tree = self.ulf_parser.parse(ulf)
+							print ("QUERY TREE", query_tree)
+							query_frame = QueryFrame(self.current_input, ulf, query_tree)
+							answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
+							response_surface = self.generate_response(query_frame, answer_set_rel, [1.0])
+							if POSS_FLAG:
+								response_surface = "(poss-ans " + response_surface + ")"
+							print (query_frame.query_type)
+							print ("ANSWER SET: ", answer_set_rel)
+							print ("RESPONSE: ", response_surface)
+						except Exception as e:
+							print (str(e))
+						if re.search(r"^\((\:OUT|OUT|OUT:)", ulf):
+							if "(OUT " in ulf:
+								ulf = (ulf.split("(OUT ")[1])[:-1]
+							else:
+								ulf = (ulf.split("(:OUT ")[1])[:-1]
+							response_surface = ulf
+						else:
+							self.state = self.STATE.QUESTION_PENDING
+							try:
+								POSS_FLAG = False
+								if "poss-question" in ulf:
+									POSS_FLAG = True
+									ulf = (ulf.split("poss-question ")[1])[:-1]
+								query_tree = self.ulf_parser.parse(ulf)
+								print ("\nQUERY TREE: ", query_tree, '\n')
+								query_frame = QueryFrame(self.current_input, ulf, query_tree)
+								print ("QUERY TYPE: ", query_frame.query_type)
+								answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
+								print ("ANSWER SET: ", answer_set_rel)
+								response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
+								if POSS_FLAG:
+									response_surface = "poss-ans " + response_surface
+							except Exception as e:
+								query_frame.query_type = query_frame.QueryType.ERROR
+								response_surface = self.generate_response(query_frame, [], [])
+								print (str(e))
 
 					if ulf != "" and ulf is not None and ulf != "NIL":
 						self.send_to_avatar('ULF', ulf)
@@ -216,13 +282,14 @@ class HCIManager(object):
 					time.sleep(1.0)
 					response = self.read_and_vocalize_from_eta()
 					self.clear_file(self.eta_reaction)
-					
+
 					print ("ORIGINAL INPUT: " + input)
 					print ("CLEANED ULF: ", ulf)
 					print ("RETURNED RESPONSE: " + str(response))
 
-					if response is not None and ("GOOD BYE" in response or "TAKE A BREAK" in response):						
-						break
+					if "GOOD BYE" in response or "TAKE A BREAK" in response:
+					if response is not None and ("GOOD BYE" in response or "TAKE A BREAK" in response):
+					  break
 
 					print ("ASR BLOCKED...")
 					time.sleep(3.0)
@@ -413,10 +480,11 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 					type_surf = t
 					break
 
-			"""for t in range(0, len(pos_types)):
-				if t == user_input_list[t]:
-					type_surf = user_input_list[t%4]
-					break"""
+			# check for adjectives
+			subj_adjs = query_object.extract_subject_adj_modifiers()
+			if not subj_adjs = []:
+				type_surf = " ".subj_adjs.join(subj_adjs).strip() + " " + type_surf
+
 			plural_type_surf = type_surf + "s"
 
 			threashold = 0.7
@@ -438,9 +506,10 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 			while user_input_list[index] == "are" or user_input_list[index] == "is" or user_input_list[index] == "that":
 				index += 1
 
-			des_prop = " ".join(user_input_list[index:])
-
-
+			if index >= len(user_input_list)-1:
+				grounding = false
+			else:
+				des_prop = " ".join(user_input_list[index:])
 
 			if query_object.query_type == QueryFrame.QueryType.IDENT:#question_type == question_type.IDENT:
 				# These are the questions like "Which blocks are touching the SRI
@@ -488,7 +557,12 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 					# identify the only answer with certainty
 						if use_grounding:
 						# identify the only answer with certainty and grounding
-							return "Just " + ans_list + " is " + des_prop + "."
+							if query_object.is_subject_plural:
+							# identify the only answer with certainty, grounding, and corrective phrasing
+								return "Just " + ans_list + " is " + des_prop + "."
+							else:
+							# identify the only answer with certainty and grounding, but not corrective phrasing
+								return ans_list.capitalize() + " is " + des_prop + "."
 						else:
 						# identify the only answer with certainty and without grounding
 							return "Only " + ans_list + "."
