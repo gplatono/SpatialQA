@@ -6,7 +6,7 @@ import time
 import bmesh
 import math
 import numpy as np
-import geometry_utils
+#import geometry_utils
 import mathutils
 import os
 from threading import *
@@ -20,6 +20,12 @@ print (os.getcwd())
 def bl_dist(vect1, vect2):    
     return np.linalg.norm(np.array(vect1) - np.array(vect2))
     #math.sqrt((vect1[0] - vect2[0]) ** 2 + (vect1[1] - vect2[1]) ** 2 + (vect1[2] - vect2[2]) ** 2)
+
+class Block(object):
+    def __init__(self, name="", location=None, color="", blender_object=None):
+        if blender_object is not None:
+            pass        
+
 class ModalTimerOp(bpy.types.Operator):    
         #metatags for Blender internal machinery
         bl_idname = "wm.modal_timer_operator"
@@ -39,7 +45,7 @@ class ModalTimerOp(bpy.types.Operator):
                 block_ids, block_locations = ModalTimerOp.tracker.get_block_data()
                 print (block_ids)
                 #print (len(block_dict.keys()))
-                if len(block_dict.keys()) == 0:
+                if len(tracker.block_dict.keys()) == 0:
                     self.flag = True
                 ModalTimerOp.tracker.update_scene(block_ids, block_locations)
                 if self.flag:
@@ -72,6 +78,14 @@ class Tracker(object):
 
         bpy.utils.register_class(ModalTimerOp)
         ModalTimerOp.tracker = self
+
+        block_names = ['Target', 'Starbucks', 'Twitter', 'Texaco', 'McDonald\'s', 'Mercedes', 'Toyota', 'Burger King']
+        blocks = []
+        for bl_name in blocks:
+            if bpy.data.objects[bl_name] is not None:
+                blocks.append(bpy.data.objects[bl_name])
+            else:
+                blocks.append(create_block(bl_name, Vector((0, 0, 0)), ) )
         self.scene_setup()
         
         bpy.ops.wm.modal_timer_operator()
@@ -110,11 +124,27 @@ class Tracker(object):
         bpy.context.scene.objects.active = block
         block.select = True
         bm = bmesh.new()
-        bmesh.ops.create_cube(bm, size=block_edge)
+        bmesh.ops.create_cube(bm, size=self.block_edge)
         bm.to_mesh(block_mesh)
         bm.free()
         self.block_dict[block_id] = block
            
+    def create_block(self, name="", location=None, material=None):
+        block_mesh = bpy.data.meshes.new('Block_mesh')
+        block = bpy.data.objects.new(name, block_mesh)
+        bpy.context.scene.objects.link(block)
+        bpy.context.scene.objects.active = block
+        block.select = True
+        bm = bmesh.new()
+        bmesh.ops.create_cube(bm, size=self.block_edge)
+        bm.to_mesh(block_mesh)
+        bm.free()
+        block.data.materials.append(material)
+        block.location = location
+        bpy.context.scene.update()
+        return block
+        #self.block_dict[block_id] = block
+    
     #Reset the scene by removing all the meshes
     def clear_scene(self):
         #iterate over the objects in the scene
@@ -160,7 +190,7 @@ class Tracker(object):
             else:
                 min_dist = 10e9
                 cand = None
-                for key1 in block_dict:
+                for key1 in self.block_dict:
                     if key1 not in block_ids:
                         print (block_locations[block_ids.index(key)], self.block_dict[key1].location)                    
                         cur_dist = bl_dist(block_locations[block_ids.index(key)], self.block_dict[key1].location)
@@ -173,7 +203,7 @@ class Tracker(object):
                     self.block_dict[key] = block_dict[cand]
                     del self.block_dict[cand]
                 else:
-                    add_block(key)
+                    self.add_block(key)
                     self.block_dict[key].location = block_locations[block_ids.index(key)]
                
             
@@ -189,7 +219,7 @@ class Tracker(object):
             block_ids += [segment['ID']]
             str_loc = segment['Position']
             print (segment['Position'])
-            block_locations += [[float(x) for x in str_loc.split(",")]]
+            block_locations += [np.array([float(x) for x in str_loc.split(",")])]
 
         #print (json_data['BlockStates'][0]['ID'])
         #print (json_data['BlockStates'][0]['Position'])
@@ -282,3 +312,5 @@ class Tracker(object):
                 ob.location = loc
     '''    
         #ob = bpy.data.objects[1]#how to identify with ID?
+
+tracker = Tracker()
