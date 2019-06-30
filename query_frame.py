@@ -1,6 +1,6 @@
 import enum
 import re
-from ulf_grammar import NArg, NRel, NPred, NCardDet
+from ulf_grammar import NArg, NRel, NPred, NCardDet, TAdj, NColor
 
 class QueryFrame(object):
 	"""Represents and incapsulates the query data in a frame-like format."""
@@ -66,6 +66,9 @@ class QueryFrame(object):
 		#print ("BEFORE ENTERING QUERY TPYE:")
 		self.scan_type()
 
+		self.is_subject_plural = self.subj_plural()
+
+
 		#print ("QUERY CONTENT:")
 		#print ("PREDICATE: ", self.predicate)
 		#print ("RELATUM: ", self.relatum)
@@ -106,4 +109,22 @@ class QueryFrame(object):
 
 		if self.YN_FLAG:
 			self.query_type = self.QueryType.CONFIRM
+
+	def extract_subject_adj_modifiers(self):
+		if self.arg is not None:
+			mods = self.arg.mods
+		else:
+			mods = self.predicate.children[0].mods
+		adjectives = []
+		if mods is not None:
+			for mod in mods:
+				if type(mod) == TAdj or type(mod) == NColor:
+					adjectives.append(mod.content.replace(".a", ""))
+		return adjectives
+
+	def subj_plural(self):
+		if self.arg is not None:
+			return self.arg.plur
+		else: 
+			return self.predicate.children[0].plur
 

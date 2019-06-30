@@ -7,7 +7,7 @@ import bmesh
 import math
 import numpy as np
 #import geometry_utils
-import mathutils
+from mathutils import Vector
 import os
 from threading import *
 
@@ -45,12 +45,12 @@ class ModalTimerOp(bpy.types.Operator):
                 block_ids, block_locations = ModalTimerOp.tracker.get_block_data()
                 print (block_ids)
                 #print (len(block_dict.keys()))
-                if len(tracker.block_dict.keys()) == 0:
-                    self.flag = True
+                #if len(tracker.block_dict.keys()) == 0:
+                #    self.flag = True
                 ModalTimerOp.tracker.update_scene(block_ids, block_locations)
-                if self.flag:
-                    tracker.apply_material()
-                    self.flag = False                            
+                #if self.flag:
+                #    tracker.apply_material()
+                #    self.flag = False                            
             return {"PASS_THROUGH"}
         
         #Setup code (fires at the start)
@@ -65,13 +65,13 @@ class ModalTimerOp(bpy.types.Operator):
             context.window_manager.event_timer_remove(self._timer)
             return {"CANCELLED"}
 
-
 class Tracker(object):
     
     def __init__(self):
         #Sizes of BW objects in meters
-        self.block_edge = 0.155
+        self.block_edge = 1.0#0.155
         self.table_edge = 1.53
+        self.block_multiplier = 1.0 / 0.155
 
         self.kinectLeft = (-0.75, 0.27, 0.6)
         self.kinectRight = (0.75, 0.27, 0.6)
@@ -79,29 +79,33 @@ class Tracker(object):
         bpy.utils.register_class(ModalTimerOp)
         ModalTimerOp.tracker = self
 
-        block_names = ['Target', 'Starbucks', 'Twitter', 'Texaco', 'McDonald\'s', 'Mercedes', 'Toyota', 'Burger King']
-        blocks = []
-        for bl_name in blocks:
-            if bpy.data.objects[bl_name] is not None:
-                blocks.append(bpy.data.objects[bl_name])
-            else:
-                blocks.append(create_block(bl_name, Vector((0, 0, 0)), ) )
         self.scene_setup()
+
+        block_names = ['Target', 'Starbucks', 'Twitter', 'Texaco', 'McDonald\'s', 'Mercedes', 'Toyota', 'Burger King']
+        materials = [bpy.data.materials['Blue'], bpy.data.materials['Green'], bpy.data.materials['Red']]
+        #print (bpy.data.objects)
+        for ob in bpy.data.objects:
+            print (ob.name, bpy.data.objects.get(ob.name))
+        blocks = [self.create_block(name, Vector((0, 0, self.block_edge / 2)), materials[block_names.index(name) % 3]) for name in block_names]
+        block_ids, block_locations = self.get_block_data()
+                        
+
+        print (blocks)
         
-        bpy.ops.wm.modal_timer_operator()
+        #bpy.ops.wm.modal_timer_operator()
         #Dictionary that stores block IDs
         self.block_dict = {}
 
-    def apply_material(self):
-        print ("TEST")
-        blocks = list(self.block_dict.values())
-        print (blocks)    
-        blocks.sort(key = lambda x: x.location[0])
-        mats = [bpy.data.materials['Red'],\
-            bpy.data.materials['Green'],\
-            bpy.data.materials['Blue']]
-        for bl in blocks:
-            bl.data.materials.append(mats[blocks.index(bl) % 3])    
+    # def apply_material(self):
+    #     print ("TEST")
+    #     blocks = list(self.block_dict.values())
+    #     print (blocks)    
+    #     blocks.sort(key = lambda x: x.location[0])
+    #     mats = [bpy.data.materials['Red'],\
+    #         bpy.data.materials['Green'],\
+    #         bpy.data.materials['Blue']]
+    #     for bl in blocks:
+    #         bl.data.materials.append(mats[blocks.index(bl) % 3])    
 
     #Remove block from the scene and id dictionary
     def remove_block(self, block_id):
@@ -130,6 +134,9 @@ class Tracker(object):
         self.block_dict[block_id] = block
            
     def create_block(self, name="", location=None, material=None):
+        #print (name, bpy.data.objects.get(name))
+        if bpy.data.objects.get(name) is not None:
+            return bpy.data.objects[name]
         block_mesh = bpy.data.meshes.new('Block_mesh')
         block = bpy.data.objects.new(name, block_mesh)
         bpy.context.scene.objects.link(block)
@@ -141,9 +148,11 @@ class Tracker(object):
         bm.free()
         block.data.materials.append(material)
         block.location = location
+        block['id'] = "bw.item.block." + name
+        block['color_mod'] = material.name
+        block['main'] = 1.0
         bpy.context.scene.update()
-        return block
-        #self.block_dict[block_id] = block
+        return block        
     
     #Reset the scene by removing all the meshes
     def clear_scene(self):
@@ -157,7 +166,7 @@ class Tracker(object):
 
     #Adds objects to the scene    
     def scene_setup(self):        
-        self.clear_scene()
+        #self.clear_scene()
         #Creating the materials
         bpy.data.materials.new(name="Red")
         bpy.data.materials.new(name="Blue")
@@ -166,7 +175,7 @@ class Tracker(object):
         bpy.data.materials['Green'].diffuse_color = (0, 1, 0)
         bpy.data.materials['Blue'].diffuse_color = (0, 0, 1)
         
-        bpy.ops.mesh.primitive_plane_add(location=(0,0,0), radius=self.table_edge/2)
+        #bpy.ops.mesh.primitive_plane_add(location=(0,0,0), radius=self.table_edge/2)
 
     def unoccluded(self, block):
         LeftBlocked = False
@@ -314,3 +323,6 @@ class Tracker(object):
         #ob = bpy.data.objects[1]#how to identify with ID?
 
 tracker = Tracker()
+
+#for ob in bpy.data.objects:
+#    print (ob.name, bpy.data.objects.get(ob.name))

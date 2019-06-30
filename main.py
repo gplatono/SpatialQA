@@ -26,7 +26,7 @@ from constraint_solver import *
 from world import World
 from hci_manager import HCIManager
 from query_frame import QueryFrame
-from bw_tracker import Tracker
+#from bw_tracker import Tracker
 #from query_proc import *
 
 link = False

@@ -372,6 +372,8 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 	'''
 	def generate_response(self, query_object, answer_set, certainty):
 
+		print ("ADJ_MODS: ", query_object.extract_subject_adj_modifiers())
+		print ("SUBJ_PLUR: ", query_object.is_subject_plural)
 		# Check which state we're in...
 		if self.state == self.STATE.INIT:
 			pass
