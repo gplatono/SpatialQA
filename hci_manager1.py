@@ -10,8 +10,6 @@ import collections
 from query_frame import QueryFrame
 from ulf_parser import ULFParser
 from constraint_solver import *
-from spatial import near, touching
-from geometry_utils import get_planar_distance_scaled
 
 class HCIManager(object):
 	"""Manages the high-level interaction loop between the user and the system."""
@@ -116,9 +114,9 @@ class HCIManager(object):
 		input = input.lower()
 		misspells = [(' book', ' block'), (' blog', ' block'), (' black', ' block'), (' walk', ' block'), (' wok', ' block'), \
 					(' lock', ' block'), (' vlog', ' block'), (' blocked', ' block'), (' glock', ' block'), (' look', ' block'),\
-					(' talk', ' block'), (' cook', ' block'), (' clock', ' block'), (' plug', ' block'), \
-					(' involved', ' above'), (' about', ' above'), (' patching', ' touching'), (' catching', ' touching'),\
-					(' in a cup', ' on top'), (' after the right', ' are to the right'), \
+					(' talk', ' block'), \
+					(' involved', ' above'), (' about', ' above'), \
+					(' in a cup', ' on top'), \
 					(' merced us', ' mercedes'), (' messages', ' mercedes'), (' mercer does', ' mercedes'), (' merced is', ' mercedes'), \
 					(' merciless', ' mercedes'), \
 					(' in the table', ' on the table')]
@@ -128,44 +126,49 @@ class HCIManager(object):
 
 	def start(self):
 		"""Initiate the listening loop."""
-		if self.debug_mode == False:
-			print ("Starting the listening thread...")
-			mic_thread = Thread(target = self.mic_loop)
-			mic_thread.setDaemon(True)
-			mic_thread.start()
+		# if self.debug_mode == False:
+		# 	print ("Starting the listening thread...")
+		# 	mic_thread = Thread(target = self.mic_loop)
+		# 	mic_thread.setDaemon(True)
+		# 	mic_thread.start()
 
 		#asr_lock = Event()
 
-		print ("Starting the processing loop...")
+		print ("Starting the dialog processing loop...")
 		while True:
 
 			if self.state == self.STATE.INIT:
 				response = self.read_and_vocalize_from_eta()
 				self.state = self.STATE.SYSTEM_GREET
 
-			self.speech_lock.acquire()
-			if self.current_input != "":
-				#if re.search(r'\b(exit|quit)\b', self.current_input, re.I):
-				#	self.speech_lock.release()
-				#	break
+			with open('speech_input', 'r+') as file:
+				self.current_input = file.readlines()
+				file.truncate(0)
 
+			print ("FILE INPUT: ", self.current_input)
+
+			if self.current_input != [] and self.current_input is not None:
+				self.current_input = [line.strip() for line in self.current_input if line.strip() != ""]
+				self.current_input = self.current_input[-1]				
 				print ("you said: " + self.current_input)
-				print ("SIZE", self.world.find_entity_by_name("Toyota").size)
+
 				self.current_input = self.preprocess(self.current_input)
+
 
 				if re.search(r".*(David).*(give).*(moment|minute)", self.current_input, re.I) and self.state != self.STATE.SUSPEND:
 					self.state = self.STATE.SUSPEND
 					self.send_to_avatar("USER_SPEECH", self.current_input)
 					self.send_to_avatar("SAY", "Sure, take your time")
-					self.speech_lock.release()
+					#self.speech_lock.release()
 					print ("DIALOG SUSPENDED...")
-					self.current_input = ""					
-					continue					
+					self.current_input = ""
+					
+					continue
 				elif re.search(r"(David)", self.current_input, re.I) and self.state == self.STATE.SUSPEND:
 					self.state = self.STATE.QUESTION_PENDING
 					self.send_to_avatar("USER_SPEECH", self.current_input)
 					self.send_to_avatar("SAY", "Yes, what is it?")
-					self.speech_lock.release()
+					#self.speech_lock.release()
 					print ("DIALOG RESUMED...")
 					self.current_input = ""
 					continue				
@@ -184,7 +187,6 @@ class HCIManager(object):
 					response_surface = "NIL"
 
 					if ulf is not None and ulf != "" and ulf != "NIL":
-						self.send_to_avatar('ULF', ulf)
 						if re.search(r"^\((\:OUT|OUT|OUT:)", ulf):
 							if "(OUT " in ulf:
 								ulf = (ulf.split("(OUT ")[1])[:-1]
@@ -211,15 +213,11 @@ class HCIManager(object):
 								#print ("QUERY TYPE: ", query_frame.query_type)
 								answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
 								#print ("ANSWER SET: ", answer_set_rel)
-								bkg = self.world.find_entity_by_name('Burger King')
-								tbl = self.world.find_entity_by_name('Table')
-								print ("TOUCH:")
-								print ([(bl, touching(bl, tbl)) for bl in self.world.entities if bl != tbl])
 								response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
 								if POSS_FLAG:
 									response_surface = "poss-ans " + response_surface
 							except Exception as e:
-								query_frame = QueryFrame("", "", None)
+								query_frame = QueryFrame("", "", None)								
 								#query_frame.query_type = query_frame.QueryType.ERROR
 								response_surface = self.generate_response(query_frame, [], [])
 								print (str(e))
@@ -243,7 +241,7 @@ class HCIManager(object):
 					print ("SPEAK...")
 
 				self.current_input = ""
-			self.speech_lock.release()
+			#self.speech_lock.release()
 			time.sleep(0.1)
 
 	def send_to_avatar(self, mode, text):
@@ -271,68 +269,7 @@ class HCIManager(object):
 					self.speech_lock.release()
 
 		ll_th = Thread(target = load_loop)
-		ll_th.start()
-
-	def mic_loop(self):
-		"""The mic listening loop."""
-
-		from gcs_micstream import ResumableMicrophoneStream
-		from google.cloud import speech
-
-		sample_rate = 16000
-		chunk_size = int(sample_rate / 10)  # 100ms
-
-		client = speech.SpeechClient()
-		config = speech.types.RecognitionConfig(encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
-			sample_rate_hertz=sample_rate, language_code='en-US', max_alternatives=1, enable_word_time_offsets=True,
-			 enable_automatic_punctuation=True)
-		streaming_config = speech.types.StreamingRecognitionConfig(config=config, interim_results=True)
-
-		mic_manager = ResumableMicrophoneStream(sample_rate, chunk_size)
-
-		with mic_manager as stream:
-			while not stream.closed:
-				audio_generator = stream.generator()
-				requests = (speech.types.StreamingRecognizeRequest(audio_content=content)
-					for content in audio_generator)
-
-				responses = client.streaming_recognize(streaming_config, requests)
-
-				responses = (r for r in responses if (r.results and r.results[0].alternatives))
-				num_chars_printed = 0
-				for response in responses:
-					if not response.results:
-						continue
-
-					"""The `results` list is consecutive. For streaming, we only care about
-					the first result being considered, since once it's `is_final`, it
-					moves on to considering the next utterance."""
-					result = response.results[0]
-					if not result.alternatives:
-						continue
-
-					transcript = result.alternatives[0].transcript
-					# Display interim results, but with a carriage return at the end of the
-					# line, so subsequent lines will overwrite them.
-					# If the previous result was longer than this one, we need to print
-					# some extra spaces to overwrite the previous result
-					overwrite_chars = ' ' * (num_chars_printed - len(transcript))
-
-					if not result.is_final:
-						sys.stdout.write(transcript + overwrite_chars + '\r')
-						sys.stdout.flush()
-						num_chars_printed = len(transcript)
-					else:
-						self.speech_lock.acquire()
-						self.current_input = transcript.lower()
-						self.speech_lock.release()
-						num_chars_printed = 0
-						# # Exit recognition if any of the transcribed phrases could be one of our keywords.
-						# if re.search(r'\b(exit|quit)\b', transcript, re.I):
-						# 	print('Exiting..')
-						# 	stream.closed = True
-						# 	break
-
+		ll_th.start()	
 
 	'''
 Here is a (nonexhaustive) list of questions that I think I can answer in a very natural way:

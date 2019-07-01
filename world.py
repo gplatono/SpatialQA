@@ -18,6 +18,11 @@ class World(object):
 		self.entities = []
 		self.simulation_mode = simulation_mode
 
+		if self.simulation_mode == False:
+			self.tracker = Tracker(self)
+			time.sleep(0.5)
+
+
 		for obj in self.scene.objects:
 			if obj.get('main') is not None and obj.get('enabled') is None:
 				self.entities.append(Entity(obj))
@@ -45,10 +50,7 @@ class World(object):
 		#List of  possible color modifiers
 		self.color_mods = ['black', 'red', 'blue', 'brown', 'green', 'yellow']
 
-		if self.simulation_mode == False:
-			self.tracker = Tracker(self)
-			time.sleep(2.0)
-
+		
 	def get_observer(self):
 		if not hasattr(self, 'observer') or self.observer == None:
 			self.observer = self.create_observer()

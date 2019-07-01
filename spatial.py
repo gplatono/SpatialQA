@@ -196,8 +196,9 @@ def near_raw(a, b):
         dist = min(dist, closest_mesh_distance_scaled(a, b))
 
     fr_size = get_frame_size(entities)
-    raw_metric = math.e ** (- 0.05 * dist)
-    '''0.5 * (1 - min(1, dist / avg_dist + 0.01) +'''    
+    raw_metric = math.e ** (- 0.1 * dist)
+    '''0.5 * (1 - min(1, dist / avg_dist + 0.01) +'''
+    print ("RAW NEAR: ", a, b, raw_metric * (1 - raw_metric / fr_size))
     return raw_metric * (1 - raw_metric / fr_size)
 
 entities = None
@@ -209,6 +210,8 @@ entities = None
 def near(a, b):
     #entities = get_entities()
     #print (entities)
+    if a == b:
+        return 0
     raw_near_a = []
     raw_near_b = []
     raw_near_measure = near_raw(a, b)
@@ -401,7 +404,7 @@ def behind(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def at(a, b):
-    return 0.8 * near(a, b) + 0.2 * touching(a, b)
+    return touching(a, b) if touching(a,b) > 0.9 else near(a, b)
 
 def inside(a, b):
     a_bbox = a.bbox
@@ -439,20 +442,21 @@ def touching(a, b):
     mesh_dist = 1e9
     planar_dist = 1e9
     shared_volume = shared_volume_scaled(a, b)
-    #print ("SHARED VOLUME:", shared_volume)
-    if a.get("planar") is not None:
+    print ("SHARED VOLUME:", shared_volume)
+    if b.get("planar") is not None:
         planar_dist = get_planar_distance_scaled(b, a)
-    elif b.get("planar") is not None:
+    elif a.get("planar") is not None:
         planar_dist = get_planar_distance_scaled(a, b)        
     print ("PLANAR DIST: ", planar_dist)    
     if get_centroid_distance_scaled(a, b) <= 1.5:
-        mesh_dist = closest_mesh_distance_scaled(a, b)
+        #mesh_dist = closest_mesh_distance_scaled(a, b)
+        mesh_dist = closest_mesh_distance(a, b) / (min(a.size, b.size) + 0.01)
     print ("MESH DIST: ", mesh_dist)    
     mesh_dist = min(mesh_dist, planar_dist)
     print ("MESH DIST: ", mesh_dist)
     if shared_volume == 0:
-        print ("SH_ZERO:" ,math.exp(- 4 * mesh_dist))
-        return math.exp(- 4 * mesh_dist)
+        print ("SHARED_VOLUME_ZERO:" ,math.exp(- 0.5 * mesh_dist))
+        return math.exp(- 0.5 * mesh_dist)
     else:
         print (0.3 * math.exp(- 2 * mesh_dist) + 0.7 * (shared_volume > 0))
         return 0.3 * math.exp(- 2 * mesh_dist) + 0.7 * (shared_volume > 0)

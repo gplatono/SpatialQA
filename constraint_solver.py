@@ -243,14 +243,17 @@ def resolve_predicate(predicate_object):
 
     'touching.p': spatial.touching,
     'touch.v': spatial.touching,
+    'adjacent_to.p': spatial.touching,
     'right.p': spatial.to_the_right_of_deic,
     'left.p': spatial.to_the_left_of_deic,
-    'at.p': spatial.at,
+    
+    'at.p': spatial.at,    
+    'next_to.p': spatial.at,
+
     'in_front_of.p': spatial.in_front_of,
     'front.p': spatial.in_front_of,
     'behind.p': spatial.behind,
     'between.p': spatial.between,
-    'next_to.p': spatial.at,
     'clear.a': spatial.clear
     }
 	#for key in globals():

@@ -13,6 +13,7 @@ from functools import reduce
 from mathutils import Vector
 import importlib
 from threading import Thread
+import multiprocessing
 import time
 
 #The path to the this source file
@@ -36,7 +37,7 @@ link = False
 scene = bpy.context.scene
 ulf_parser = ULFParser()
 world = World(bpy.context.scene, simulation_mode=False)
-hci_manager = HCIManager(debug_mode = False)
+#hci_manager = HCIManager(debug_mode = False)
 
 conf_list = open("config").readlines()
 settings = {}
@@ -238,6 +239,67 @@ class ModalTimerOp1(bpy.types.Operator):
         context.window_manager.event_timer_remove(self._timer)
         return {"CANCELLED"}
 
+
+def func():
+    while True:
+        print ("TEST")
+        time.sleep(1.0)
+
+def mic_loop():
+    """The mic listening loop."""
+    from gcs_micstream import ResumableMicrophoneStream
+    from google.cloud import speech
+
+    print ("ENTERING SPEECH PROCESSING...")
+    sample_rate = 16000
+    chunk_size = int(sample_rate / 10)  # 100ms
+    
+    client = speech.SpeechClient()
+    config = speech.types.RecognitionConfig(encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
+			                    sample_rate_hertz=sample_rate, language_code='en-US', max_alternatives=1, enable_word_time_offsets=True,
+			                    enable_automatic_punctuation=True)
+    streaming_config = speech.types.StreamingRecognitionConfig(config=config, interim_results=True)
+
+    mic_manager = ResumableMicrophoneStream(sample_rate, chunk_size)
+
+    with mic_manager as stream:
+        while not stream.closed:
+            audio_generator = stream.generator()
+            requests = (speech.types.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
+            responses = client.streaming_recognize(streaming_config, requests)
+
+            responses = (r for r in responses if (r.results and r.results[0].alternatives))
+            num_chars_printed = 0
+            for response in responses:
+                if not response.results or not response.results[0].alternatives:
+                    continue
+                
+                result = response.results[0]
+                
+                transcript = result.alternatives[0].transcript
+                if result.is_final:
+                    print (transcript.lower())
+                    
+                #overwrite_chars = ' ' * (num_chars_printed - len(transcript))
+
+                #if not result.is_final:
+                #    sys.stdout.write(transcript + overwrite_chars + '\r')
+                #    sys.stdout.flush()
+                 #   num_chars_printed = len(transcript)
+                #else:
+                 
+                #    num_chars_printed = 0		    
+
+def printer(q):
+    while True:
+        if not q.empty():
+            print (q.get())
+
+def func1():
+    hci_manager = HCIManager(world, debug_mode = False)
+    hci_manager.start()
+    
+            
 #Entry point
 #Implementation of the evaluation pipeline
 def main():
@@ -246,12 +308,23 @@ def main():
     spatial.world = world
     
     #hci_manager = HCIManager(world, debug_mode = False)
-    bpy.utils.register_class(ModalTimerOp1)
-    bpy.ops.wm.modal_timer_operator1()
-    bpy.ops.wm.redraw_timer(type='DRAW', iterations=1)
+    hci_thread = Thread(target = func1)
+    hci_thread.setDaemon(True)
+    hci_thread.start()
+    #hci_manager.start()
+    #bpy.utils.register_class(ModalTimerOp1)
+    #bpy.ops.wm.modal_timer_operator1()
+    #bpy.ops.wm.redraw_timer(type='DRAW', iterations=1)
     #print ("TESTTEST")
     #time.sleep(10)
-    #hci_thread = Thread(target = hci_manager.start())
+    #q = multiprocessing.Queue()
+    #q.put("test")
+    ##p1 = multiprocessing.Process(target=mic_loop, args=(q,))
+    #p2 = multiprocessing.Process(target=printer, args=(q,))
+    #p1.start()
+    #p2.start()
+    #
+    #hci_thread.setDaemon(True)
     #hci_thread.start()
     #hci_thread.join()
     #hci_manager.start()

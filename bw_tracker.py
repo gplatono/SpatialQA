@@ -10,6 +10,7 @@ import numpy as np
 from mathutils import Vector
 import os
 from threading import *
+from entity import Entity
 
 print (os.getcwd())
 
@@ -29,16 +30,21 @@ class ModalTimerOp(bpy.types.Operator):
             elif event.type == "TIMER":
                 ModalTimerOp.tracker.moved_blocks = \
                 ModalTimerOp.tracker.update(ModalTimerOp.tracker.get_block_data())
+                bpy.context.scene.update()
                 #print (ModalTimerOp.tracker.moved_blocks)
 
-                ents = [ModalTimerOp.tracker.world.find_entity_by_name(name) for name in ModalTimerOp.tracker.moved_blocks]
-                if ents != []:
-                    print ("ENTITIES: ", ents)
-                for ent in ents:
-                    ent.update()
-                world = ModalTimerOp.tracker.world
-                toy = world.find_entity_by_name("Toyota")
-                print (toy.location, toy.size)
+                time.sleep(0.05)
+                for name in ModalTimerOp.tracker.moved_blocks:
+                    ent = ModalTimerOp.tracker.world.find_entity_by_name(name)
+                    ModalTimerOp.tracker.world.entities.remove(ent)
+                    #ent.update()
+                    ent = Entity(bpy.data.objects[name])
+                    ModalTimerOp.tracker.world.entities.append(ent)
+                    print ("ENT LOC: ", ent.location)
+
+                #world = ModalTimerOp.tracker.world
+                #toy = world.find_entity_by_name("Toyota")
+                #print (toy.location, toy.size)
 
             return {"PASS_THROUGH"}
         
@@ -107,7 +113,7 @@ class Tracker(object):
         block['color_mod'] = material.name
         block['main'] = 1.0
         bpy.context.scene.update()
-        return block        
+        return block
     
     #Reset the scene by removing all the meshes
     def clear_scene(self):
@@ -165,20 +171,24 @@ class Tracker(object):
 
         for id, location in block_data:
             if id in self.block_by_ids:
-                block = self.block_by_ids[id]
-                if np.linalg.norm(location - block.location) >= 0.1:
+                block = self.block_by_ids[id]                
+                if np.linalg.norm(location - block.location) >= 0.05:
+                    print ("MOVED BLOCK: ", block.name, location, block.location, np.linalg.norm(location - block.location))
                     moved_blocks.append(block.name)
-                block.location = location
+                    block.location = location                
                 updated_blocks[block] = 1
             else:
                 id_assigned = False
                 for block in self.blocks:
-                    if np.linalg.norm(location - block.location) < 0.04:
+                    if np.linalg.norm(location - block.location) < 0.1:
+                        print ("NOISE: ", block.name, location, block.location, np.linalg.norm(location - block.location))
                         self.block_by_ids.pop(self.block_to_ids[block], None)
                         self.block_by_ids[id] = block
                         self.block_to_ids[block] = id                        
+                        block.location = location
                         id_assigned = True
                         updated_blocks[block] = 1
+                        moved_blocks.append(block.name)
                         break
                 if id_assigned == False:
                     unpaired.append((id, location))
@@ -193,6 +203,7 @@ class Tracker(object):
                         min_dist = cur_dist
                         cand = block
             if cand != None:
+                print ("MOVED BLOCK: ", cand.name, location, cand.location, np.linalg.norm(location - cand.location))
                 cand.location = location
                 self.block_by_ids.pop(self.block_to_ids[cand], None)
                 self.block_by_ids[id] = cand

@@ -38,6 +38,7 @@ class Entity(object):
             #First object in the list is the parent or head object
             #Defining the entity
             main_object = components
+            self.components = [main_object]            
             self.constituents = [main_object]
 
             #Filling in the constituent objects starting with the parent
@@ -48,6 +49,7 @@ class Entity(object):
                 for ob in Entity.scene.objects:                
                     if ob.parent == parent and ob.type == "MESH":
                         self.constituents.append(ob)
+                        self.components.append(ob)
                         queue.append(ob)
             #Name of the entity
             self.name = main_object.name
@@ -100,8 +102,8 @@ class Entity(object):
         #The fundamental intrinsic vectors
         self.up = []
         self.right = []
-        self.front = np.array(self.components.get('frontal')) \
-            if self.components.get('frontal') is not None else []
+        self.front = np.array(self.components[0].get('frontal')) \
+            if self.components[0].get('frontal') is not None else []
 
         self.radius = self.compute_radius()
         self.volume = self.compute_volume()
@@ -137,7 +139,7 @@ class Entity(object):
         """
         vertices = []
         if self.category == self.Category.PRIMITIVE:
-            for obj in self.constituents:
+            for obj in self.components:
                 vertices += [obj.matrix_world * v.co for v in obj.data.vertices]
             vertices = [np.array([v[0],v[1],v[2]]) for v in vertices]
         elif self.category == self.Category.STRUCTURE:
@@ -150,7 +152,7 @@ class Entity(object):
         """Compute and return the list of faces of the entity."""
         faces = []
         if self.category == self.Category.PRIMITIVE:
-            for ob in self.constituents:
+            for ob in self.components:
                 for face in ob.data.polygons:
                     faces.append([ob.matrix_world * ob.data.vertices[i].co for i in face.vertices])
         elif self.category == self.Category.STRUCTURE:
@@ -288,6 +290,7 @@ class Entity(object):
         return self.radius
 
     def update(self):
+        print ("UPDATING " + self.name + "...")        
         #Compute mesh-related data
         self.vertex_set = self.compute_vertex_set()
         self.faces = self.compute_faces()
@@ -322,8 +325,8 @@ class Entity(object):
         #The fundamental intrinsic vectors
         self.up = []
         self.right = []
-        self.front = np.array(self.components.get('frontal')) \
-            if self.components.get('frontal') is not None else []
+        self.front = np.array(self.components[0].get('frontal')) \
+            if self.components[0].get('frontal') is not None else []
 
         #self.radius = self.compute_radius()
         #self.volume = self.compute_volume()
@@ -336,5 +339,8 @@ class Entity(object):
         #self.color_mod = self.get_color_mod()
 
         #self.ordering = self.induce_linear_order()
+        #print ("Entity Location: " + str(self.location))
+        #print ("Const name: " + self.components[0].name)
+        print ("Mesh loc: " + str(self.components[0].location))
 
         
