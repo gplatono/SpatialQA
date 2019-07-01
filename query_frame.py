@@ -27,10 +27,14 @@ class QueryFrame(object):
 		self.ulf = query_ulf
 		self.raw = query_parse_tree.content
 
-		print ("QUERY REPRESENTATIONS: ")
-		print (self.surface)
-		print (self.ulf)
-		print (self.raw)
+		#print ("QUERY REPRESENTATIONS: ")
+		#print (self.surface)
+		#print (self.ulf)
+		#print (self.raw)
+
+		if query_parse_tree is None:
+			self.query_type = self.QueryType.ERROR
+			return
 
 		self.is_question = query_parse_tree.is_question
 

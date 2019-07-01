@@ -8,8 +8,8 @@ import time
 import operator
 import collections
 from query_frame import QueryFrame
-from ulf_parser import ULFParser
-from constraint_solver import *
+#from ulf_parser import ULFParser
+#from constraint_solver import *
 
 class HCIManager(object):
 	"""Manages the high-level interaction loop between the user and the system."""
@@ -24,7 +24,7 @@ class HCIManager(object):
 		END = 5
 		SUSPEND = 6
 
-	def __init__(self, world, debug_mode = False):
+	def __init__(self, debug_mode = False):
 
 		#Stores the context of the conversation. For future use.
 		self.context = None
@@ -48,8 +48,8 @@ class HCIManager(object):
 		self.eta_reaction = self.eta_path + "reaction.lisp"
 		self.eta_output = self.eta_path + "output.txt"
 
-		self.ulf_parser = ULFParser()
-		self.world = world
+		#self.ulf_parser = ULFParser()
+		#self.world = world
 
 		self.state = self.STATE.INIT
 
@@ -140,8 +140,6 @@ class HCIManager(object):
 				response = self.read_and_vocalize_from_eta()
 				self.state = self.STATE.SYSTEM_GREET
 
-			#asr_lock.set()
-
 			self.speech_lock.acquire()
 			if self.current_input != "":
 				#if re.search(r'\b(exit|quit)\b', self.current_input, re.I):
@@ -169,27 +167,8 @@ class HCIManager(object):
 					self.current_input = ""
 					continue				
 
-				if re.search(r".*(David).*(give).*(moment|minute)", self.current_input, re.I) and self.state != self.STATE.SUSPEND:
-					self.state = self.STATE.SUSPEND
-					self.send_to_avatar("USER_SPEECH", self.current_input)
-					self.send_to_avatar("SAY", "Sure, take your time")
-					self.speech_lock.release()
-					print ("DIALOG SUSPENDED...")
-					self.current_input = ""
-
-					continue
-				elif re.search(r"(David)", self.current_input, re.I) and self.state == self.STATE.SUSPEND:
-					self.state = self.STATE.QUESTION_PENDING
-					self.send_to_avatar("USER_SPEECH", self.current_input)
-					self.send_to_avatar("SAY", "Yes, what is it?")
-					self.speech_lock.release()
-					print ("DIALOG RESUMED...")
-					self.current_input = ""
-					continue
-
 				if self.debug_mode == False and self.state != self.STATE.SUSPEND:
 					print ("ENTERING ETA DIALOG EXCHANGE BLOCK...")
-
 
 					input = self.current_input
 
@@ -202,24 +181,6 @@ class HCIManager(object):
 					response_surface = "NIL"
 
 					if ulf is not None and ulf != "" and ulf != "NIL":
-						try:
-							POSS_FLAG = False
-							if "poss-question" in ulf:
-								POSS_FLAG = True
-								ulf = (ulf.split("poss-question ")[1])[:-1]
-
-							query_tree = self.ulf_parser.parse(ulf)
-							print ("QUERY TREE", query_tree)
-							query_frame = QueryFrame(self.current_input, ulf, query_tree)
-							answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
-							response_surface = self.generate_response(query_frame, answer_set_rel, [1.0])
-							if POSS_FLAG:
-								response_surface = "(poss-ans " + response_surface + ")"
-							print (query_frame.query_type)
-							print ("ANSWER SET: ", answer_set_rel)
-							print ("RESPONSE: ", response_surface)
-						except Exception as e:
-							print (str(e))
 						if re.search(r"^\((\:OUT|OUT|OUT:)", ulf):
 							if "(OUT " in ulf:
 								ulf = (ulf.split("(OUT ")[1])[:-1]
@@ -233,49 +194,28 @@ class HCIManager(object):
 								if "poss-question" in ulf:
 									POSS_FLAG = True
 									ulf = (ulf.split("poss-question ")[1])[:-1]
-								query_tree = self.ulf_parser.parse(ulf)
-								print ("\nQUERY TREE: ", query_tree, '\n')
-								query_frame = QueryFrame(self.current_input, ulf, query_tree)
-								print ("QUERY TYPE: ", query_frame.query_type)
-								answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
-								print ("ANSWER SET: ", answer_set_rel)
-								response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
+
+								with open("req.txt", 'w') as file:
+									file.write(self.current_input + "\n")
+									file.write(ulf)
+								time.sleep(0.5)
+								with open("resp.txt", 'r+') as file:
+									response_surface = file.readline()																						
+								#query_tree = self.ulf_parser.parse(ulf)
+								#print ("\nQUERY TREE: ", query_tree, '\n')
+								#query_frame = QueryFrame(self.current_input, ulf, query_tree)
+								#print ("QUERY TYPE: ", query_frame.query_type)
+								#answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
+								#print ("ANSWER SET: ", answer_set_rel)
+								#response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
 								if POSS_FLAG:
 									response_surface = "poss-ans " + response_surface
 							except Exception as e:
-								query_frame.query_type = query_frame.QueryType.ERROR
+								query_frame = QueryFrame("", "", None)								
+								#query_frame.query_type = query_frame.QueryType.ERROR
 								response_surface = self.generate_response(query_frame, [], [])
 								print (str(e))
 
-					if ulf != "" and ulf is not None and ulf != "NIL":
-						self.send_to_avatar('ULF', ulf)
-						if re.search(r"^\((\:OUT|OUT|OUT:)", ulf):
-							if "(OUT " in ulf:
-								ulf = (ulf.split("(OUT ")[1])[:-1]
-							else:
-								ulf = (ulf.split("(:OUT ")[1])[:-1]
-							response_surface = ulf
-						else:
-							self.state = self.STATE.QUESTION_PENDING
-							try:
-								POSS_FLAG = False
-								if "poss-question" in ulf:
-									POSS_FLAG = True
-									ulf = (ulf.split("poss-question ")[1])[:-1]
-								query_tree = self.ulf_parser.parse(ulf)
-								print ("\nQUERY TREE: ", query_tree, '\n')
-								query_frame = QueryFrame(self.current_input, ulf, query_tree)
-								print ("QUERY TYPE: ", query_frame.query_type)								
-								answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
-								print ("ANSWER SET: ", answer_set_rel)
-								response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
-								if POSS_FLAG:
-									response_surface = "poss-ans " + response_surface
-							except Exception as e:
-								query_frame.query_type = query_frame.QueryType.ERROR
-								response_surface = self.generate_response(query_frame, [], [])
-								print (str(e))
-			
 					print ("SENDING REACTION AND WAITING FOR RESPONSE...")
 					print ("RESPONSE SURFACE: " + response_surface)
 					self.send_to_eta("REACTION", "\"" + response_surface + "\"")
@@ -286,10 +226,9 @@ class HCIManager(object):
 					print ("ORIGINAL INPUT: " + input)
 					print ("CLEANED ULF: ", ulf)
 					print ("RETURNED RESPONSE: " + str(response))
-
-					if "GOOD BYE" in response or "TAKE A BREAK" in response:
+					
 					if response is not None and ("GOOD BYE" in response or "TAKE A BREAK" in response):
-					  break
+						break
 
 					print ("ASR BLOCKED...")
 					time.sleep(3.0)
@@ -438,9 +377,12 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 
 	'''
 	def generate_response(self, query_object, answer_set, certainty):
+		#answer_set = response_object.answer_set
+		#certainty = response_object.certainty
+		#relation = response_object.relation
 
-		print ("ADJ_MODS: ", query_object.extract_subject_adj_modifiers())
-		print ("SUBJ_PLUR: ", query_object.is_subject_plural)
+		#print ("ADJ_MODS: ", query_object.extract_subject_adj_modifiers())
+		#print ("SUBJ_PLUR: ", query_object.is_subject_plural)
 		# Check which state we're in...
 		if self.state == self.STATE.INIT:
 			pass
@@ -482,8 +424,8 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 
 			# check for adjectives
 			subj_adjs = query_object.extract_subject_adj_modifiers()
-			if not subj_adjs = []:
-				type_surf = " ".subj_adjs.join(subj_adjs).strip() + " " + type_surf
+			if subj_adjs != []:
+				type_surf = " ".join(subj_adjs).strip() + " " + type_surf
 
 			plural_type_surf = type_surf + "s"
 
@@ -495,7 +437,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 			grounding = True
 
 			if not type_surf in user_input_list and not plural_type_surf in user_input_list:
-				grounding = false
+				grounding = False
 			elif not type_surf in user_input_list:
 				index = user_input_list.index(plural_type_surf) + 1
 			elif not plural_type_surf in user_input_list:
@@ -503,11 +445,12 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 			else:
 				index = min(user_input_list.index(plural_type_surf), user_input_list.index(type_surf)) + 1
 
-			while user_input_list[index] == "are" or user_input_list[index] == "is" or user_input_list[index] == "that":
-				index += 1
+			if index < len(user_input_list):
+				while user_input_list[index] == "are" or user_input_list[index] == "is" or user_input_list[index] == "that":
+					index += 1
 
 			if index >= len(user_input_list)-1:
-				grounding = false
+				grounding = False
 			else:
 				des_prop = " ".join(user_input_list[index:])
 
@@ -544,7 +487,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 								return "There are no " + plural_type_surf + " that are " + des_prop + "."
 						else:
 						# give a certain "it doesn't exist" answer without grounding
-							return "There is no such" + type_surf + "."
+							return "There is no such " + type_surf + "."
 					else: # note this is probably not reachable
 					# give an uncertain "it doesn't exist answer"
 						return "That probably doesn't exist."
@@ -562,7 +505,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 								return "Just " + ans_list + " is " + des_prop + "."
 							else:
 							# identify the only answer with certainty and grounding, but not corrective phrasing
-								return ans_list.capitalize() + " is " + des_prop + "."
+								return ans_list + " is " + des_prop + "."
 						else:
 						# identify the only answer with certainty and without grounding
 							return "Only " + ans_list + "."
@@ -590,15 +533,15 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 							if use_grounding:
 							# identify the multiple answers with mixed certainty and grounding
 								if len(cert_lists[0]) == 1:
-									return cert_items.capitalize() + " is " + des_prop + ", but it is less certain for " + uncert_items + "."
+									return cert_items + " is " + des_prop + ", but it is less certain for " + uncert_items + "."
 								else:
-									return cert_items.capitalize() + " are " + des_prop + ", but it is less certain for " + uncert_items + "."
+									return cert_items + " are " + des_prop + ", but it is less certain for " + uncert_items + "."
 							else:
 							# identify the multiple answers with mixed certainty and without grounding
 								if len(cert_lists[0]) == 1:
-									return cert_items.capitalize() + " does, but it is less certain for " + uncert_items + "."
+									return cert_items + " does, but it is less certain for " + uncert_items + "."
 								else:
-									return cert_items.capitalize() + " do, but it is less certain for " + uncert_items + "."
+									return cert_items + " do, but it is less certain for " + uncert_items + "."
 						else:
 						# identify the multiple answers uncertainly
 							if use_grounding:
@@ -630,15 +573,15 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 							if use_grounding:
 							# identify the multiple answers with mixed certainty and grounding
 								if len(cert_lists[0]) == 1:
-									return cert_items.capitalize() + " is " + des_prop + ", but it is less certain for " + uncert_items + "."
+									return cert_items + " is " + des_prop + ", but it is less certain for " + uncert_items + "."
 								else:
-									return cert_items.capitalize() + " are " + des_prop + ", but it is less certain for " + uncert_items + "."
+									return cert_items + " are " + des_prop + ", but it is less certain for " + uncert_items + "."
 							else:
 							# identify the multiple answers with mixed certainty and without grounding
 								if len(cert_lists[0]) == 1:
-									return cert_items.capitalize() + " does, but it is less certain for " + uncert_items + "."
+									return cert_items + " does, but it is less certain for " + uncert_items + "."
 								else:
-									return cert_items.capitalize() + " do, but it is less certain for " + uncert_items + "."
+									return cert_items + " do, but it is less certain for " + uncert_items + "."
 						else:
 						# identify the multiple answers uncertainly
 							if use_grounding:
@@ -651,7 +594,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 					# identify the multiple answers with certainty
 						if use_grounding:
 						# identify the multiple answers with certainty with grounding
-							return ans_list.capitalize() + " are " + des_prop + "."
+							return ans_list + " are " + des_prop + "."
 						else:
 						# identify the multiple answers with certainty without grounding
 							return capitalize(ans_list) + " do."
@@ -773,15 +716,15 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 							if use_grounding:
 							# give a mixed certainty postive answer with grounding
 								if len(cert_items) == 1:
-									return "It is uncertain.  " + cert_items.capitalize() + " is " + des_prop + ", but it is less sure for " + uncert_items + "."
+									return "It is uncertain.  " + cert_items + " is " + des_prop + ", but it is less sure for " + uncert_items + "."
 								else:
-									return "It is uncertain.  " + cert_items.capitalize() + " are " + des_prop + ", but it is less sure for " + uncert_items + "."
+									return "It is uncertain.  " + cert_items + " are " + des_prop + ", but it is less sure for " + uncert_items + "."
 							else:
 							# give a mixed certainty postive answer without grounding
 								if len(cert_items) == 1:
-									return "It is uncertain.  " + cert_items.capitalize() + " is definately, but it is less sure for " + uncert_items + "."
+									return "It is uncertain.  " + cert_items + " is definately, but it is less sure for " + uncert_items + "."
 								else:
-									return "It is uncertain.  " + cert_items.capitalize() + " are definately, but it is less sure for " + uncert_items + "."
+									return "It is uncertain.  " + cert_items + " are definately, but it is less sure for " + uncert_items + "."
 						else:
 						# give an uncertain positive answer
 							if use_grounding:
@@ -1092,6 +1035,9 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 	# -------------------------------------------------------------------------------------------------
 
 def main():
-	manager = HCIManager(debug_mode=True)
-	manager.load_as_text(["Test message 1", "Test message 2", "Test message 3", "Test message 4", "Test message 5"])
+	manager = HCIManager(debug_mode=False)
+	#manager.load_as_text(["Test message 1", "Test message 2", "Test message 3", "Test message 4", "Test message 5"])
 	manager.start()
+
+if __name__== "__main__":
+    main()

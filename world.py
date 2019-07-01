@@ -3,6 +3,8 @@ import itertools
 import bpy
 import bmesh
 from geometry_utils import *
+from bw_tracker import Tracker
+import time
 
 class World(object):
 	"""
@@ -11,9 +13,10 @@ class World(object):
 	the convenient API to access their properties, like the size
 	of the world, object hierarchies, etc.
 	"""
-	def __init__(self, scene):
+	def __init__(self, scene, simulation_mode=False):
 		self.scene = scene
 		self.entities = []
+		self.simulation_mode = simulation_mode
 
 		for obj in self.scene.objects:
 			if obj.get('main') is not None and obj.get('enabled') is None:
@@ -27,12 +30,11 @@ class World(object):
 
 		self.dimensions = self.get_dimensions()
 		
-		self.avg_dist = 0
-		if len(self.entities) != 0:
-			for (a, b) in itertools.combinations(self.entities, r = 2):
-				self.avg_dist += distance(a, b)
-		self.avg_dist = self.avg_dist * 2 / (self.N * (self.N - 1))
-		
+		# self.avg_dist = 0
+		# if len(self.entities) != 0:
+		# 	for (a, b) in itertools.combinations(self.entities, r = 2):
+		# 		self.avg_dist += distance(a, b)
+		# self.avg_dist = self.avg_dist * 2 / (self.N * (self.N - 1))		
 		self.observer = self.create_observer()
 
 		#Set the fundamental extrinsic axes
@@ -42,6 +44,10 @@ class World(object):
 		
 		#List of  possible color modifiers
 		self.color_mods = ['black', 'red', 'blue', 'brown', 'green', 'yellow']
+
+		if self.simulation_mode == False:
+			self.tracker = Tracker(self)
+			time.sleep(2.0)
 
 	def get_observer(self):
 		if not hasattr(self, 'observer') or self.observer == None:

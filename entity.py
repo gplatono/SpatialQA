@@ -96,15 +96,12 @@ class Entity(object):
         self.centroid = self.compute_centroid()
 
         self.location = self.centroid
-
-        #The frontal vector
-        self.frontal = np.array(self.components.get('frontal')) \
-            if self.components.get('frontal') is not None else None
-
+      
         #The fundamental intrinsic vectors
         self.up = []
         self.right = []
-        self.front = []
+        self.front = np.array(self.components.get('frontal')) \
+            if self.components.get('frontal') is not None else []
 
         self.radius = self.compute_radius()
         self.volume = self.compute_volume()
@@ -289,3 +286,55 @@ class Entity(object):
 
     def compute_size(self):
         return self.radius
+
+    def update(self):
+        #Compute mesh-related data
+        self.vertex_set = self.compute_vertex_set()
+        self.faces = self.compute_faces()
+
+        #The coordiante span of the entity. In other words,
+        #the minimum and maximum coordinates of entity's points
+        self.span = self.compute_span()
+
+        #Separate values for the span of the entity, for easier access
+        self.x_max = self.span[1]
+        self.x_min = self.span[0]
+        self.y_max = self.span[3]
+        self.y_min = self.span[2]
+        self.z_max = self.span[5]
+        self.z_min = self.span[4]
+
+        #The bounding box, stored as a list of triples of vertex coordinates
+        self.bbox = self.compute_bbox()
+
+        #Bounding box's centroid
+        self.bbox_centroid = self.compute_bbox_centroid()
+
+        #Dimensions of the entity in the format
+        #[xmax - xmin, ymax - ymin, zmax - zmin]
+        #self.dimensions = self.compute_dimensions()
+
+        #Entity's mesh centroid
+        self.centroid = self.compute_centroid()
+
+        self.location = self.centroid
+      
+        #The fundamental intrinsic vectors
+        self.up = []
+        self.right = []
+        self.front = np.array(self.components.get('frontal')) \
+            if self.components.get('frontal') is not None else []
+
+        #self.radius = self.compute_radius()
+        #self.volume = self.compute_volume()
+        #self.size = self.compute_size()
+       
+        #The parent offset
+        #self.parent_offset = self.compute_parent_offset()
+
+        #Color of the entity
+        #self.color_mod = self.get_color_mod()
+
+        #self.ordering = self.induce_linear_order()
+
+        

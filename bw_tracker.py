@@ -11,20 +11,7 @@ from mathutils import Vector
 import os
 from threading import *
 
-
-#os.chdir("C:\\Users\\user\\Desktop\\")
 print (os.getcwd())
-
-#from hci_control import *
-
-def bl_dist(vect1, vect2):    
-    return np.linalg.norm(np.array(vect1) - np.array(vect2))
-    #math.sqrt((vect1[0] - vect2[0]) ** 2 + (vect1[1] - vect2[1]) ** 2 + (vect1[2] - vect2[2]) ** 2)
-
-class Block(object):
-    def __init__(self, name="", location=None, color="", blender_object=None):
-        if blender_object is not None:
-            pass        
 
 class ModalTimerOp(bpy.types.Operator):    
         #metatags for Blender internal machinery
@@ -33,31 +20,33 @@ class ModalTimerOp(bpy.types.Operator):
         
         #internal timer
         _timer = None
-
         tracker = None
         
         #execution step (fires at every timer tick)
         def modal(self, context, event):
             if event.type == "ESC":
                 return self.cancel(context)
-            
-            if event.type == "TIMER":            
-                block_ids, block_locations = ModalTimerOp.tracker.get_block_data()
-                print (block_ids)
-                #print (len(block_dict.keys()))
-                #if len(tracker.block_dict.keys()) == 0:
-                #    self.flag = True
-                ModalTimerOp.tracker.update_scene(block_ids, block_locations)
-                #if self.flag:
-                #    tracker.apply_material()
-                #    self.flag = False                            
+            elif event.type == "TIMER":
+                ModalTimerOp.tracker.moved_blocks = \
+                ModalTimerOp.tracker.update(ModalTimerOp.tracker.get_block_data())
+                #print (ModalTimerOp.tracker.moved_blocks)
+
+                ents = [ModalTimerOp.tracker.world.find_entity_by_name(name) for name in ModalTimerOp.tracker.moved_blocks]
+                if ents != []:
+                    print ("ENTITIES: ", ents)
+                for ent in ents:
+                    ent.update()
+                world = ModalTimerOp.tracker.world
+                toy = world.find_entity_by_name("Toyota")
+                print (toy.location, toy.size)
+
             return {"PASS_THROUGH"}
         
         #Setup code (fires at the start)
         def execute(self, context):
             self._timer = context.window_manager.event_timer_add(1.0, context.window)
             context.window_manager.modal_handler_add(self)
-            self.flag = False
+            #self.flag = False
             return {"RUNNING_MODAL"}
         
         #Timer termination and cleanup
@@ -67,11 +56,11 @@ class ModalTimerOp(bpy.types.Operator):
 
 class Tracker(object):
     
-    def __init__(self):
+    def __init__(self, world):
         #Sizes of BW objects in meters
         self.block_edge = 1.0#0.155
         self.table_edge = 1.53
-        self.block_multiplier = 1.0 / 0.155
+        self.bw_multiplier = 1.0 / 0.155
 
         self.kinectLeft = (-0.75, 0.27, 0.6)
         self.kinectRight = (0.75, 0.27, 0.6)
@@ -81,67 +70,26 @@ class Tracker(object):
 
         self.scene_setup()
 
-        block_names = ['Target', 'Starbucks', 'Twitter', 'Texaco', 'McDonald\'s', 'Mercedes', 'Toyota', 'Burger King']
-        materials = [bpy.data.materials['Blue'], bpy.data.materials['Green'], bpy.data.materials['Red']]
-        #print (bpy.data.objects)
-        for ob in bpy.data.objects:
-            print (ob.name, bpy.data.objects.get(ob.name))
-        self.blocks = [self.create_block(name, Vector((0, 0, self.block_edge / 2)), materials[block_names.index(name) % 3]) for name in block_names]
+        # for block in self.blocks:
+        #     self.block_to_ids[block] = -1
 
-        self.block_to_id = {}
-        for block in self.blocks:
-            self.block_to_id[block] = -1
+        #print (self.blocks)
 
         block_data = self.get_block_data()
         block_data.sort(key = lambda x : x[1][0])
+        #print ("SORTED DATA:", block_data)
+        for idx in range(len(block_data)):
+            id, location = block_data[idx]
+            self.block_to_ids[self.blocks[idx]] = id
+            self.block_by_ids[id] = self.blocks[idx]
+            self.blocks[idx].location = location
 
-                        
-
-        print (blocks)
-        
-        #bpy.ops.wm.modal_timer_operator()
-        #Dictionary that stores block IDs
-        self.block_dict = {}
-
-    # def apply_material(self):
-    #     print ("TEST")
-    #     blocks = list(self.block_dict.values())
-    #     print (blocks)    
-    #     blocks.sort(key = lambda x: x.location[0])
-    #     mats = [bpy.data.materials['Red'],\
-    #         bpy.data.materials['Green'],\
-    #         bpy.data.materials['Blue']]
-    #     for bl in blocks:
-    #         bl.data.materials.append(mats[blocks.index(bl) % 3])    
-
-    #Remove block from the scene and id dictionary
-    def remove_block(self, block_id):
-        #unselect all the objects
-        for ob in bpy.data.objects:
-            ob.select = False
-        #select the object to be deleted
-        bpy.data.objects[self.block_dict[block_id].name].select = True
-        
-        bpy.ops.object.delete()
-        del self.block_dict[block_id]
-
-    #Add block to the scene and id dictionary
-    def add_block(self, block_id):
-        #construct the block mesh and object and
-        #add 
-        block_mesh = bpy.data.meshes.new('Block_mesh')
-        block = bpy.data.objects.new("Block", block_mesh)
-        bpy.context.scene.objects.link(block)
-        bpy.context.scene.objects.active = block
-        block.select = True
-        bm = bmesh.new()
-        bmesh.ops.create_cube(bm, size=self.block_edge)
-        bm.to_mesh(block_mesh)
-        bm.free()
-        self.block_dict[block_id] = block
-           
+        self.moved_blocks = []
+        self.world = world        
+        bpy.context.scene.update()   
+        bpy.ops.wm.modal_timer_operator()        
+          
     def create_block(self, name="", location=None, material=None):
-        #print (name, bpy.data.objects.get(name))
         if bpy.data.objects.get(name) is not None:
             return bpy.data.objects[name]
         block_mesh = bpy.data.meshes.new('Block_mesh')
@@ -173,15 +121,23 @@ class Tracker(object):
 
     #Adds objects to the scene    
     def scene_setup(self):        
+        bpy.data.materials.new(name="red")
+        bpy.data.materials.new(name="blue")
+        bpy.data.materials.new(name="green")
+        bpy.data.materials['red'].diffuse_color = (1, 0, 0)
+        bpy.data.materials['green'].diffuse_color = (0, 1, 0)
+        bpy.data.materials['blue'].diffuse_color = (0, 0, 1)
+
+        self.block_names = ['Target', 'Starbucks', 'Twitter', 'Texaco', 'McDonald\'s', 'Mercedes', 'Toyota', 'Burger King']
+        materials = [bpy.data.materials['blue'], bpy.data.materials['green'], bpy.data.materials['red']]
+        # for ob in bpy.data.objects:
+        #     print (ob.name, bpy.data.objects.get(ob.name))
+
+        self.blocks = [self.create_block(name, Vector((0, 0, self.block_edge / 2)), materials[self.block_names.index(name) % 3]) for name in self.block_names]
+        self.block_by_ids = {}
+        self.block_to_ids = {}
         #self.clear_scene()
-        #Creating the materials
-        bpy.data.materials.new(name="Red")
-        bpy.data.materials.new(name="Blue")
-        bpy.data.materials.new(name="Green")
-        bpy.data.materials['Red'].diffuse_color = (1, 0, 0)
-        bpy.data.materials['Green'].diffuse_color = (0, 1, 0)
-        bpy.data.materials['Blue'].diffuse_color = (0, 0, 1)
-        
+        #Creating the materials        
         #bpy.ops.mesh.primitive_plane_add(location=(0,0,0), radius=self.table_edge/2)
 
     def unoccluded(self, block):
@@ -196,7 +152,55 @@ class Tracker(object):
                 if dist_right <= 0.05:
                     RightBlocked = True
         return LeftBlocked and RightBlocked
-                
+    
+    def update(self, block_data):
+        #print (block_data)
+        moved_blocks = []
+
+        updated_blocks = {}
+        unpaired = []
+
+        for block in self.blocks:
+            updated_blocks[block] = 0
+
+        for id, location in block_data:
+            if id in self.block_by_ids:
+                block = self.block_by_ids[id]
+                if np.linalg.norm(location - block.location) >= 0.1:
+                    moved_blocks.append(block.name)
+                block.location = location
+                updated_blocks[block] = 1
+            else:
+                id_assigned = False
+                for block in self.blocks:
+                    if np.linalg.norm(location - block.location) < 0.04:
+                        self.block_by_ids.pop(self.block_to_ids[block], None)
+                        self.block_by_ids[id] = block
+                        self.block_to_ids[block] = id                        
+                        id_assigned = True
+                        updated_blocks[block] = 1
+                        break
+                if id_assigned == False:
+                    unpaired.append((id, location))
+
+        for id, location in unpaired:
+            min_dist = 10e9
+            cand = None
+            for block in self.blocks:
+                if updated_blocks[block] == 0:
+                    cur_dist = np.linalg.norm(location - block.location)
+                    if min_dist > cur_dist:
+                        min_dist = cur_dist
+                        cand = block
+            if cand != None:
+                cand.location = location
+                self.block_by_ids.pop(self.block_to_ids[cand], None)
+                self.block_by_ids[id] = cand
+                self.block_to_ids[cand] = id                        
+                updated_blocks[cand] = 1
+                moved_blocks.append(block.name)
+        return moved_blocks
+
     def update_scene(self, block_ids, block_locations):
         remove_queue = []
         for key in block_ids:
@@ -228,16 +232,18 @@ class Tracker(object):
         response = requests.get(url, data="")
         #print (response.text)
         json_data = json.loads(response.text)
-        block_ids = []
-        block_locations = []
+        #block_ids = []
+        #block_locations = []
+
         block_data = []
+
         for segment in json_data['BlockStates']:
             #print (segment)
-            block_ids += [segment['ID']]
-            str_loc = segment['Position']
-            print (segment['Position'])
-            block_locations += [np.array([float(x) for x in str_loc.split(",")])]
-            block_data.appned((segment['ID'], np.array([float(x) for x in segment['Position'].split(",")])))
+            #block_ids += [segment['ID']]
+            #str_loc = segment['Position']
+            #print (segment['Position'])
+            #block_locations += [np.array([float(x) for x in str_loc.split(",")])]
+            block_data.append((segment['ID'], self.bw_multiplier * np.array([float(x) for x in segment['Position'].split(",")])))
 
         #print (json_data['BlockStates'][0]['ID'])
         #print (json_data['BlockStates'][0]['Position'])
@@ -247,92 +253,17 @@ class Tracker(object):
         #loc = [float(x) for x in str_loc.split(",")]
         #print (block_ids)
         #print (block_locations)
-        url = "http://127.0.0.1:1236/world-api/block-metadata.json"
-        response = requests.get(url, data="")
+        #url = "http://127.0.0.1:1236/world-api/block-metadata.json"
+        #response = requests.get(url, data="")
         #print (response.text)
-        json_data = json.loads(response.text)
+        #json_data = json.loads(response.text)
         #print ("\n")
         #for bl in json_data["Blocks"]:
         #    print (bl)
-        print ("RETURNED VALS:", block_ids, block_locations, block_data)
+        #print ("RETURNED VALS:", block_ids, block_locations, block_data)
         return block_data#(block_ids, block_locations)
-     
-#Timer operator
+def main():
+    Tracker()
 
-
-
-'''for i in range(0, 20):
-    #Getting the blocks coordinates/orientations
-    block_locations = [(random.uniform(-1, 1), random.uniform(-1, 1), block_edge/2)]
-    #print(block_locations)
-#    update_scene(block_locations)
-    #updating the scene based on the real-time world state
-    #scene_setup(block_locations)
-    bpy.context.scene.update()
-    time.sleep(.1)
-'''
-#print('Say "Quit" or "Exit" to terminate the program.')
-#thread = Thread(target = mic_loop)
-#thread.start()
-#block_locations = [(random.uniform(-1, 1), random.uniform(-1, 1), block_edge/2)]
-
-
-'''    for key in block_dict:
-        if key in block_ids:
-            idx = block_ids.index(key)
-            block_dict[key].location = block_locations[idx]
-        else:
-            min_dist = 10e9
-            cand = None
-            for key1 in block_ids:
-                if key1 not in block_dict:
-                    cur_dist = numpy.linalg.norm(block_locations[block_ids.index(key1)], block_dict[key].location)
-                    if min_dist > cur_dist:
-                        min_dist = cur_dist
-                        cand = key1
-            print (cand, key)
-            if cand != None:
-                block_dict[key].location = block_locations[block_ids.index(cand)]
-                block_dict[cand] = block_dict[key]
-                del block_dict[key]
-            
-              
-    for key in block_ids:
-        if key not in block_dict:
-            add_block(key)
-            block_dict[key].location = block_locations[block_ids.index(key)]
-    
-    for key in block_dict:
-        if key not in block_ids:
-            remove_queue += [key]
-    for key in remove_queue:
-        remove_block(key)'''
-  
-'''    print (block_ids.index(block_ids[0]))
-    for key in block_ids:
-        if key in block_dict:
-            idx = block_ids.index(key)
-            block_dict[key].location = block_locations[idx]
-    
-
-  
-    for idx in range(len(block_ids)):
-        if block_ids[idx] not in block_dict:
-            add_block(block_ids[idx])
-        block_dict[block_ids[idx]].location = block_locations[idx]
-    
-   
-    for block in block_data:
-        loc = block_data[0] #ideally loc = block[0]
-        #ID = block[1]
-        for ob in bpy.data.objects:
-            if ob.name == 'Cube': #have ID as name? ob.name==ID
-                print(ob.name)
-                ob.location = loc
-    '''    
-        #ob = bpy.data.objects[1]#how to identify with ID?
-
-tracker = Tracker()
-
-#for ob in bpy.data.objects:
-#    print (ob.name, bpy.data.objects.get(ob.name))
+if __name__== "__main__":
+    main()

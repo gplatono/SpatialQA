@@ -12,6 +12,8 @@ import bmesh
 from functools import reduce
 from mathutils import Vector
 import importlib
+from threading import Thread
+import time
 
 #The path to the this source file
 filepath = os.path.dirname(os.path.abspath(__file__))
@@ -32,6 +34,9 @@ from query_frame import QueryFrame
 link = False
 #The current scene
 scene = bpy.context.scene
+ulf_parser = ULFParser()
+world = World(bpy.context.scene, simulation_mode=False)
+hci_manager = HCIManager(debug_mode = False)
 
 conf_list = open("config").readlines()
 settings = {}
@@ -189,31 +194,79 @@ def pick_descriptions(relatum):
     return tuple(max_vals[0:3])
 
 
+class ModalTimerOp1(bpy.types.Operator):
+    #metatags for Blender internal machinery
+    bl_idname = "wm.modal_timer_operator1"
+    bl_label = "Modal Timer Op1"
+    #internal timer 
+
+    _timer = None
+
+    #execution step (fires at every timer tick)
+    def modal(self, context, event):
+        if event.type == "ESC":
+            return self.cancel(context)
+        elif event.type == "TIMER":
+            request = None
+            global world
+            global hci_manager
+            with open("req.txt", "r+") as file:
+                request = file.readlines()
+                file.truncate(0)
+
+            #print (request)
+            if request is not None and request != []:
+                print (request[0])
+                print (request[1])
+                hci_manager.state = hci_manager.STATE.QUESTION_PENDING
+                query_frame = QueryFrame(request[0], request[1], ulf_parser.parse(request[1]))
+                answer_set_rel, answer_set_ref = process_query(query_frame, world.entities)
+                response_surface = hci_manager.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
+                print (response_surface)
+                with open("resp.txt", "w") as file:
+                    file.write(response_surface)
+        return {"PASS_THROUGH"}
+        
+    #Setup code (fires at the start)
+    def execute(self, context):
+        self._timer = context.window_manager.event_timer_add(0.2, context.window)
+        context.window_manager.modal_handler_add(self)        
+        return {"RUNNING_MODAL"}
+        
+    #Timer termination and cleanup
+    def cancel(self, context):
+        context.window_manager.event_timer_remove(self._timer)
+        return {"CANCELLED"}
+
 #Entry point
 #Implementation of the evaluation pipeline
 def main():
-    world = World(bpy.context.scene)
+    #world = World(bpy.context.scene, simulation_mode=False)
     spatial.entities = world.entities
     spatial.world = world
     
-    hci_manager = HCIManager(world, debug_mode = False)
-    hci_manager.start()
+    #hci_manager = HCIManager(world, debug_mode = False)
+    bpy.utils.register_class(ModalTimerOp1)
+    bpy.ops.wm.modal_timer_operator1()
+    bpy.ops.wm.redraw_timer(type='DRAW', iterations=1)
+    #print ("TESTTEST")
+    #time.sleep(10)
+    #hci_thread = Thread(target = hci_manager.start())
+    #hci_thread.start()
+    #hci_thread.join()
+    #hci_manager.start()
+    return
+    
     tracker = None
 
     surface_forms = open("sqa_dev_surface.bw").readlines()
     ulfs = open("sqa_dev_ulf.bw").readlines()
     min_len = min(len(ulfs), len(surface_forms))
     surface_forms = surface_forms[:min_len]
-
-    ulf_parser = ULFParser()
-
-    
+ 
     global observer
     observer = world.observer
-
-    #if not settings["SIMULATION_MODE"]:
-    #    tracker = Tracker()
-
+    
     toy = world.find_entity_by_name("Toyota")
     tex = world.find_entity_by_name("Texaco")
     mcd = world.find_entity_by_name("McDonald's")
