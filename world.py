@@ -16,16 +16,18 @@ class World(object):
 	def __init__(self, scene, simulation_mode=False):
 		self.scene = scene
 		self.entities = []
+		self.active_context = []
 		self.simulation_mode = simulation_mode
 
 		if self.simulation_mode == False:
 			self.tracker = Tracker(self)
 			time.sleep(0.5)
 
-
 		for obj in self.scene.objects:
 			if obj.get('main') is not None and obj.get('enabled') is None:
 				self.entities.append(Entity(obj))
+				if self.entities[-1].name != "table":
+					self.active_context.append(self.entities[-1])
 
 		#self.test = shared_volume(self.entities[0], self.entities[1])
 		#shared_volume(self.entities[0], self.entities[1])

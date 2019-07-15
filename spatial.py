@@ -499,6 +499,29 @@ def to_the_right_of_deic(a, b):
     weighted_measure = 0.5 * horizontal_component + 0.5 * vertical_component #+ 0.1 * distance_factor
     return weighted_measure
 
+def to_the_right_of(figure, ground=None):
+    if figure is None:
+        ret_val = np.avg([to_the_right_of(entity, ground) for entity in world.active_context])
+    elif ground is None:
+        ret_val = np.avg([to_the_right_of(figure, entity) for entity in world.active_context])
+    else:
+        if type(ground) == Entity:
+            return to_the_right_of_deic(figure, ground)
+        
+
+
+        right_val = np.avg([to_the_right_of(figure, ent) for ent in ground])
+
+    return right_val
+
+def to_the_left_of(figure, ground=None):
+    if ground is None:
+        ground = world.entities
+
+    return to_the_right_of(ground, figure)        
+    
+    
+
 #Computes the deictic version of to-the-left-of relation
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]

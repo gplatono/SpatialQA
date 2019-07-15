@@ -1,6 +1,6 @@
 import enum
 import re
-from ulf_grammar import NArg, NRel, NPred, NCardDet, TAdj, NColor
+from ulf_grammar import NArg, NRel, NPred, NCardDet, TAdj, NColor, NConjArg
 
 class QueryFrame(object):
 	"""Represents and incapsulates the query data in a frame-like format."""
@@ -52,7 +52,7 @@ class QueryFrame(object):
 		self.resolve_relatum = False
 		self.resolve_referent = False
 
-		if type(self.raw) == NArg:
+		if type(self.raw) == NArg or type(self.raw) == NConjArg:
 			self.content_type = self.ContentType.ARG
 			self.arg = query_parse_tree.content			
 		else:
@@ -62,9 +62,9 @@ class QueryFrame(object):
 			if len(self.predicate.children) > 1:
 				self.referent = self.predicate.children[1]
 
-		if self.relatum is not None:
+		if self.relatum is not None and type(self.relatum) == NArg:
 			self.resolve_relatum = self.resolve_arg(self.relatum)
-		if self.referent is not None:
+		if self.referent is not None and type(self.referent) == NArg:
 			self.resolve_referent = self.resolve_arg(self.referent)
 
 		#print ("BEFORE ENTERING QUERY TPYE:")

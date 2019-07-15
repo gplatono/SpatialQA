@@ -116,11 +116,13 @@ class HCIManager(object):
 		input = input.lower()
 		misspells = [(' book', ' block'), (' blog', ' block'), (' black', ' block'), (' walk', ' block'), (' wok', ' block'), \
 					(' lock', ' block'), (' vlog', ' block'), (' blocked', ' block'), (' glock', ' block'), (' look', ' block'),\
-					(' talk', ' block'), (' cook', ' block'), (' clock', ' block'), (' plug', ' block'), \
+					(' talk', ' block'), (' cook', ' block'), (' clock', ' block'), (' plug', ' block'), (' boxer', ' blocks are'), \
+					(' blonde', ' block'), \
 					(' involved', ' above'), (' about', ' above'), (' patching', ' touching'), (' catching', ' touching'),\
 					(' in a cup', ' on top'), (' after the right', ' are to the right'), \
 					(' merced us', ' mercedes'), (' messages', ' mercedes'), (' mercer does', ' mercedes'), (' merced is', ' mercedes'), \
-					(' merciless', ' mercedes'), \
+					(' critter', 'twitter'), \
+					(' merciless', ' mercedes'), (' chopping', ' target'), \
 					(' in the table', ' on the table')]
 		for misspell, fix in misspells:
 			input = input.replace(misspell, fix)
@@ -181,6 +183,7 @@ class HCIManager(object):
 
 					print ("WAITING FOR ULF...")
 					ulf = self.read_from_eta(mode = "ULF")
+					print ("UUULLLLFFFF:", ulf)
 					response_surface = "NIL"
 
 					if ulf is not None and ulf != "" and ulf != "NIL":
@@ -239,7 +242,9 @@ class HCIManager(object):
 						break
 
 					print ("ASR BLOCKED...")
-					time.sleep(3.0)
+					# self.clear_file(self.eta_ulf)
+					# self.clear_file(self.eta_reaction)
+					time.sleep(3.0)					
 					print ("SPEAK...")
 
 				self.current_input = ""
