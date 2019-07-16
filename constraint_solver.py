@@ -3,6 +3,7 @@ import itertools
 from ulf_parser import *
 
 global_entities = []
+world = None
 
 #Dictionary that maps the relation names to the names of the functions that implement them
 rel_to_func_dict = {'to_the_left_of.p': 'to_the_left_of_deic',
@@ -25,6 +26,24 @@ rel_to_func_dict = {'to_the_left_of.p': 'to_the_left_of_deic',
               'between.p': 'between',
               'next_to.p': 'at'
 }
+
+arity = {
+	spatial.on: 2,
+	spatial.to_the_left_of_deic: 2,
+	spatial.to_the_right_of_deic: 2,
+	spatial.near: 2,
+	spatial.above: 2,
+    spatial.below: 2,
+    spatial.over: 2,
+    spatial.under: 2,
+    spatial.inside: 2,
+    spatial.touching: 2,    
+    spatial.at: 2,
+    spatial.in_front_of: 2,    
+    spatial.behind: 2,
+    spatial.between: 3,
+    spatial.clear: 1
+    }
 
 #Returns the sublist of the entity list having the specified color
 def filter_by_color(entities, color):
@@ -130,6 +149,7 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 	"""
 	print ("ENTERING PREDICATE PROCESSING: ", predicate)
 	predicate_func = resolve_predicate(predicate)
+	pred_arity = arity[predicate_func]
 	modifiers = predicate.mods
 
 	#Resolve arguments
@@ -149,10 +169,14 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 		#referents = [item for (item, val) in referents]
 		if type(referents[0][0]) == tuple:
 			arg_len = len(referents[0][0])
-			print ("GETTING TUPLE... ", referents[0], referents[0][0], arg_len)
+			#print ("GETTING TUPLE... ", referents[0], referents[0][0], arg_len)
 			referents = [[arg_tuple[idx] for (arg_tuple, val) in referents] for idx in range(arg_len)]
 		else:
 			referents = [[arg for (arg, val) in referents]]
+
+	#For superlatives
+	if referents is None and pred_arity == 2:
+		referents = world.active_context
 
 	print ("PREPARED REFERENTS:", referents, "\n")
 	predicate_values = compute_predicate(predicate_func, relata, *referents) if referents is not None\

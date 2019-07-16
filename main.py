@@ -306,6 +306,7 @@ def main():
     #world = World(bpy.context.scene, simulation_mode=False)
     spatial.entities = world.entities
     spatial.world = world
+    constraint_solver.world = world
     
     #hci_manager = HCIManager(world, debug_mode = False)
     hci_thread = Thread(target = func1)

@@ -500,14 +500,16 @@ def to_the_right_of_deic(a, b):
     return weighted_measure
 
 def to_the_right_of(figure, ground=None):
-    ret_val = 0
-    if type(figure) == Entity and type(ground) == Entity:
-        return to_the_right_of_deic(figure, ground)
-    elif figure is None:
+    if figure is None:
         ret_val = np.avg([to_the_right_of(entity, ground) for entity in world.active_context])
     elif ground is None:
-        ret_val = np.avg([to_the_right_of(figure, entity) for entity in world.active_context]) 
-    return ret_val
+        ret_val = np.avg([to_the_right_of(figure, entity) for entity in world.active_context])
+    else:
+        if type(ground) == Entity:
+            return to_the_right_of_deic(figure, ground)
+        right_val = np.avg([to_the_right_of(figure, ent) for ent in ground])
+
+    return right_val
 
 def to_the_left_of(figure, ground=None):
     if ground is None:

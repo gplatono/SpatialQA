@@ -47,7 +47,7 @@ class HCIManager(object):
 		self.eta_path = ".." + os.sep + "eta-blocksworld" + os.sep
 		self.eta_input = self.eta_path + "input.lisp"
 		self.eta_ulf = self.eta_path + "ulf.lisp"
-		self.eta_reaction = self.eta_path + "reaction.lisp"
+		self.eta_answer = self.eta_path + "answer.lisp"
 		self.eta_output = self.eta_path + "output.txt"
 
 		self.ulf_parser = ULFParser()
@@ -67,9 +67,9 @@ class HCIManager(object):
 		# print (os.path.isfile(self.lissa_output))
 
 	def send_to_eta(self, mode, text):
-		filename = self.eta_input if mode == "INPUT" else self.eta_reaction
+		filename = self.eta_input if mode == "INPUT" else self.eta_answer
 		formatted_msg = "(setq *next-input* \"" + text + "\")" if mode == "INPUT" \
-									else "(setq *next-reaction* " + text + ")"
+									else "(setq *next-answer* \'(" + text + " NIL))"
 		with open(filename, 'w') as file:
 			file.write(formatted_msg)
 
@@ -232,7 +232,7 @@ class HCIManager(object):
 					self.send_to_eta("REACTION", "\"" + response_surface + "\"")
 					time.sleep(1.0)
 					response = self.read_and_vocalize_from_eta()
-					self.clear_file(self.eta_reaction)
+					self.clear_file(self.eta_answer)
 
 					print ("ORIGINAL INPUT: " + input)
 					print ("CLEANED ULF: ", ulf)
