@@ -48,7 +48,9 @@ arity = {
     spatial.behind: 2,
     spatial.between: 3,
     spatial.clear: 1,
-	ident: 2
+	ident: 2,
+	spatial.higher_than: 2,
+	spatial.where: 1
     }
 
 #Returns the sublist of the entity list having the specified color
@@ -104,7 +106,9 @@ def filter_by_relation(relatums, relation, referents, modifier=None):
 
 def compute_predicate(predicate, *arglists):	
 	arg_combinations = list(itertools.product(*arglists))
-	#print ("ARG_LISTS: ", arglists, *arglists, arg_combinations)
+	print ("ARG_LISTS: ", arglists, *arglists, arg_combinations)
+	if arg_combinations is None or arg_combinations == [] or len(arg_combinations[0]) != arity[predicate]:
+		return []
 	predicate_values = [(arg, predicate(*arg)) for arg in arg_combinations]
 	return predicate_values
 
@@ -124,9 +128,12 @@ def filter_by_predicate_modifier(predicate_values, modifier):
 	elif type(modifier) == TNeg or modifier in ['not.adv-s', 'not.adv-a', 'not.mod-a']:
 		return [(arg, 1 - val*0.3/0.7) for (arg, val) in predicate_values if val < 0.7]
 	elif type(modifier) == TSuperMarker:
-		arg, val = max(predicate_values, key = lambda x: x[1])
-		return [(arg, 1.0)]
-		#return [max(predicate_values, key = lambda x: x[1])]
+		predicate_values.sort(key = lambda x: x[1])
+		arg, val = predicate_values[-1]
+		if val >= 0.6 and (len(predicate_values) == 1 or val > 1.1 * predicate_values[-2][1]):
+			return [(arg, 1.0)]
+		else:
+			return []
 	else:
 		return [(arg, val) for (arg, val) in predicate_values if val >= 0.7]
 
@@ -199,7 +206,12 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 		else:
 			referents = [[arg for (arg, val) in referents]]
 
-	#For superlatives
+	#For handling "Where" requests
+	if predicate_func == spatial.where:		
+		predicate_values = [spatial.where(relatum) for relatum in relata]
+		return predicate_values
+
+	#For superlatives	
 	if referents is None and pred_arity == 2:
 		referents = world.active_context		
 		predicate_values = []
@@ -321,7 +333,8 @@ def resolve_predicate(predicate_object):
     
     'behind.p': spatial.behind,
     'between.p': spatial.between,
-    'clear.a': spatial.clear
+    'clear.a': spatial.clear,
+    'where.a': spatial.where
     }
 	if type(predicate_object) == str:
 		pred = rel_to_func_map[predicate_object]
@@ -346,6 +359,8 @@ def process_query(query, entities):
 		referents = []
 
 		predicate_values = process_predicate(pred, entity_list=entities)
+		if query.query_type == query.QueryType.DESCR:
+			return predicate_values		
 		if predicate_values is not None and predicate_values != []:
 			relata = [(arg[0], val) for (arg, val) in predicate_values]
 			relata.sort(key = lambda x: x[1])

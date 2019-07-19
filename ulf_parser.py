@@ -16,15 +16,20 @@ class ULFParser(object):
         
     def preprocess(self, ulf):
         ulf = ulf.lower()
-        ulf = self.lispify(ulf)
-        print ("QUERY: ", ulf)
+        ulf = self.replace_expr(ulf)
+        ulf = self.lispify(ulf)        
+        print ("\nQUERY: ", ulf)        
         ulf = self.process_sub_rep(ulf)
-        print ("PRECONJPROP QUERY: ", ulf)
+        print ("PRELIFT QUERY: ", ulf)
         ulf = self.lift(ulf, ['pres', 'prog', 'pref'])
         #ulf = self.propagate_conj(ulf, [])[0]
-        print ("AFTER LIFTING: ", ulf)        
+        #print ("AFTER LIFTING: ", ulf)        
         ulf = self.add_brackets(ulf)
-        print ("PREPROC QUERY: ", ulf, "\n")
+        print ("PROCESSED QUERY: ", ulf, "\n")
+        return ulf
+
+    def replace_expr(self, ulf):
+        ulf = ulf.replace("(at.p (what.d place.n))", "where.a")
         return ulf
 
     def parse_tree(self, tree):

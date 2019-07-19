@@ -103,6 +103,7 @@ class QueryFrame(object):
 			self.IDENT_FLAG = True
 
 		self.DESCR_FLAG = True if re.search(r'^\(*(where).*(be.v).*\|.*\|.* block.n', self.ulf, re.IGNORECASE) else False
+		self.DESCR_FLAG = True if re.search(r'at.p \(what.d place.n\)', self.ulf, re.IGNORECASE) else self.DESCR_FLAG
 
 		if self.COUNT_FLAG:
 			self.query_type = self.QueryType.COUNT
@@ -114,10 +115,7 @@ class QueryFrame(object):
 			self.query_type = self.QueryType.DESCR
 
 		if self.YN_FLAG:
-			self.query_type = self.QueryType.CONFIRM
-
-		if self.query_type is None:
-			self.query_type = self.QueryType.ERROR
+			self.query_type = self.QueryType.CONFIRM		
 
 	def extract_subject_adj_modifiers(self):
 		if self.arg is not None:

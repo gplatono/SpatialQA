@@ -119,10 +119,12 @@ class HCIManager(object):
 					(' talk', ' block'), (' cook', ' block'), (' clock', ' block'), (' plug', ' block'), (' boxer', ' blocks are'), \
 					(' blonde', ' block'), \
 					(' involved', ' above'), (' about', ' above'), (' patching', ' touching'), (' catching', ' touching'),\
+					(' cashing', ' touching'), (' flashing', ' touching'), (' flushing', ' touching'), \
 					(' in a cup', ' on top'), (' after the right', ' are to the right'), \
 					(' merced us', ' mercedes'), (' messages', ' mercedes'), (' mercer does', ' mercedes'), (' merced is', ' mercedes'), \
-					(' critter', 'twitter'), \
-					(' merciless', ' mercedes'), (' chopping', ' target'), \
+					(' critter', ' twitter'), \
+					(' talking block', ' target block'), (' chopping', ' target'), \
+					(' merciless', ' mercedes'), \
 					(' in the table', ' on the table')]
 		for misspell, fix in misspells:
 			input = input.replace(misspell, fix)
@@ -133,7 +135,7 @@ class HCIManager(object):
 		if self.debug_mode == False:
 			print ("Starting the listening thread...")
 			mic_thread = Thread(target = self.mic_loop)
-			mic_thread.setDaemon(True)
+			#mic_thread.setDaemon(True)
 			mic_thread.start()
 
 		#asr_lock = Event()
@@ -147,13 +149,23 @@ class HCIManager(object):
 
 			if self.state == self.STATE.INIT:
 				response = self.read_and_vocalize_from_eta()
+				print ("RESP", response)
+				# if response is None:
+				# 	self.send_to_eta("REACTION", "\" EMPTY \"")
+				# 	time.sleep(1.0)
+				# 	#response = self.read_from_eta(mode = "OUTPUT")
+				# 	self.clear_file(self.eta_output)
+				# 	print ("ECHO: ", response)
 				self.state = self.STATE.SYSTEM_GREET
+				continue
 
 			self.speech_lock.acquire()
 			if self.current_input != "":
 				#if re.search(r'\b(exit|quit)\b', self.current_input, re.I):
 				#	self.speech_lock.release()
 				#	break
+				if self.state != self.STATE.SUSPEND:
+					self.state = self.STATE.QUESTION_PENDING
 
 				print ("you said: " + self.current_input)
 				#print ("SIZE", self.world.find_entity_by_name("Toyota").size)
@@ -162,8 +174,8 @@ class HCIManager(object):
 				if re.search(r".*(David).*(give).*(moment|minute)", self.current_input, re.I) and self.state != self.STATE.SUSPEND:
 					self.state = self.STATE.SUSPEND
 					self.send_to_avatar("USER_SPEECH", self.current_input)
-					self.send_to_avatar("SAY", "Sure, take your time")
-					self.speech_lock.release()
+					self.send_to_avatar("SAY", "Sure, take your time")					
+					self.speech_lock.release()					
 					print ("DIALOG SUSPENDED...")
 					self.current_input = ""					
 					continue					
@@ -188,7 +200,6 @@ class HCIManager(object):
 
 					print ("WAITING FOR ULF...")
 					ulf = self.read_from_eta(mode = "ULF")
-					print ("UUULLLLFFFF:", ulf)
 					response_surface = "NIL"
 
 					if ulf is not None and ulf != "" and ulf != "NIL":
@@ -202,25 +213,36 @@ class HCIManager(object):
 						else:
 							self.state = self.STATE.QUESTION_PENDING
 							try:
+								print ("ULF: ", ulf)
 								POSS_FLAG = False
 								if "POSS-QUES" in ulf:
 									POSS_FLAG = True
-									ulf = (ulf.split("poss-question ")[1])[:-1]
-
+									ulf = (ulf.split("POSS-QUES ")[1])[:-1]
 								query_tree = self.ulf_parser.parse(ulf)
 								#print ("\nQUERY TREE: ", query_tree, '\n')
 								query_frame = QueryFrame(self.current_input, ulf, query_tree)
 								#print ("QUERY TYPE: ", query_frame.query_type)
-								answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
-								print ("ANSWER SET: ", answer_set_rel)
 								##bkg = self.world.find_entity_by_name('Burger King')
 								#tbl = self.world.find_entity_by_name('Table')
 								#print ("TOUCH:")
 								#print ([(bl, touching(bl, tbl)) for bl in self.world.entities if bl != tbl])
 								print ("QUERY TYPE: ", query_frame.query_type)
-								response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
+								if query_frame.query_type != query_frame.QueryType.DESCR:
+									answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
+									print ("ANSWER SET: ", answer_set_rel)								
+									response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
+								else:																		
+									pred_vals = process_query(query_frame, self.world.entities)
+									print ("ANSWER SET: ", pred_vals)								
+									response_surface = ""
+									for item in pred_vals:
+										if len(item[1][0]) == 2:
+											response_surface += "The " + item[1][0][0].name + " block is " + item[0] + " the " + item[1][0][1].name + " block."
+										else:
+											response_surface += "The " + item[1][0][0].name + " block is " + item[0] + " the " + item[1][0][1].name + " block and the "\
+											+ item[1][0][2].name + " block."
 								if POSS_FLAG:
-									response_surface = "poss-ans " + response_surface
+									response_surface = "POSS-ANS " + response_surface
 							except Exception as e:
 								query_frame = QueryFrame("", "", None)
 								#query_frame.query_type = query_frame.QueryType.ERROR
@@ -244,7 +266,7 @@ class HCIManager(object):
 					print ("ASR BLOCKED...")
 					# self.clear_file(self.eta_ulf)
 					# self.clear_file(self.eta_reaction)
-					time.sleep(3.0)					
+					time.sleep(2.5)					
 					print ("SPEAK...")
 
 				self.current_input = ""

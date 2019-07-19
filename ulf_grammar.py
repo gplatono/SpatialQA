@@ -299,6 +299,7 @@ grammar[("TCopulaBe", "NPred")] = lambda x, y: y
 grammar[("TCopulaBe", "TAdj")] = lambda x, y: NPred(content = y.content, mods=y.mods)
 # grammar[("TCopulaBe", "NRel")] = lambda x, y: y
 grammar[("TCopulaBe", "NArg")] = lambda x, y: NPred(content = x, children = [y])
+grammar[("NPred", "TPred")] = lambda x, y: NPred(content = y, children = x.children, neg = x.neg, mods = x.mods)
 
 #grammar[("NVP", "NRel")] = lambda x, y: y
 

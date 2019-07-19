@@ -6,6 +6,7 @@ from queue import Queue
 from mathutils import Vector
 import bpy_extras
 from functools import reduce
+import itertools
 #from main import *
 
 #Dictionary that maps the relation names to the names of the functions that implement them
@@ -572,15 +573,43 @@ def clear(obj):
 def higher_than_centroidwise(a, b):
     """Compute whether the centroid of a is higher than the centroid of b."""
 
-    a0 = a.get_centroid()
-    b0 = b.get_centroid()    
-    return a0[2] > b0[2]#1 / (1 + math.exp(-(a0[2] - b0[2]))
+    a0 = a.centroid
+    b0 = b.centroid
+    return sigmoid(a0[2]-b0[2], 1.0, 1.0)#1 / (1 + math.exp(-(a0[2] - b0[2]))
 
 def higher_than(a, b):
     return higher_than_centroidwise(a, b)
 
 def taller_than(a, b):
     return a.dimensions[2] > b.dimensions[2]
+
+def where(entity):
+    entities = [ent for ent in world.active_context if ent != entity]
+    entity_pairs = [(ent1, ent2) for (ent1, ent2) in itertools.combinations(world.active_context, r = 2) if entity != ent1 and entity != ent2]
+
+    def get_vals(pred_func):
+        if pred_func != between:
+            val = [((entity, ent), pred_func(entity, ent)) for ent in entities]
+        else:
+            val = [((entity, ent1, ent2), between(entity, ent1, ent2)) for (ent1, ent2) in entity_pairs]
+        val.sort(key = lambda x: x[1])
+        return val[-1]
+
+    val = get_vals(at)
+    if val[1] > 0.85:
+        return ("next to", val)
+    val = get_vals(on)
+    if val[1] > 0.85:
+        return ("on top of", val)
+    val = get_vals(to_the_left_of_deic)
+    if val[1] > 0.85:
+        return ("to the left of", val)
+    val = get_vals(to_the_right_of_deic)
+    if val[1] > 0.85:
+        return ("to the right of", val)
+    val = get_vals(between)
+    if val[1] > 0.8:
+        return ("between", val)
 
 def superlative(predicate, entities, background):
     """Compute the "most" object from a given set of entities against a background."""
@@ -704,9 +733,3 @@ def get_region(region_type, region_mod, entity):
             return Entity(edges[3])
         else:
             return None
-
-        
-
-
-        
-        
