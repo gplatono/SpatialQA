@@ -52,6 +52,11 @@ grammar['have.v'] = lambda x: TPred(x)
 grammar['side_by_side.a'] = lambda x: TPred(x)
 grammar['where.a'] = lambda x: TPred(x)
 grammar['clear.a'] = lambda x: TPred(x)
+grammar['leftmost.a'] = lambda x: NPred(x, mods = [TSuperMarker()])
+grammar['rightmost.a'] = lambda x: NPred(x, mods = [TSuperMarker()])
+grammar['frontmost.a'] = lambda x: NPred(x, mods = [TSuperMarker()])
+grammar['topmost.a'] = lambda x: NPred(x, mods = [TSuperMarker()])
+grammar['highest.a'] = lambda x: NPred(x, mods = [TSuperMarker()])
 
 #grammar['block.n'] = lambda x: TNoun(x)
 #grammar['{block}.n'] = lambda x: TNoun(x)
@@ -63,6 +68,7 @@ grammar['row.n'] = lambda x: NArg(obj_type = x, obj_id = "ROW")
 grammar['thing.n'] = lambda x: NArg(obj_type = x, obj_id = None)
 grammar['{thing}.n'] = lambda x: NArg(obj_type = x, obj_id = None)
 grammar['what.pro'] = lambda x: NArg()
+grammar['which.pro'] = lambda x: NArg()
 grammar['anything.pro'] = lambda x: NArg()
 grammar['each_other.pro'] = lambda x: NArg(obj_type="EACHOTHER")
 
@@ -244,9 +250,9 @@ grammar[("TAspectMarker", "TAspectMarker")] = lambda x, y: TAspectMarker(prog = 
 grammar[("TTenseMarker", "TAspectMarker")] = lambda x, y: NSentenceParams(tense = x, aspect = y)
 
 #Adjective modifier rules
-grammar[("TSuperMarker", "TAdj")] = lambda x, y: TAdj(content = y.content, mod = x)
-grammar[("TAdvAdjMod", "TAdj")] = lambda x, y: TAdj(content = y.content, mod = x)
-grammar[("TNeg", "TAdj")] = lambda x, y: TAdj(content = y.content, mod = x)
+grammar[("TSuperMarker", "TAdj")] = lambda x, y: TAdj(content = y.content, mods = [x])
+grammar[("TAdvAdjMod", "TAdj")] = lambda x, y: TAdj(content = y.content, mods = [x])
+grammar[("TNeg", "TAdj")] = lambda x, y: TAdj(content = y.content, mods = [x])
 
 #Determiner rules
 grammar[("TQuanMarker", "TAdj")] = lambda x, y: NDet(y) if (y.content != "many.a" or y.mod is None or y.mod.content != "how.mod-a") else NCardDet()
@@ -315,7 +321,10 @@ grammar[("TDet", "TPrep")] = lambda x, y: y
 grammar[("TAdj", "TPrep")] = lambda x, y: y
 
 grammar[("NVP", "NArg")] = lambda x, y: NPred(content = x, children = [y])
-grammar[("NArg", "NPred")] = lambda x, y: NArg(obj_type = x.obj_type, obj_id = x.obj_id, mods = x.mods + [y], det = x.det, plur = x.plur)
+
+#Changed This!!!
+#grammar[("NArg", "NPred")] = lambda x, y: NArg(obj_type = x.obj_type, obj_id = x.obj_id, mods = x.mods + [y], det = x.det, plur = x.plur)
+grammar[("NArg", "NPred")] = lambda x, y: NPred(content = y.content, children = [x] + y.children, neg = y.neg, mods = y.mods)
 
 grammar[("NPred", "NArg")] = lambda x, y: NPred(content = x.content, children = x.children + [y])
 
@@ -483,12 +492,12 @@ class TNumber(TreeNode):
 
 class TAdj(TreeNode):
     __name__ = "TAdj"
-    def __init__(self, content, mod=None):
-        super(TAdj, self).__init__(content, None)
-        self.mod = mod
+    def __init__(self, content, mods=[]):
+        super().__init__(content, None)
+        self.mods = mods
 
     def __str__(self):
-        return self.content if self.mod is None else self.content + "; MOD=" + self.mod.__str__()
+        return self.content if self.mods is [] else self.content + "; MOD=" + str(self.mods)
 
 class TAdv(TreeNode):
     __name__ = "TAdv"

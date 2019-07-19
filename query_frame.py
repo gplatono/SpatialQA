@@ -31,6 +31,7 @@ class QueryFrame(object):
 		#print (self.surface)
 		#print (self.ulf)
 		#print (self.raw)
+		self.query_type = self.QueryType.ERROR
 
 		if query_parse_tree is None:
 			self.query_type = self.QueryType.ERROR
@@ -96,6 +97,7 @@ class QueryFrame(object):
 			self.COUNT_FLAG = True
 		
 		self.IDENT_FLAG = True if re.search('^.*(what.d|which.d).*(block.n).*(be.v)', self.ulf, re.IGNORECASE) else False
+		self.IDENT_FLAG = True if re.search('^.*(what.pro|which.pro).*(be.v)', self.ulf, re.IGNORECASE) else self.IDENT_FLAG
 
 		if re.search(r'^\(*what.pro', self.ulf, re.IGNORECASE):
 			self.IDENT_FLAG = True
@@ -113,6 +115,9 @@ class QueryFrame(object):
 
 		if self.YN_FLAG:
 			self.query_type = self.QueryType.CONFIRM
+
+		if self.query_type is None:
+			self.query_type = self.QueryType.ERROR
 
 	def extract_subject_adj_modifiers(self):
 		if self.arg is not None:

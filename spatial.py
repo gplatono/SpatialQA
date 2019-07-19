@@ -151,7 +151,7 @@ def scaled_axial_distance(a_bbox, b_bbox):
     a_center = ((a_bbox[0] + a_bbox[1]) / 2, (a_bbox[2] + a_bbox[3]) / 2)
     b_center = ((b_bbox[0] + b_bbox[1]) / 2, (b_bbox[2] + b_bbox[3]) / 2)
     axis_dist = (a_center[0] - b_center[0], a_center[1] - b_center[1])
-    print ("SPANS:", a_span, b_span, a_center, b_center)
+    #print ("SPANS:", a_span, b_span, a_center, b_center)
     return (axis_dist[0] / (max(a_span[0], b_span[0]) + 0.01), axis_dist[1] / (max(a_span[1], b_span[1]) + 0.01))
 
 
@@ -485,9 +485,9 @@ def asym_inv_exp_left(x, cutoff, left, right):
 def to_the_right_of_deic(a, b):
     a_bbox = get_2d_bbox(vp_project(a, world.get_observer()))
     b_bbox = get_2d_bbox(vp_project(b, world.get_observer()))
-    print ("\n2d bbox: ", a_bbox,"\n", b_bbox, "\n")
+    #print ("\n2d bbox: ", a_bbox,"\n", b_bbox, "\n")
     axial_dist = scaled_axial_distance(a_bbox, b_bbox)    
-    print ("AX_DIST:", axial_dist)
+    #print ("AX_DIST:", axial_dist)
     #print (a_bbox, b_bbox)
     
     if axial_dist[0] <= 0:
@@ -495,7 +495,7 @@ def to_the_right_of_deic(a, b):
     horizontal_component = asym_inv_exp(axial_dist[0], 1, 1, 0.05)#sigmoid(axial_dist[0], 2.0, 5.0) - 1.0
     vertical_component = math.exp(- 0.5 * math.fabs(axial_dist[1]))
     distance_factor = math.exp(- 0.1 * axial_dist[0])
-    print ("Hor:", horizontal_component, "VERT:", vertical_component, "DIST:", distance_factor)
+    #print ("Hor:", horizontal_component, "VERT:", vertical_component, "DIST:", distance_factor)
     weighted_measure = 0.5 * horizontal_component + 0.5 * vertical_component #+ 0.1 * distance_factor
     return weighted_measure
 

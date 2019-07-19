@@ -23,9 +23,9 @@ sys.path.insert(0, filepath)
 from entity import Entity
 from geometry_utils import *
 #from annot_parser import *
-from spatial import *
+import spatial
 from ulf_parser import ULFParser
-from constraint_solver import *
+import constraint_solver
 from world import World
 from hci_manager import HCIManager
 from query_frame import QueryFrame
@@ -35,9 +35,6 @@ from query_frame import QueryFrame
 link = False
 #The current scene
 scene = bpy.context.scene
-ulf_parser = ULFParser()
-world = World(bpy.context.scene, simulation_mode=False)
-#hci_manager = HCIManager(debug_mode = False)
 
 conf_list = open("config").readlines()
 settings = {}
@@ -194,149 +191,35 @@ def pick_descriptions(relatum):
     max_vals = [item[0] for item in max_vals]
     return tuple(max_vals[0:3])
 
-
-class ModalTimerOp1(bpy.types.Operator):
-    #metatags for Blender internal machinery
-    bl_idname = "wm.modal_timer_operator1"
-    bl_label = "Modal Timer Op1"
-    #internal timer 
-
-    _timer = None
-
-    #execution step (fires at every timer tick)
-    def modal(self, context, event):
-        if event.type == "ESC":
-            return self.cancel(context)
-        elif event.type == "TIMER":
-            request = None
-            global world
-            global hci_manager
-            with open("req.txt", "r+") as file:
-                request = file.readlines()
-                file.truncate(0)
-
-            #print (request)
-            if request is not None and request != []:
-                print (request[0])
-                print (request[1])
-                hci_manager.state = hci_manager.STATE.QUESTION_PENDING
-                query_frame = QueryFrame(request[0], request[1], ulf_parser.parse(request[1]))
-                answer_set_rel, answer_set_ref = process_query(query_frame, world.entities)
-                response_surface = hci_manager.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
-                print (response_surface)
-                with open("resp.txt", "w") as file:
-                    file.write(response_surface)
-        return {"PASS_THROUGH"}
-        
-    #Setup code (fires at the start)
-    def execute(self, context):
-        self._timer = context.window_manager.event_timer_add(0.2, context.window)
-        context.window_manager.modal_handler_add(self)        
-        return {"RUNNING_MODAL"}
-        
-    #Timer termination and cleanup
-    def cancel(self, context):
-        context.window_manager.event_timer_remove(self._timer)
-        return {"CANCELLED"}
-
-
-def func():
-    while True:
-        print ("TEST")
-        time.sleep(1.0)
-
-def mic_loop():
-    """The mic listening loop."""
-    from gcs_micstream import ResumableMicrophoneStream
-    from google.cloud import speech
-
-    print ("ENTERING SPEECH PROCESSING...")
-    sample_rate = 16000
-    chunk_size = int(sample_rate / 10)  # 100ms
-    
-    client = speech.SpeechClient()
-    config = speech.types.RecognitionConfig(encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
-			                    sample_rate_hertz=sample_rate, language_code='en-US', max_alternatives=1, enable_word_time_offsets=True,
-			                    enable_automatic_punctuation=True)
-    streaming_config = speech.types.StreamingRecognitionConfig(config=config, interim_results=True)
-
-    mic_manager = ResumableMicrophoneStream(sample_rate, chunk_size)
-
-    with mic_manager as stream:
-        while not stream.closed:
-            audio_generator = stream.generator()
-            requests = (speech.types.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
-            responses = client.streaming_recognize(streaming_config, requests)
-
-            responses = (r for r in responses if (r.results and r.results[0].alternatives))
-            num_chars_printed = 0
-            for response in responses:
-                if not response.results or not response.results[0].alternatives:
-                    continue
-                
-                result = response.results[0]
-                
-                transcript = result.alternatives[0].transcript
-                if result.is_final:
-                    print (transcript.lower())
-                    
-                #overwrite_chars = ' ' * (num_chars_printed - len(transcript))
-
-                #if not result.is_final:
-                #    sys.stdout.write(transcript + overwrite_chars + '\r')
-                #    sys.stdout.flush()
-                 #   num_chars_printed = len(transcript)
-                #else:
-                 
-                #    num_chars_printed = 0		    
-
-def printer(q):
-    while True:
-        if not q.empty():
-            print (q.get())
-
 def func1():
     hci_manager = HCIManager(world, debug_mode = False)
     hci_manager.start()
     
-            
 #Entry point
 #Implementation of the evaluation pipeline
 def main():
-    #world = World(bpy.context.scene, simulation_mode=False)
+    world = World(bpy.context.scene, simulation_mode=False)
+
     spatial.entities = world.entities
     spatial.world = world
     constraint_solver.world = world
     
-    #hci_manager = HCIManager(world, debug_mode = False)
-    hci_thread = Thread(target = func1)
+    hci_manager = HCIManager(world, debug_mode = False)
+    hci_thread = Thread(target = hci_manager.start)
     hci_thread.setDaemon(True)
     hci_thread.start()
-    #hci_manager.start()
-    #bpy.utils.register_class(ModalTimerOp1)
-    #bpy.ops.wm.modal_timer_operator1()
-    #bpy.ops.wm.redraw_timer(type='DRAW', iterations=1)
-    #print ("TESTTEST")
-    #time.sleep(10)
-    #q = multiprocessing.Queue()
-    #q.put("test")
-    ##p1 = multiprocessing.Process(target=mic_loop, args=(q,))
-    #p2 = multiprocessing.Process(target=printer, args=(q,))
-    #p1.start()
-    #p2.start()
-    #
-    #hci_thread.setDaemon(True)
-    #hci_thread.start()
-    #hci_thread.join()
-    #hci_manager.start()
+    
     return
     
     tracker = None
+    
 
     surface_forms = open("sqa_dev_surface.bw").readlines()
     ulfs = open("sqa_dev_ulf.bw").readlines()
     min_len = min(len(ulfs), len(surface_forms))
     surface_forms = surface_forms[:min_len]
+
+    ulf_parser = ULFParser()
  
     global observer
     observer = world.observer

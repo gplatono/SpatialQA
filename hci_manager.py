@@ -137,6 +137,10 @@ class HCIManager(object):
 			mic_thread.start()
 
 		#asr_lock = Event()
+		self.clear_file(self.eta_ulf)
+		self.clear_file(self.eta_answer)
+		self.clear_file(self.eta_input)
+		#self.clear_file(self.eta_output)
 
 		print ("Starting the processing loop...")
 		while True:
@@ -152,7 +156,7 @@ class HCIManager(object):
 				#	break
 
 				print ("you said: " + self.current_input)
-				print ("SIZE", self.world.find_entity_by_name("Toyota").size)
+				#print ("SIZE", self.world.find_entity_by_name("Toyota").size)
 				self.current_input = self.preprocess(self.current_input)
 
 				if re.search(r".*(David).*(give).*(moment|minute)", self.current_input, re.I) and self.state != self.STATE.SUSPEND:
@@ -179,6 +183,7 @@ class HCIManager(object):
 
 					self.send_to_eta("INPUT", self.current_input)
 					self.send_to_avatar('USER_SPEECH', self.current_input)
+					print ("SLEEPING...")
 					time.sleep(0.5)
 
 					print ("WAITING FOR ULF...")
@@ -198,26 +203,21 @@ class HCIManager(object):
 							self.state = self.STATE.QUESTION_PENDING
 							try:
 								POSS_FLAG = False
-								if "poss-question" in ulf:
+								if "POSS-QUES" in ulf:
 									POSS_FLAG = True
 									ulf = (ulf.split("poss-question ")[1])[:-1]
 
-								# with open("req.txt", 'w') as file:
-								# 	file.write(self.current_input + "\n")
-								# 	file.write(ulf)
-								# time.sleep(0.5)
-								# with open("resp.txt", 'r+') as file:
-								# 	response_surface = file.readline()																						
 								query_tree = self.ulf_parser.parse(ulf)
 								#print ("\nQUERY TREE: ", query_tree, '\n')
 								query_frame = QueryFrame(self.current_input, ulf, query_tree)
 								#print ("QUERY TYPE: ", query_frame.query_type)
 								answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
-								#print ("ANSWER SET: ", answer_set_rel)
-								bkg = self.world.find_entity_by_name('Burger King')
-								tbl = self.world.find_entity_by_name('Table')
-								print ("TOUCH:")
-								print ([(bl, touching(bl, tbl)) for bl in self.world.entities if bl != tbl])
+								print ("ANSWER SET: ", answer_set_rel)
+								##bkg = self.world.find_entity_by_name('Burger King')
+								#tbl = self.world.find_entity_by_name('Table')
+								#print ("TOUCH:")
+								#print ([(bl, touching(bl, tbl)) for bl in self.world.entities if bl != tbl])
+								print ("QUERY TYPE: ", query_frame.query_type)
 								response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
 								if POSS_FLAG:
 									response_surface = "poss-ans " + response_surface
@@ -464,7 +464,8 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 			else:
 				des_prop = " ".join(user_input_list[index:])
 
-			if query_object.query_type == QueryFrame.QueryType.IDENT:#question_type == question_type.IDENT:
+			if query_object.query_type == QueryFrame.QueryType.IDENT:
+			#question_type == question_type.IDENT:
 				# These are the questions like "Which blocks are touching the SRI
 				# block?" and "What block is above the Toyota block?"...  This
 				# presuposes that the answer exists, but this will be treated very

@@ -1,9 +1,14 @@
 import spatial
 import itertools
-from ulf_parser import *
+#from ulf_parser import *
+from ulf_grammar import *
+import numpy as np
 
 global_entities = []
 world = None
+
+def ident(arg1, arg2):
+	return int(arg1 is arg2)
 
 #Dictionary that maps the relation names to the names of the functions that implement them
 rel_to_func_dict = {'to_the_left_of.p': 'to_the_left_of_deic',
@@ -42,7 +47,8 @@ arity = {
     spatial.in_front_of: 2,    
     spatial.behind: 2,
     spatial.between: 3,
-    spatial.clear: 1
+    spatial.clear: 1,
+	ident: 2
     }
 
 #Returns the sublist of the entity list having the specified color
@@ -117,6 +123,10 @@ def filter_by_predicate_modifier(predicate_values, modifier):
 		return [(arg, val) for (arg, val) in predicate_values if val >= 0.8]
 	elif type(modifier) == TNeg or modifier in ['not.adv-s', 'not.adv-a', 'not.mod-a']:
 		return [(arg, 1 - val*0.3/0.7) for (arg, val) in predicate_values if val < 0.7]
+	elif type(modifier) == TSuperMarker:
+		arg, val = max(predicate_values, key = lambda x: x[1])
+		return [(arg, 1.0)]
+		#return [max(predicate_values, key = lambda x: x[1])]
 	else:
 		return [(arg, val) for (arg, val) in predicate_values if val >= 0.7]
 
@@ -127,6 +137,19 @@ def filter_by_mod(entities, modifier, entity_list):
 		return [(item, 1.0) for item in ret_val]
 	elif type(modifier) == TNumber:
 		pass
+	elif type(modifier) == TAdj:
+		print ("ADJ PROCESSING...")
+		pred = NPred(content = modifier.content, mods = modifier.mods)
+		predicate_values = process_predicate(pred, relata=entities, entity_list=entity_list)
+
+		answer_set = {}
+		for (item, val) in predicate_values:
+			if item[0] not in answer_set.keys():
+				answer_set[item[0]] = 0
+			answer_set[item[0]] = max(answer_set[item[0]], val)
+		
+		answer_set = [(item, answer_set[item]) for item in answer_set.keys()]
+		return answer_set
 	elif type(modifier) == NPred or type(modifier) == NRel:
 		predicate_values = process_predicate(modifier, relata=entities, entity_list=entity_list)
 
@@ -147,19 +170,21 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 	predicate.
 
 	"""
-	print ("ENTERING PREDICATE PROCESSING: ", predicate)
+	#print ("ENTERING PREDICATE PROCESSING: ", predicate)
 	predicate_func = resolve_predicate(predicate)
 	pred_arity = arity[predicate_func]
 	modifiers = predicate.mods
+	print ("\nPREDICATE COMPONENTS: ", predicate, modifiers)
+	
 
 	#Resolve arguments
+	print (relata, referents)
 	if relata is None:
 		relata = resolve_argument(predicate.children[0], entity_list) if len(predicate.children) > 0 else None
 		if referents is None:
 			referents = resolve_argument(predicate.children[1], entity_list) if len(predicate.children) > 1 else None
 	elif referents is None:
 		referents = resolve_argument(predicate.children[0], entity_list) if len(predicate.children) > 0 else None
-	print ("\nPREDICATE COMPONENTS: ", predicate, modifiers)
 	print ("RESOLVED RELATA:", relata)
 	print ("RESOLVED REFERENTS:", referents)	
 
@@ -176,13 +201,18 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 
 	#For superlatives
 	if referents is None and pred_arity == 2:
-		referents = world.active_context
+		referents = world.active_context		
+		predicate_values = []
+		for relatum in relata:
+			avg = np.average([val for ref in referents for (arg, val) in compute_predicate(predicate_func, [relatum], [ref])])
+			predicate_values.append(((relatum,), avg)) 
+		print ("AVG VAL: ", predicate_values)
+	#For the rest
+	else:
+		predicate_values = compute_predicate(predicate_func, relata, *referents) if referents is not None\
+						else compute_predicate(predicate_func, relata)
 
-	print ("PREPARED REFERENTS:", referents, "\n")
-	predicate_values = compute_predicate(predicate_func, relata, *referents) if referents is not None\
-					else compute_predicate(predicate_func, relata)
-
-	print ("PREDICATE VALUES: ", predicate, modifiers, predicate_values)	
+	print ("PREDICATE VALUES: ", predicate_values)	
 	if modifiers is not None and modifiers != []:
 		for modifier in modifiers:
 			predicate_values = filter_by_predicate_modifier(predicate_values, modifier)
@@ -191,7 +221,7 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 
 	print ("RESULTING ARGLISTS AFTER PRED FILTERING: ",  predicate_values)	
 	if len(predicate_values) > 0 and type(predicate_values[0][0]) == tuple and \
-			len(predicate_values[0][0]) > 1:
+			len(predicate_values[0][0]) > 1 and predicate_func != ident:
 		predicate_values = [(arg, val) for (arg, val) in predicate_values if arg[0] != arg[1]]
 	print ("FINAL ARGLISTS RETURNED FROM PRED: ",  predicate_values)
 	return predicate_values
@@ -201,6 +231,8 @@ def resolve_argument(arg_object, entities):
 
 	#print (arg_object, entities)
 	#print (arg_object.obj_type
+
+	print ("RESOLVING THE ARGUMENT...", arg_object)
 
 	if type(arg_object) == NConjArg:
 		args1 = resolve_argument(arg_object.children[0], entities)
@@ -218,16 +250,16 @@ def resolve_argument(arg_object, entities):
 	arg_mods = arg_object.mods
 
 	#print (arg_object)
-	#print ("ARG CANDIDATES: ", entities)
+	print ("ARG CANDIDATES: ", entities)
 	if arg_type is not None:
 		ret_args = filter_by_type(ret_args, arg_type)
 
-	#print ("AFTER TYPE RESOLUTION:", ret_args)
+	print ("AFTER TYPE RESOLUTION:", ret_args)
 
 	if arg_id is not None:
 		ret_args = filter_by_name(ret_args, arg_id)
 
-	#print ("AFTER NAME RESOLUTION:", ret_args)
+	print ("AFTER NAME RESOLUTION:", ret_args)
 
 	if ret_args is not None and ret_args != []:
 		if type(ret_args[0]) != tuple:
@@ -238,17 +270,24 @@ def resolve_argument(arg_object, entities):
 			#print ("CURRENT MOD: ", modifier)
 			ret_args = filter_by_mod(ret_args, modifier, entities)
 
-	#print ("AFTER MOD APPLICATION:", ret_args)
+	print ("AFTER MOD APPLICATION:", ret_args)
 	return ret_args
 
 def resolve_predicate(predicate_object):
-	#print ("REL:", rel_to_func_dict[relation_object.content.content])
-
+	
 	rel_to_func_map = {
 	'on.p': spatial.on,
-	'on': spatial.on,
+	'on': spatial.on,	
+
 	'to_the_left_of.p': spatial.to_the_left_of_deic,
+	'left.a': spatial.to_the_left_of_deic,
+	'leftmost.a': spatial.to_the_left_of_deic,
 	'to_the_right_of.p': spatial.to_the_right_of_deic,
+	'right.a': spatial.to_the_right_of_deic,
+	'rightmost.a': spatial.to_the_right_of_deic,
+	'right.p': spatial.to_the_right_of_deic,
+    'left.p': spatial.to_the_left_of_deic,
+    
 	'near.p': spatial.near,
 	'near_to.p': spatial.near,
 	'close_to.p': spatial.near,
@@ -268,42 +307,39 @@ def resolve_predicate(predicate_object):
     'touching.p': spatial.touching,
     'touch.v': spatial.touching,
     'adjacent_to.p': spatial.touching,
-    'right.p': spatial.to_the_right_of_deic,
-    'left.p': spatial.to_the_left_of_deic,
     
     'at.p': spatial.at,    
     'next_to.p': spatial.at,
+    
+    'high.a': spatial.higher_than,
+    'highest.a': spatial.higher_than,
+    'topmost.a': spatial.higher_than,
 
     'in_front_of.p': spatial.in_front_of,
     'front.p': spatial.in_front_of,
+    'frontmost.a': spatial.in_front_of,
+    
     'behind.p': spatial.behind,
     'between.p': spatial.between,
     'clear.a': spatial.clear
     }
-	#for key in globals():
-	#	print (globals()[key])
-	#print (type(rel_to_func_map[relation_object.content.content]))
-	#print (predicate_object.content)
-	print ("RESOLVING THE PREDICATE...", predicate_object)
 	if type(predicate_object) == str:
-		return rel_to_func_map[predicate_object]
+		pred = rel_to_func_map[predicate_object]
 	elif predicate_object.content is not None and type(predicate_object.content) == str:
-		return rel_to_func_map[predicate_object.content]
+		pred = rel_to_func_map[predicate_object.content]
 	else:
 		if type(predicate_object.content) == TCopulaBe:
-			return ident
-		else:
-			print ("CONTENT OF THE PREDICATE...", predicate_object.content.content)
-			return rel_to_func_map[predicate_object.content.content]
-
-def ident(arg1, arg2):
-	return arg1 is arg2
+			pred = ident
+		else:			
+			pred = rel_to_func_map[predicate_object.content.content]
+	print ("RESOLVING PREDICATE...", pred)
+	return pred
 
 def process_query(query, entities):
 	#if type(query) != NSentence or (not query.is_question) or query.content == None:
 	#	return None	
 	if query.predicate is not None:#type(arg) == NRel or type(arg) == NPred:
-		print ("ENTERING NPRED PROCESSING...")
+		print ("\nENTERING NPRED PROCESSING...")
 		pred = query.predicate
 		
 		relata = []
@@ -328,7 +364,7 @@ def process_query(query, entities):
 			
 		return relata, referents
 	elif query.arg is not None:#type(arg) == NArg:
-		print ("ENTERING TOP LEVEL ARG PROCESSING...")
+		print ("\nENTERING TOP LEVEL ARG PROCESSING...")
 		arg = query.arg
 		relata = resolve_argument(arg, entities)
 		print ("RESOLVED RELATA:", relata)		
