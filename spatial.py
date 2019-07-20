@@ -405,7 +405,7 @@ def behind(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def at(a, b):
-    return touching(a, b) if touching(a,b) > 0.9 else near(a, b)
+    return at_same_height(a, b) * touching(a, b) if touching(a,b) > 0.9 else at_same_height(a, b) * near(a, b)
 
 def inside(a, b):
     a_bbox = a.bbox
@@ -582,6 +582,22 @@ def higher_than(a, b):
 
 def taller_than(a, b):
     return a.dimensions[2] > b.dimensions[2]
+
+def at_same_height(a, b):
+    """
+    Check if two entities are at the same height
+
+    """
+
+    dist = np.linalg.norm(a.centroid[2] - b.centroid[2])
+    scaled_dist = dist / (a.size + b.size + 0.01)
+    return math.e ** (-scaled_dist)
+    """a_higher_b = higher_than(a, b)
+    b_higher_a = higher_than(b, a)
+    if a_higher_b > 0.8 or b_higher_a > 0.8:
+        return 0
+    else:
+        return 1 - a_higher_b * b_higher_a"""
 
 def where(entity):
     entities = [ent for ent in world.active_context if ent != entity]

@@ -10,6 +10,7 @@ import collections
 from query_frame import QueryFrame
 from ulf_parser import ULFParser
 from constraint_solver import *
+import spatial
 from spatial import near, touching
 from geometry_utils import get_planar_distance_scaled
 
@@ -122,7 +123,7 @@ class HCIManager(object):
 					(' cashing', ' touching'), (' flashing', ' touching'), (' flushing', ' touching'), \
 					(' in a cup', ' on top'), (' after the right', ' are to the right'), \
 					(' merced us', ' mercedes'), (' messages', ' mercedes'), (' mercer does', ' mercedes'), (' merced is', ' mercedes'), \
-					(' critter', ' twitter'), \
+					(' critter', ' twitter'), (' butcher', ' twitter'), \
 					(' talking block', ' target block'), (' chopping', ' target'), \
 					(' merciless', ' mercedes'), \
 					(' in the table', ' on the table'), \
@@ -225,6 +226,9 @@ class HCIManager(object):
 								#print ("QUERY TYPE: ", query_frame.query_type)
 								##bkg = self.world.find_entity_by_name('Burger King')
 								#tbl = self.world.find_entity_by_name('Table')
+								tar = self.world.find_entity_by_name('Target')
+								stb = self.world.find_entity_by_name('Starbucks')
+								print ("HIGHER THAN ", spatial.higher_than(tar, stb), spatial.higher_than(stb, tar), spatial.at_same_height(stb, tar))
 								#print ("TOUCH:")
 								#print ([(bl, touching(bl, tbl)) for bl in self.world.entities if bl != tbl])
 								print ("QUERY TYPE: ", query_frame.query_type)
@@ -249,6 +253,14 @@ class HCIManager(object):
 								#query_frame.query_type = query_frame.QueryType.ERROR
 								response_surface = self.generate_response(query_frame, [], [])
 								print (str(e))
+
+					#response_surface = response_surface.lower()
+					response_surface = response_surface.replace("I ", "you ")
+					response_surface = response_surface.replace("I'm ", "you're ")
+					response_surface = response_surface.replace("i ", "you ")
+					response_surface = response_surface.replace("i'm ", "you're ")
+					response_surface = response_surface.replace("you ", "i ")
+					response_surface = response_surface.replace("you're ", "i'm ")
 
 					print ("SENDING REACTION AND WAITING FOR RESPONSE...")
 					print ("RESPONSE SURFACE: " + response_surface)
