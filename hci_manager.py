@@ -125,7 +125,8 @@ class HCIManager(object):
 					(' critter', ' twitter'), \
 					(' talking block', ' target block'), (' chopping', ' target'), \
 					(' merciless', ' mercedes'), \
-					(' in the table', ' on the table')]
+					(' in the table', ' on the table'), \
+					(' top most', ' topmost'),]
 		for misspell, fix in misspells:
 			input = input.replace(misspell, fix)
 		return input
@@ -149,7 +150,7 @@ class HCIManager(object):
 
 			if self.state == self.STATE.INIT:
 				response = self.read_and_vocalize_from_eta()
-				print ("RESP", response)
+				#print ("RESP", response)
 				# if response is None:
 				# 	self.send_to_eta("REACTION", "\" EMPTY \"")
 				# 	time.sleep(1.0)

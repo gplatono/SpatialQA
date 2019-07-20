@@ -33,15 +33,21 @@ class ModalTimerOp(bpy.types.Operator):
                 bpy.context.scene.update()
                 #print (ModalTimerOp.tracker.moved_blocks)
 
-                time.sleep(0.05)
-                for name in ModalTimerOp.tracker.moved_blocks:
+                time.sleep(0.1)
+                for name in ModalTimerOp.tracker.moved_blocks:                    
                     ent = ModalTimerOp.tracker.world.find_entity_by_name(name)
+                    # if np.linalg.norm(ent.location - bpy.data.objects[name].location) <= 0.1:
+                    #     continue                        
+                    old_loc = ent.location                    
                     ModalTimerOp.tracker.world.entities.remove(ent)
                     #ent.update()
                     ent = Entity(bpy.data.objects[name])
                     ModalTimerOp.tracker.world.entities.append(ent)
-                    print ("ENT LOC: ", ent.location)
-
+                    bpy.context.scene.update()
+                    print ("ENTITY RELOCATED: ", name, ent.name, np.linalg.norm(old_loc - ent.location))
+                    print ("OLD LOCATION: ", old_loc)
+                    print ("NEW LOCATION: ", ent.location)
+                    
                 #world = ModalTimerOp.tracker.world
                 #toy = world.find_entity_by_name("Toyota")
                 #print (toy.location, toy.size)
@@ -50,7 +56,7 @@ class ModalTimerOp(bpy.types.Operator):
         
         #Setup code (fires at the start)
         def execute(self, context):
-            self._timer = context.window_manager.event_timer_add(1.0, context.window)
+            self._timer = context.window_manager.event_timer_add(0.5, context.window)
             context.window_manager.modal_handler_add(self)
             #self.flag = False
             return {"RUNNING_MODAL"}
@@ -93,7 +99,7 @@ class Tracker(object):
         self.moved_blocks = []
         self.world = world        
         bpy.context.scene.update()   
-        bpy.ops.wm.modal_timer_operator()        
+        bpy.ops.wm.modal_timer_operator()
           
     def create_block(self, name="", location=None, material=None):
         if bpy.data.objects.get(name) is not None:
@@ -172,7 +178,7 @@ class Tracker(object):
         for id, location in block_data:
             if id in self.block_by_ids:
                 block = self.block_by_ids[id]                
-                if np.linalg.norm(location - block.location) >= 0.05:
+                if np.linalg.norm(location - block.location) >= 0.1:
                     print ("MOVED BLOCK: ", block.name, location, block.location, np.linalg.norm(location - block.location))
                     moved_blocks.append(block.name)
                     block.location = location                
@@ -203,13 +209,14 @@ class Tracker(object):
                         min_dist = cur_dist
                         cand = block
             if cand != None:
-                print ("MOVED BLOCK: ", cand.name, location, cand.location, np.linalg.norm(location - cand.location))
-                cand.location = location
+                print ("MOVED BLOCK: ", cand.name, location, cand.location, np.linalg.norm(location - cand.location))                
                 self.block_by_ids.pop(self.block_to_ids[cand], None)
                 self.block_by_ids[id] = cand
-                self.block_to_ids[cand] = id                        
+                self.block_to_ids[cand] = id
                 updated_blocks[cand] = 1
-                moved_blocks.append(block.name)
+                if np.linalg.norm(location - cand.location) >= 0.1:
+                    cand.location = location
+                    moved_blocks.append(cand.name)
         return moved_blocks
 
     def update_scene(self, block_ids, block_locations):
