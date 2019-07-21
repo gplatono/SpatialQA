@@ -52,7 +52,7 @@ def get_distance_from_line(x1, x2, x3):
     l1 = np.linalg.norm(v1)
     l2 = np.dot(v1, v2) / np.linalg.norm(v2)
     #print ("L1, L2", l1, l2)
-    return math.sqrt(l1 * l1 - l2 * l2)
+    return math.sqrt(math.fabs(l1 * l1 - l2 * l2))
     #t = (x3[0] - x1[0]) * (x2[0] - x1[0]) + (x3[1] - x1[1]) * (x2[1] - x1[1]) * (x3[2] - x1[2]) * (x2[2] - x1[2])
     #dist = point_distance(x1, x2) ** 2    
     #t = t / dist if dist != 0 else 1e10

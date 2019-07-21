@@ -263,7 +263,7 @@ def between(a, b, c):
     #print (cos, max([max(a.dimensions), max(b.dimensions), max(c.dimensions)]))
     dist = get_distance_from_line(center_b, center_c, center_a) / max([max(a.dimensions), max(b.dimensions), max(c.dimensions)])
     #print ("3")
-    print ("\nFINAL VALUE BETWEEN: ", a , b, c, math.exp(- math.fabs(-1 - cos)))
+    #print ("\nFINAL VALUE BETWEEN: ", a , b, c, math.exp(- math.fabs(-1 - cos)))
     return math.exp(- math.fabs(-1 - cos))
 
 
@@ -405,6 +405,8 @@ def behind(a, b):
 #Inputs: a, b - entities
 #Return value: real number from [0, 1]
 def at(a, b):
+    if a == b:
+        return 0
     return at_same_height(a, b) * touching(a, b) if touching(a,b) > 0.9 else at_same_height(a, b) * near(a, b)
 
 def inside(a, b):
@@ -580,6 +582,9 @@ def higher_than_centroidwise(a, b):
 def higher_than(a, b):
     return higher_than_centroidwise(a, b)
 
+def lower_than(a, b):
+    return higher_than(b, a)
+
 def taller_than(a, b):
     return a.dimensions[2] > b.dimensions[2]
 
@@ -600,7 +605,7 @@ def at_same_height(a, b):
         return 1 - a_higher_b * b_higher_a"""
 
 def where(entity):
-    entities = [ent for ent in world.active_context if ent != entity]
+    entities = [ent for ent in world.active_context if ent.name != entity.name]
     entity_pairs = [(ent1, ent2) for (ent1, ent2) in itertools.combinations(world.active_context, r = 2) if entity != ent1 and entity != ent2]
 
     def get_vals(pred_func):

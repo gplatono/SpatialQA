@@ -10,28 +10,68 @@ world = None
 def ident(arg1, arg2):
 	return int(arg1 is arg2)
 
+def exist(arg):
+	return int(arg is not None)
+
 #Dictionary that maps the relation names to the names of the functions that implement them
-rel_to_func_dict = {'to_the_left_of.p': 'to_the_left_of_deic',
-              'to_the_right_of.p': 'to_the_right_of_deic',
-              'near.p': 'near',
-              'on.p': 'on',
-              'above.p': 'above',
-              'below.p': 'below',
-              'over.p': 'over',
-              'under.p': 'under',
-              'in.p': 'inside',
-              'inside.p': 'inside',
-              'touch.v': 'touching',
-              'right.p': 'to_the_right_of_deic',
-              'left.p': 'to_the_left_of_deic',
-              'at.p': 'at',
-              'in_front_of.p': 'in_front_of_deic',
-              'front.p': 'in_front_of_deic',
-              'behind.p': 'behind_deic',
-              'between.p': 'between',
-              'next_to.p': 'at'
+rel_to_func_map = {
+	'on.p': spatial.on,
+	'on': spatial.on,	
+
+	'to_the_left_of.p': spatial.to_the_left_of_deic,
+	'left.a': spatial.to_the_left_of_deic,
+	'leftmost.a': spatial.to_the_left_of_deic,
+	'to_the_right_of.p': spatial.to_the_right_of_deic,
+	'right.a': spatial.to_the_right_of_deic,
+	'rightmost.a': spatial.to_the_right_of_deic,
+	'right.p': spatial.to_the_right_of_deic,
+    'left.p': spatial.to_the_left_of_deic,
+    
+	'near.p': spatial.near,
+	'near_to.p': spatial.near,
+	'close_to.p': spatial.near,
+	'close.a': spatial.near,
+	'on.p': spatial.on,
+	'on_top_of.p': spatial.on,
+	'above.p': spatial.above,
+    'below.p': spatial.below,
+    'over.p': spatial.over,
+    'under.p': spatial.under,    
+    'supporting.p': spatial.under,
+
+    'in.p': spatial.inside,
+    'in': spatial.inside,    
+    'inside.p': spatial.inside,
+
+    'touching.p': spatial.touching,
+    'touch.v': spatial.touching,
+    'adjacent_to.p': spatial.touching,
+    
+    'at.p': spatial.at,    
+    'next_to.p': spatial.at,
+    
+    'high.a': spatial.higher_than,
+    'upper.a': spatial.higher_than,
+    'highest.a': spatial.higher_than,
+    'topmost.a': spatial.higher_than,
+    'top.a': spatial.higher_than,
+    'low.a': spatial.lower_than,
+    'lowest.a': spatial.lower_than,    
+
+    'in_front_of.p': spatial.in_front_of,
+    'front.p': spatial.in_front_of,
+    'frontmost.a': spatial.in_front_of,
+    
+    'behind.p': spatial.behind,
+    'backmost.a': spatial.behind,
+    'back.a': spatial.behind,
+    'between.p': spatial.between,
+    'clear.a': spatial.clear,
+    'where.a': spatial.where,
+    'exist.pred': exist
 }
 
+#Dictionary mapping the predicates to the number of their arguments
 arity = {
 	spatial.on: 2,
 	spatial.to_the_left_of_deic: 2,
@@ -47,10 +87,12 @@ arity = {
     spatial.in_front_of: 2,    
     spatial.behind: 2,
     spatial.between: 3,
-    spatial.clear: 1,
-	ident: 2,
+    spatial.clear: 1,	
 	spatial.higher_than: 2,
-	spatial.where: 1
+	spatial.lower_than: 2,
+	spatial.where: 1,
+	ident: 2,
+	exist: 1
     }
 
 #Returns the sublist of the entity list having the specified color
@@ -106,10 +148,10 @@ def filter_by_relation(relatums, relation, referents, modifier=None):
 
 def compute_predicate(predicate, *arglists):	
 	arg_combinations = list(itertools.product(*arglists))
-	print ("ARG_LISTS: ", arglists, *arglists, arg_combinations)
+	#print ("ARG_LISTS: ", arglists, *arglists, arg_combinations)
 	if arg_combinations is None or arg_combinations == [] or len(arg_combinations[0]) != arity[predicate]:
 		return []
-	predicate_values = [(arg, predicate(*arg)) for arg in arg_combinations]
+	predicate_values = [(arg, predicate(*arg)) for arg in arg_combinations]	
 	return predicate_values
 
 def filter_by_predicate_modifier(predicate_values, modifier):
@@ -218,11 +260,14 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 		for relatum in relata:
 			avg = np.average([val for ref in referents for (arg, val) in compute_predicate(predicate_func, [relatum], [ref])])
 			predicate_values.append(((relatum,), avg)) 
-		print ("AVG VAL: ", predicate_values)
+		#print ("AVG VAL: ", predicate_values)
 	#For the rest
 	else:
 		predicate_values = compute_predicate(predicate_func, relata, *referents) if referents is not None\
 						else compute_predicate(predicate_func, relata)
+
+	predicate_values.sort(key = lambda x: x[1])
+	predicate_values.reverse()
 
 	print ("PREDICATE VALUES: ", predicate_values)	
 	if modifiers is not None and modifiers != []:
@@ -233,8 +278,15 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 
 	print ("RESULTING ARGLISTS AFTER PRED FILTERING: ",  predicate_values)	
 	if len(predicate_values) > 0 and type(predicate_values[0][0]) == tuple and \
-			len(predicate_values[0][0]) > 1 and predicate_func != ident:
-		predicate_values = [(arg, val) for (arg, val) in predicate_values if arg[0] != arg[1]]
+			len(predicate_values[0][0]) > 1:
+		if predicate_func != ident:
+			predicate_values = [(arg, val) for (arg, val) in predicate_values if arg[0] != arg[1]]
+		# encountered_relata = []
+		# encountered_referents = []
+		# filtered_vals = []
+		# for args, val in predicate_values:
+		# 	if args[0] not in encountered_relata
+		
 	print ("FINAL ARGLISTS RETURNED FROM PRED: ",  predicate_values)
 	return predicate_values
 
@@ -260,6 +312,7 @@ def resolve_argument(arg_object, entities):
 	arg_det = arg_object.det
 	arg_plur = arg_object.plur
 	arg_mods = arg_object.mods
+	arg_mods.reverse()
 
 	#print (arg_object)
 	print ("ARG CANDIDATES: ", entities)
@@ -286,56 +339,6 @@ def resolve_argument(arg_object, entities):
 	return ret_args
 
 def resolve_predicate(predicate_object):
-	
-	rel_to_func_map = {
-	'on.p': spatial.on,
-	'on': spatial.on,	
-
-	'to_the_left_of.p': spatial.to_the_left_of_deic,
-	'left.a': spatial.to_the_left_of_deic,
-	'leftmost.a': spatial.to_the_left_of_deic,
-	'to_the_right_of.p': spatial.to_the_right_of_deic,
-	'right.a': spatial.to_the_right_of_deic,
-	'rightmost.a': spatial.to_the_right_of_deic,
-	'right.p': spatial.to_the_right_of_deic,
-    'left.p': spatial.to_the_left_of_deic,
-    
-	'near.p': spatial.near,
-	'near_to.p': spatial.near,
-	'close_to.p': spatial.near,
-	'close.a': spatial.near,
-	'on.p': spatial.on,
-	'on_top_of.p': spatial.on,
-	'above.p': spatial.above,
-    'below.p': spatial.below,
-    'over.p': spatial.over,
-    'under.p': spatial.under,    
-    'supporting.p': spatial.under,
-
-    'in.p': spatial.inside,
-    'in': spatial.inside,    
-    'inside.p': spatial.inside,
-
-    'touching.p': spatial.touching,
-    'touch.v': spatial.touching,
-    'adjacent_to.p': spatial.touching,
-    
-    'at.p': spatial.at,    
-    'next_to.p': spatial.at,
-    
-    'high.a': spatial.higher_than,
-    'highest.a': spatial.higher_than,
-    'topmost.a': spatial.higher_than,
-
-    'in_front_of.p': spatial.in_front_of,
-    'front.p': spatial.in_front_of,
-    'frontmost.a': spatial.in_front_of,
-    
-    'behind.p': spatial.behind,
-    'between.p': spatial.between,
-    'clear.a': spatial.clear,
-    'where.a': spatial.where
-    }
 	if type(predicate_object) == str:
 		pred = rel_to_func_map[predicate_object]
 	elif predicate_object.content is not None and type(predicate_object.content) == str:
@@ -365,7 +368,16 @@ def process_query(query, entities):
 			relata = [(arg[0], val) for (arg, val) in predicate_values]
 			relata.sort(key = lambda x: x[1])
 			relata.reverse()
-			
+
+			#Remove duplicates
+			encountered_relata = []
+			filtered_relata = []
+			for (arg, val) in relata:
+				if arg not in encountered_relata:
+					encountered_relata.append(arg)
+					filtered_relata.append((arg, val))
+			relata = filtered_relata
+
 			if pred.children[0].plur == False:
 				relata = [relata[0]]
 			
@@ -389,6 +401,15 @@ def process_query(query, entities):
 
 			relata.sort(key = lambda x: x[1])
 			relata.reverse()
+
+			#Remove duplicates
+			encountered_relata = []
+			filtered_relata = []
+			for (arg, val) in relata:
+				if arg not in encountered_relata:
+					encountered_relata.append(arg)
+					filtered_relata.append((arg, val))
+			relata = filtered_relata
 
 			if arg.plur == False:
 				relata = [relata[0]]

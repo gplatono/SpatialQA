@@ -71,6 +71,7 @@ class HCIManager(object):
 		filename = self.eta_input if mode == "INPUT" else self.eta_answer
 		formatted_msg = "(setq *next-input* \"" + text + "\")" if mode == "INPUT" \
 									else "(setq *next-answer* \'(" + text + " NIL))"
+		print("SENT TO ETA: ", formatted_msg)
 		with open(filename, 'w') as file:
 			file.write(formatted_msg)
 
@@ -118,16 +119,20 @@ class HCIManager(object):
 		misspells = [(' book', ' block'), (' blog', ' block'), (' black', ' block'), (' walk', ' block'), (' wok', ' block'), \
 					(' lock', ' block'), (' vlog', ' block'), (' blocked', ' block'), (' glock', ' block'), (' look', ' block'),\
 					(' talk', ' block'), (' cook', ' block'), (' clock', ' block'), (' plug', ' block'), (' boxer', ' blocks are'), \
-					(' blonde', ' block'), \
+					(' blonde', ' block'), (' blow', ' block'), \
 					(' involved', ' above'), (' about', ' above'), (' patching', ' touching'), (' catching', ' touching'),\
-					(' cashing', ' touching'), (' flashing', ' touching'), (' flushing', ' touching'), \
+					(' cashing', ' touching'), (' flashing', ' touching'), (' flushing', ' touching'), (' patch', ' touch'), \
 					(' in a cup', ' on top'), (' after the right', ' are to the right'), \
 					(' merced us', ' mercedes'), (' messages', ' mercedes'), (' mercer does', ' mercedes'), (' merced is', ' mercedes'), \
 					(' critter', ' twitter'), (' butcher', ' twitter'), \
 					(' talking block', ' target block'), (' chopping', ' target'), \
 					(' merciless', ' mercedes'), \
 					(' in the table', ' on the table'), \
-					(' top most', ' topmost'),]
+					(' top most', ' topmost'), (' right most', ' rightmost'), (' left most', ' leftmost'), (' front most', ' frontmost'),
+					(' top-most', ' topmost'), (' right-most', ' rightmost'), (' left-most', ' leftmost'), (' front-most', ' frontmost'), \
+					(' song', ' some'), (' sound', ' some'), (' sun', ' some'), \
+					(' hyatt', ' highest'), (' louis', ' lowest'), \
+					(' gridlock', ' green block'), (' rim ', ' green ')]
 		for misspell, fix in misspells:
 			input = input.replace(misspell, fix)
 		return input
@@ -226,9 +231,9 @@ class HCIManager(object):
 								#print ("QUERY TYPE: ", query_frame.query_type)
 								##bkg = self.world.find_entity_by_name('Burger King')
 								#tbl = self.world.find_entity_by_name('Table')
-								tar = self.world.find_entity_by_name('Target')
-								stb = self.world.find_entity_by_name('Starbucks')
-								print ("HIGHER THAN ", spatial.higher_than(tar, stb), spatial.higher_than(stb, tar), spatial.at_same_height(stb, tar))
+								#tar = self.world.find_entity_by_name('Target')
+								#stb = self.world.find_entity_by_name('Starbucks')
+								#print ("HIGHER THAN ", spatial.higher_than(tar, stb), spatial.higher_than(stb, tar), spatial.at_same_height(stb, tar))
 								#print ("TOUCH:")
 								#print ([(bl, touching(bl, tbl)) for bl in self.world.entities if bl != tbl])
 								print ("QUERY TYPE: ", query_frame.query_type)
@@ -249,22 +254,22 @@ class HCIManager(object):
 								if POSS_FLAG:
 									response_surface = "POSS-ANS " + response_surface
 							except Exception as e:
-								query_frame = QueryFrame("", "", None)
+								query_frame = QueryFrame(None, None, None)
 								#query_frame.query_type = query_frame.QueryType.ERROR
 								response_surface = self.generate_response(query_frame, [], [])
 								print (str(e))
 
 					#response_surface = response_surface.lower()
-					response_surface = response_surface.replace("I ", "you ")
-					response_surface = response_surface.replace("I'm ", "you're ")
-					response_surface = response_surface.replace("i ", "you ")
-					response_surface = response_surface.replace("i'm ", "you're ")
-					response_surface = response_surface.replace("you ", "i ")
-					response_surface = response_surface.replace("you're ", "i'm ")
+					# response_surface = response_surface.replace("I ", "you ")
+					# response_surface = response_surface.replace("I'm ", "you're ")
+					# response_surface = response_surface.replace("i ", "you ")
+					# response_surface = response_surface.replace("i'm ", "you're ")
+					# response_surface = response_surface.replace("you ", "i ")
+					# response_surface = response_surface.replace("you're ", "i'm ")
 
 					print ("SENDING REACTION AND WAITING FOR RESPONSE...")
 					print ("RESPONSE SURFACE: " + response_surface)
-					self.send_to_eta("REACTION", "\"" + response_surface + "\"")
+					self.send_to_eta("ANSWER", "\"" + response_surface + "\"")
 					time.sleep(1.0)
 					response = self.read_and_vocalize_from_eta()
 					self.clear_file(self.eta_answer)
@@ -557,7 +562,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 							return "Only " + ans_list + "."
 					else:
 					# identify the only answer with uncertainty
-						if use_vp:
+						if use_grounding:
 						# identify the only answer with uncertainty and grounding
 							return "I think only " + ans_list + " is " + des_prop + "."
 						else:
@@ -603,7 +608,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 							return "There are " + str(len(answer_set)) + " that are " + des_prop + ", including " + ans_list + "."
 						else:
 						# identify the multiple answers with certainty without grounding
-							return capitalize(ans_list) + " do, as well as " + str(len(answer_set) - 4) + " others."
+							return ans_list.capitalize() + " do, as well as " + str(len(answer_set) - 4) + " others."
 
 				else:
 				# identify the multiple answers
@@ -643,7 +648,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 							return ans_list + " are " + des_prop + "."
 						else:
 						# identify the multiple answers with certainty without grounding
-							return capitalize(ans_list) + " do."
+							return ans_list.capitalize() + " do."
 
 			elif query_object.query_type == QueryFrame.QueryType.CONFIRM:
 				# These are the questions like "Is the SRI block near the Toyota
@@ -817,7 +822,7 @@ Here is a (nonexhaustive) list of questions that I think I can answer in a very 
 							return "It is " + ans_list_simple + "."
 					else:
 						# give an uncertain answer
-						if use_vp:
+						if use_grounding:
 							return "Perhaps there is a " + ans_list_complex.split()[1] + " that is " + des_prop + "."
 						else:
 							return "It may be " + ans_list_simple + "."

@@ -1,6 +1,6 @@
 import enum
 import re
-from ulf_grammar import NArg, NRel, NPred, NCardDet, TAdj, NColor, NConjArg
+from ulf_grammar import *
 
 class QueryFrame(object):
 	"""Represents and incapsulates the query data in a frame-like format."""
@@ -22,20 +22,25 @@ class QueryFrame(object):
 		ATTR_ORIENT = 6
 		ERROR = 7
 
-	def __init__(self, query_surface, query_ulf, query_parse_tree):
-		self.surface = query_surface
-		self.ulf = query_ulf
-		self.raw = query_parse_tree.content
+	def __init__(self, query_surface=None, query_ulf=None, query_parse_tree=None):
 
-		#print ("QUERY REPRESENTATIONS: ")
-		#print (self.surface)
-		#print (self.ulf)
-		#print (self.raw)
+		"""
+		Assume that initially the query is erroneous
+		and then proceed to check if that is true.
+		"""
 		self.query_type = self.QueryType.ERROR
 
-		if query_parse_tree is None:
-			self.query_type = self.QueryType.ERROR
+		if query_surface is None or query_ulf is None or query_parse_tree is None:
 			return
+		
+		self.surface = query_surface.lower()
+		self.ulf = query_ulf.lower()
+		self.raw = query_parse_tree.content
+
+		print ("QUERY REPRESENTATIONS: ")
+		print (self.surface)
+		print (self.ulf)
+		print (self.raw)
 
 		self.is_question = query_parse_tree.is_question
 
@@ -103,7 +108,13 @@ class QueryFrame(object):
 			self.IDENT_FLAG = True
 
 		self.DESCR_FLAG = True if re.search(r'^\(*(where).*(be.v).*\|.*\|.* block.n', self.ulf, re.IGNORECASE) else False
-		self.DESCR_FLAG = True if re.search(r'at.p \(what.d place.n\)', self.ulf, re.IGNORECASE) else self.DESCR_FLAG
+		self.DESCR_FLAG = True if re.search(r'at.p \(what.d place.n\)', self.ulf, re.IGNORECASE) else self.DESCR_FLAG		
+
+		if "does.v" in self.ulf or (self.predicate is not None and type(self.predicate.content) == TCopulaBe):
+			self.YN_FLAG = True
+
+		if self.predicate is not None and self.predicate.content == "exist.pred":
+			self.EXIST_FLAG = True
 
 		if self.COUNT_FLAG:
 			self.query_type = self.QueryType.COUNT
@@ -116,6 +127,9 @@ class QueryFrame(object):
 
 		if self.YN_FLAG:
 			self.query_type = self.QueryType.CONFIRM		
+
+		if self.EXIST_FLAG:
+			self.query_type = self.QueryType.EXIST	
 
 	def extract_subject_adj_modifiers(self):
 		if self.arg is not None:

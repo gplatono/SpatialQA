@@ -30,9 +30,14 @@ class ULFParser(object):
 
     def replace_expr(self, ulf):
         ulf = ulf.replace("(at.p (what.d place.n))", "where.a")
+        ulf = ulf.replace("does.v", "(pres be.v)")
+        if re.search(r'^\(\(\(pres be.v\) there.pro', ulf) is not None:
+            ulf = ulf.replace("(pres be.v) there.pro", "exist.pred")
         return ulf
 
     def parse_tree(self, tree):
+        if tree == []:
+            return TEmpty()
         if type(tree) == str:
             if tree in grammar:
                 return grammar[tree](tree)

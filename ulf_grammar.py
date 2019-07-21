@@ -44,6 +44,7 @@ grammar['next_to.p'] = lambda x: TPred(x)
 grammar['far_from.p'] = lambda x: TPred(x)
 grammar['touching.p'] = lambda x: TPred(x)
 grammar['supporting.p'] = lambda x: TPred(x)
+grammar['exist.pred'] = lambda x: TPred(x)
 
 grammar['touch.v'] = lambda x: TPred(x)
 grammar['contain.v'] = lambda x: TPred(x)
@@ -58,6 +59,9 @@ grammar['rightmost.a'] = lambda x: NPred(x, mods = [TSuperMarker()])
 grammar['frontmost.a'] = lambda x: NPred(x, mods = [TSuperMarker()])
 grammar['topmost.a'] = lambda x: NPred(x, mods = [TSuperMarker()])
 grammar['highest.a'] = lambda x: NPred(x, mods = [TSuperMarker()])
+grammar['lowest.a'] = lambda x: NPred(x, mods = [TSuperMarker()])
+grammar['backmost.a'] = lambda x: NPred(x, mods = [TSuperMarker()])
+#grammar['nearest_to.a'] = lambda x: NPred(x, mods = [TSuperMarker()])
 
 #grammar['block.n'] = lambda x: TNoun(x)
 #grammar['{block}.n'] = lambda x: TNoun(x)
@@ -116,7 +120,9 @@ grammar['top.a'] = lambda x: TAdj(x)
 grammar['front.a'] = lambda x: TAdj(x)
 grammar['back.a'] = lambda x: TAdj(x)
 grammar['high.a'] = lambda x: TAdj(x)
+grammar['upper.a'] = lambda x: TAdj(x)
 grammar['low.a'] = lambda x: TAdj(x)
+grammar['lower.a'] = lambda x: TAdj(x)
 grammar['last.a'] = lambda x: TAdj(x)
 grammar['first.a'] = lambda x: TAdj(x)
 grammar['short.a'] = lambda x: TAdj(x)
@@ -268,6 +274,8 @@ grammar[("NCardDet", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id 
 grammar[("TAdj", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods + [x], det = y.det, plur = y.plur)
 grammar[("TPlurMarker", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = y.obj_id, mods = y.mods, det = y.det, plur = True)
 grammar[("TNReifierMarker", "NArg")] = lambda x, y: y
+grammar[("TEmpty", "NArg")] = lambda x, y: y
+grammar[("NArg", "TEmpty")] = lambda x, y: x
 
 grammar[("TRelNoun", "NArg")] = lambda x, y: NArg(obj_type = x.content[:-5], obj_id = x.content[:-5].upper(), mods = [y])
 
@@ -327,6 +335,8 @@ grammar[("NVP", "NArg")] = lambda x, y: NPred(content = x, children = [y])
 #Changed This!!!
 #grammar[("NArg", "NPred")] = lambda x, y: NArg(obj_type = x.obj_type, obj_id = x.obj_id, mods = x.mods + [y], det = x.det, plur = x.plur)
 grammar[("NArg", "NPred")] = lambda x, y: NPred(content = y.content, children = [x] + y.children, neg = y.neg, mods = y.mods)
+grammar[("TEmpty", "NPred")] = lambda x, y: y
+grammar[("NPred", "TEmpty")] = lambda x, y: x
 
 grammar[("NPred", "NArg")] = lambda x, y: NPred(content = x.content, children = x.children + [y])
 
@@ -353,7 +363,11 @@ grammar[("NArg", "TQMarker")] = lambda x, y: NSentence(x, True)
 grammar[("NPred", "TQMarker")] = lambda x, y: NSentence(x, True)
 grammar[("NSentence", "TQMarker")] = lambda x, y: NSentence(content = x.content, is_question = True, tense = x.tense)
 grammar[("NSentenceParams", "NSentence")] = lambda x, y: NSentence(content = y.content, is_question = y.is_question, mods = y.mods + [x])
+grammar[("TEmpty", "NSentence")] = lambda x, y: y
 grammar[("TTenseMarker", "NSentence")] = lambda x, y: NSentence(content = y.content, is_question = y.is_question, mods = y.mods + [x])
+
+class TEmpty(TreeNode):
+    __name__ = "TEmpty"
 
 class TRelativizer(TreeNode):
     __name__ = "TRelativizer"
