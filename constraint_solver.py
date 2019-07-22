@@ -59,12 +59,14 @@ rel_to_func_map = {
     'lowest.a': spatial.lower_than,    
 
     'in_front_of.p': spatial.in_front_of,
-    'front.p': spatial.in_front_of,
+    'front.a': spatial.in_front_of,
     'frontmost.a': spatial.in_front_of,
     
     'behind.p': spatial.behind,
     'backmost.a': spatial.behind,
     'back.a': spatial.behind,
+    'farthest.a': spatial.behind,
+    'far.a': spatial.behind,
     'between.p': spatial.between,
     'clear.a': spatial.clear,
     'where.a': spatial.where,
@@ -170,9 +172,9 @@ def filter_by_predicate_modifier(predicate_values, modifier):
 	elif type(modifier) == TNeg or modifier in ['not.adv-s', 'not.adv-a', 'not.mod-a']:
 		return [(arg, 1 - val*0.3/0.7) for (arg, val) in predicate_values if val < 0.7]
 	elif type(modifier) == TSuperMarker:
-		predicate_values.sort(key = lambda x: x[1])
-		arg, val = predicate_values[-1]
-		if val >= 0.6 and (len(predicate_values) == 1 or val > 1.1 * predicate_values[-2][1]):
+		#predicate_values.sort(key = lambda x: x[1])
+		arg, val = predicate_values[0]
+		if val > 0.7 or (len(predicate_values) > 1 and val > 1.1 * predicate_values[1][1]):
 			return [(arg, 1.0)]
 		else:
 			return []
@@ -187,7 +189,7 @@ def filter_by_mod(entities, modifier, entity_list):
 	elif type(modifier) == TNumber:
 		pass
 	elif type(modifier) == TAdj:
-		print ("ADJ PROCESSING...")
+		print ("ADJ PROCESSING... PRED = ", modifier, " RELATA = ", entities)
 		pred = NPred(content = modifier.content, mods = modifier.mods)
 		predicate_values = process_predicate(pred, relata=entities, entity_list=entity_list)
 
@@ -211,6 +213,15 @@ def filter_by_mod(entities, modifier, entity_list):
 		answer_set = [(item, answer_set[item]) for item in answer_set.keys()]
 		return answer_set
 
+def pick_candidates(predicate_values, pick_unique=False):
+	if pick_unique:
+		return predicate_values[0]
+	else:
+		max_val = predicate_values[0][1]
+		ret_vals = []
+		# for item
+		# if max_val >= 0.8
+
 def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 	"""
 	Processes the predicate by computing its values over all the combinations
@@ -224,6 +235,7 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 	pred_arity = arity[predicate_func]
 	modifiers = predicate.mods
 	print ("\nPREDICATE COMPONENTS: ", predicate, modifiers)
+	unique = False
 	
 
 	#Resolve arguments
@@ -255,12 +267,13 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 
 	#For superlatives	
 	if referents is None and pred_arity == 2:
+		unique = True
 		referents = world.active_context		
 		predicate_values = []
 		for relatum in relata:
 			avg = np.average([val for ref in referents for (arg, val) in compute_predicate(predicate_func, [relatum], [ref])])
 			predicate_values.append(((relatum,), avg)) 
-		#print ("AVG VAL: ", predicate_values)
+		print ("AVG VAL: ", predicate_values)
 	#For the rest
 	else:
 		predicate_values = compute_predicate(predicate_func, relata, *referents) if referents is not None\
@@ -273,19 +286,17 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 	if modifiers is not None and modifiers != []:
 		for modifier in modifiers:
 			predicate_values = filter_by_predicate_modifier(predicate_values, modifier)
-	else:
-		predicate_values = [(arg, val) for (arg, val) in predicate_values if val >= 0.7]
+	elif predicate_values is not None and predicate_values != []:
+		if unique == False:
+			predicate_values = [(arg, val) for (arg, val) in predicate_values if val >= 0.7]
+		else:
+			predicate_values = [predicate_values[0]]
 
 	print ("RESULTING ARGLISTS AFTER PRED FILTERING: ",  predicate_values)	
 	if len(predicate_values) > 0 and type(predicate_values[0][0]) == tuple and \
 			len(predicate_values[0][0]) > 1:
 		if predicate_func != ident:
-			predicate_values = [(arg, val) for (arg, val) in predicate_values if arg[0] != arg[1]]
-		# encountered_relata = []
-		# encountered_referents = []
-		# filtered_vals = []
-		# for args, val in predicate_values:
-		# 	if args[0] not in encountered_relata
+			predicate_values = [(arg, val) for (arg, val) in predicate_values if arg[0] not in arg[1:]]
 		
 	print ("FINAL ARGLISTS RETURNED FROM PRED: ",  predicate_values)
 	return predicate_values
@@ -312,7 +323,7 @@ def resolve_argument(arg_object, entities):
 	arg_det = arg_object.det
 	arg_plur = arg_object.plur
 	arg_mods = arg_object.mods
-	arg_mods.reverse()
+	#arg_mods.reverse()
 
 	#print (arg_object)
 	print ("ARG CANDIDATES: ", entities)
@@ -332,8 +343,9 @@ def resolve_argument(arg_object, entities):
 
 	if arg_mods is not None and arg_mods != []:
 		for modifier in arg_mods:
-			#print ("CURRENT MOD: ", modifier)
+			print ("CURRENT MOD: ", modifier)
 			ret_args = filter_by_mod(ret_args, modifier, entities)
+			print ("CURRENT ARGS: ", modifier)
 
 	print ("AFTER MOD APPLICATION:", ret_args)
 	return ret_args

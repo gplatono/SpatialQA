@@ -113,23 +113,22 @@ class QueryFrame(object):
 		if "does.v" in self.ulf or (self.predicate is not None and type(self.predicate.content) == TCopulaBe):
 			self.YN_FLAG = True
 
+		if "is there" in self.surface:
+			self.EXIST_FLAG = True
+
 		if self.predicate is not None and self.predicate.content == "exist.pred":
 			self.EXIST_FLAG = True
 
-		if self.COUNT_FLAG:
-			self.query_type = self.QueryType.COUNT
-
 		if self.IDENT_FLAG:
 			self.query_type = self.QueryType.IDENT
-
-		if self.DESCR_FLAG:
+		elif self.COUNT_FLAG:
+			self.query_type = self.QueryType.COUNT
+		elif self.DESCR_FLAG:
 			self.query_type = self.QueryType.DESCR
-
-		if self.YN_FLAG:
-			self.query_type = self.QueryType.CONFIRM		
-
-		if self.EXIST_FLAG:
+		elif self.EXIST_FLAG:
 			self.query_type = self.QueryType.EXIST	
+		elif self.YN_FLAG:
+			self.query_type = self.QueryType.CONFIRM		
 
 	def extract_subject_adj_modifiers(self):
 		if self.arg is not None:

@@ -13,6 +13,7 @@ from constraint_solver import *
 import spatial
 from spatial import near, touching
 from geometry_utils import get_planar_distance_scaled
+import datetime
 
 class HCIManager(object):
 	"""Manages the high-level interaction loop between the user and the system."""
@@ -50,6 +51,9 @@ class HCIManager(object):
 		self.eta_ulf = self.eta_path + "ulf.lisp"
 		self.eta_answer = self.eta_path + "answer.lisp"
 		self.eta_output = self.eta_path + "output.txt"
+
+		self.dialog_log_path = "dialog_log"
+		self.log_file = None
 
 		self.ulf_parser = ULFParser()
 		self.world = world
@@ -114,25 +118,39 @@ class HCIManager(object):
 			self.send_to_avatar('SAY', response)
 		return response
 
+	def log(self, mode, text):
+		dt = datetime.datetime.now()
+		dt_str = dt.strftime("%H:%M:%S")
+		with open(self.dialog_log_path, "a+") as logf:
+			logf.write(dt_str + " " + str(mode) + ": " + str(text) + "\n")
+
+	def init_log(self):
+		with open(self.dialog_log_path, "a+") as logf:
+			logf.write("\nNEW SESSION: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n")
+			logf.write("=============================================================\n")		
+
 	def preprocess(self, input):
 		input = input.lower()
 		misspells = [(' book', ' block'), (' blog', ' block'), (' black', ' block'), (' walk', ' block'), (' wok', ' block'), \
 					(' lock', ' block'), (' vlog', ' block'), (' blocked', ' block'), (' glock', ' block'), (' look', ' block'),\
-					(' talk', ' block'), (' cook', ' block'), (' clock', ' block'), (' plug', ' block'), (' boxer', ' blocks are'), \
-					(' blonde', ' block'), (' blow', ' block'), \
+					(' talk', ' block'), (' cook', ' block'), (' clock', ' block'), (' plug', ' block'), (' logo', ' block'), (' boxer', ' blocks are'), \
+					(' blonde', ' block'), (' blow', ' block'), (' bloke', ' block'),\
 					(' involved', ' above'), (' about', ' above'), (' patching', ' touching'), (' catching', ' touching'),\
-					(' cashing', ' touching'), (' flashing', ' touching'), (' flushing', ' touching'), (' patch', ' touch'), \
+					(' cashing', ' touching'), (' flashing', ' touching'), (' flushing', ' touching'),(' fashion', ' touching'), (' patch', ' touch'), \
 					(' in a cup', ' on top'), (' after the right', ' are to the right'), \
 					(' merced us', ' mercedes'), (' messages', ' mercedes'), (' mercer does', ' mercedes'), (' merced is', ' mercedes'), \
 					(' critter', ' twitter'), (' butcher', ' twitter'), \
-					(' talking block', ' target block'), (' chopping', ' target'), \
+					(' talking block', ' target block'), (' chopping', ' target'), (' testicle', ' texaco'),\
 					(' merciless', ' mercedes'), \
 					(' in the table', ' on the table'), \
 					(' top most', ' topmost'), (' right most', ' rightmost'), (' left most', ' leftmost'), (' front most', ' frontmost'),
-					(' top-most', ' topmost'), (' right-most', ' rightmost'), (' left-most', ' leftmost'), (' front-most', ' frontmost'), \
+					(' back most', ' backmost'), (' back-most', ' backmost'),
+					(' top-most', ' topmost'), (' right-most', ' rightmost'), (' right move', ' rightmost'), (' left-most', ' leftmost'), (' front-most', ' frontmost'), \
 					(' song', ' some'), (' sound', ' some'), (' sun', ' some'), \
-					(' hyatt', ' highest'), (' louis', ' lowest'), \
-					(' gridlock', ' green block'), (' rim ', ' green ')]
+					(' hyatt', ' highest'), (' hyve', ' highest'), (' hive', ' highest'), (' louis', ' lowest'), 
+					(' father\'s', ' farthest'), (' father', ' farthest'),\
+					(' gridlock', ' green block'), (' rim ', ' green '), (' siri', ' david'), (' date it', ' david'),
+					(' grimblock', ' green block'), (' redlock', ' red block')]
 		for misspell, fix in misspells:
 			input = input.replace(misspell, fix)
 		return input
@@ -150,12 +168,14 @@ class HCIManager(object):
 		self.clear_file(self.eta_answer)
 		self.clear_file(self.eta_input)
 		#self.clear_file(self.eta_output)
+		self.init_log()
 
 		print ("Starting the processing loop...")
 		while True:
 
 			if self.state == self.STATE.INIT:
 				response = self.read_and_vocalize_from_eta()
+				self.log("DAVID", response)				
 				#print ("RESP", response)
 				# if response is None:
 				# 	self.send_to_eta("REACTION", "\" EMPTY \"")
@@ -178,18 +198,23 @@ class HCIManager(object):
 				#print ("SIZE", self.world.find_entity_by_name("Toyota").size)
 				self.current_input = self.preprocess(self.current_input)
 
-				if re.search(r".*(David).*(give).*(moment|minute)", self.current_input, re.I) and self.state != self.STATE.SUSPEND:
+				if (re.search(r".*(David).*(give).*(moment|minute)", self.current_input, re.I) \
+				or re.search(r".*(David|stop).*(stop|David)", self.current_input, re.I)) and self.state != self.STATE.SUSPEND:
 					self.state = self.STATE.SUSPEND
 					self.send_to_avatar("USER_SPEECH", self.current_input)
-					self.send_to_avatar("SAY", "Sure, take your time")					
+					self.send_to_avatar("SAY", "Sure, take your time")	
+					self.log("USER", self.current_input)				
+					self.log("DAVID", "Sure, take your time")				
 					self.speech_lock.release()					
 					print ("DIALOG SUSPENDED...")
-					self.current_input = ""					
+					self.current_input = ""			
 					continue					
 				elif re.search(r"(David)", self.current_input, re.I) and self.state == self.STATE.SUSPEND:
 					self.state = self.STATE.QUESTION_PENDING
 					self.send_to_avatar("USER_SPEECH", self.current_input)
 					self.send_to_avatar("SAY", "Yes, what is it?")
+					self.log("USER", self.current_input)				
+					self.log("DAVID", "Yes, what is it?")									
 					self.speech_lock.release()
 					print ("DIALOG RESUMED...")
 					self.current_input = ""
@@ -202,11 +227,13 @@ class HCIManager(object):
 
 					self.send_to_eta("INPUT", self.current_input)
 					self.send_to_avatar('USER_SPEECH', self.current_input)
+					self.log("USER", self.current_input)				
 					print ("SLEEPING...")
 					time.sleep(0.5)
 
 					print ("WAITING FOR ULF...")
 					ulf = self.read_from_eta(mode = "ULF")
+					self.log("ULF", ulf)
 					response_surface = "NIL"
 
 					if ulf is not None and ulf != "" and ulf != "NIL":
@@ -259,9 +286,9 @@ class HCIManager(object):
 								response_surface = self.generate_response(query_frame, [], [])
 								print (str(e))
 
-					#response_surface = response_surface.lower()
-					# response_surface = response_surface.replace("I ", "you ")
-					# response_surface = response_surface.replace("I'm ", "you're ")
+					# response_surface = response_surface.lower()
+					# response_surface = response_surface.replace("you was", "i was")
+					# # response_surface = response_surface.replace("I'm ", "you're ")
 					# response_surface = response_surface.replace("i ", "you ")
 					# response_surface = response_surface.replace("i'm ", "you're ")
 					# response_surface = response_surface.replace("you ", "i ")
@@ -272,11 +299,15 @@ class HCIManager(object):
 					self.send_to_eta("ANSWER", "\"" + response_surface + "\"")
 					time.sleep(1.0)
 					response = self.read_and_vocalize_from_eta()
+					response = response.lower()
+					response = response.replace("you was", "i was")
+					self.log("DAVID", response)
 					self.clear_file(self.eta_answer)
 
 					print ("ORIGINAL INPUT: " + input)
 					print ("CLEANED ULF: ", ulf)
 					print ("RETURNED RESPONSE: " + str(response))
+					#log_file.write("USER INPUT: " + input)
 					
 					if response is not None and ("GOOD BYE" in response or "TAKE A BREAK" in response):
 						break
