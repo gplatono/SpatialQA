@@ -45,6 +45,7 @@ class HCIManager(object):
 		self.avatar_speech_servlet = 'http://ec2-35-162-37-211.us-west-2.compute.amazonaws.com:8080/avatar_control/'
 
 		self.speech_lock = RLock()
+		self.asr_active = False
 
 		self.eta_path = ".." + os.sep + "eta-blocksworld" + os.sep
 		self.eta_input = self.eta_path + "input.lisp"
@@ -62,15 +63,7 @@ class HCIManager(object):
 
 		if self.debug_mode:
 			self.state = self.STATE.QUESTION_PENDING
-		# print (self.lissa_input)
-		# print (self.lissa_ulf)
-		# print (self.lissa_reaction)
-		# print (self.lissa_output)
-
-		# print (os.path.isfile(self.lissa_ulf))
-		# print (os.path.isfile(self.lissa_reaction))
-		# print (os.path.isfile(self.lissa_output))
-
+		
 	def send_to_eta(self, mode, text):
 		filename = self.eta_input if mode == "INPUT" else self.eta_answer
 		formatted_msg = "(setq *next-input* \"" + text + "\")" if mode == "INPUT" \
@@ -118,6 +111,11 @@ class HCIManager(object):
 			self.send_to_avatar('SAY', response)
 		return response
 
+	def is_talking(self):
+		req = requests.get(self.avatar_speech_servlet + "?is_talking")
+		#print ("REQ RESULT: ", req.text)
+		return req.text == "true"
+
 	def log(self, mode, text):
 		dt = datetime.datetime.now()
 		dt_str = dt.strftime("%H:%M:%S")
@@ -139,9 +137,10 @@ class HCIManager(object):
 					(' cashing', ' touching'), (' flashing', ' touching'), (' flushing', ' touching'),(' fashion', ' touching'), (' patch', ' touch'), \
 					(' in a cup', ' on top'), (' after the right', ' are to the right'), \
 					(' merced us', ' mercedes'), (' messages', ' mercedes'), (' mercer does', ' mercedes'), (' merced is', ' mercedes'), \
-					(' critter', ' twitter'), (' butcher', ' twitter'), \
+					(' critter', ' twitter'), (' butcher', ' twitter'), (' treetop', ' twitter'), \
 					(' talking block', ' target block'), (' chopping', ' target'), (' testicle', ' texaco'),\
 					(' merciless', ' mercedes'), \
+					(' to be right', ' to the right'), (' for the rights', ' to the right'), 
 					(' in the table', ' on the table'), \
 					(' top most', ' topmost'), (' right most', ' rightmost'), (' left most', ' leftmost'), (' front most', ' frontmost'),
 					(' back most', ' backmost'), (' back-most', ' backmost'),
@@ -163,6 +162,7 @@ class HCIManager(object):
 			#mic_thread.setDaemon(True)
 			mic_thread.start()
 
+		self.asr_active = True
 		#asr_lock = Event()
 		self.clear_file(self.eta_ulf)
 		self.clear_file(self.eta_answer)
@@ -207,7 +207,7 @@ class HCIManager(object):
 					self.log("DAVID", "Sure, take your time")				
 					self.speech_lock.release()					
 					print ("DIALOG SUSPENDED...")
-					self.current_input = ""			
+					self.current_input = ""
 					continue					
 				elif re.search(r"(David)", self.current_input, re.I) and self.state == self.STATE.SUSPEND:
 					self.state = self.STATE.QUESTION_PENDING
@@ -306,17 +306,17 @@ class HCIManager(object):
 
 					print ("ORIGINAL INPUT: " + input)
 					print ("CLEANED ULF: ", ulf)
-					print ("RETURNED RESPONSE: " + str(response))
-					#log_file.write("USER INPUT: " + input)
+					print ("RETURNED RESPONSE: " + str(response))										
+					# print ("DAVID IS TALKING...")
+					# time.sleep(2.6)
+					# while self.is_talking():
+					# 	time.sleep(1.0)					
 					
 					if response is not None and ("GOOD BYE" in response or "TAKE A BREAK" in response):
 						break
 
-					print ("ASR BLOCKED...")
-					# self.clear_file(self.eta_ulf)
-					# self.clear_file(self.eta_reaction)
-					time.sleep(2.5)					
-					print ("SPEAK...")
+					time.sleep(0.5)					
+					print ("DAVID HAS FINISHED, GO ON...")
 
 				self.current_input = ""
 			self.speech_lock.release()
@@ -326,8 +326,13 @@ class HCIManager(object):
 		#print ("Avatar's response: " + text)
 		#print ("SENDING TO AVATAR " + mode + " " + text)
 		if mode == 'SAY':
-			#print ("MODE = " + mode)
+			self.asr_active = False			
 			req = requests.get(self.avatar_speech_servlet + "?say=" + text)
+			print ("DAVID IS TALKING...")
+			time.sleep(2.5)			
+			while self.is_talking():
+				time.sleep(1.0)
+			self.asr_active = True
 		elif mode == 'ULF':
 			req = requests.get(self.avatar_speech_servlet + "?ulf=" + text)
 		elif mode == 'USER_SPEECH':
@@ -376,6 +381,12 @@ class HCIManager(object):
 
 				responses = (r for r in responses if (r.results and r.results[0].alternatives))
 				num_chars_printed = 0
+
+				if self.asr_active is False:
+					responses = []
+					time.sleep(1.0)
+					continue
+				
 				for response in responses:
 					if not response.results:
 						continue
@@ -403,12 +414,6 @@ class HCIManager(object):
 						self.current_input = transcript.lower()
 						self.speech_lock.release()
 						num_chars_printed = 0
-						# # Exit recognition if any of the transcribed phrases could be one of our keywords.
-						# if re.search(r'\b(exit|quit)\b', transcript, re.I):
-						# 	print('Exiting..')
-						# 	stream.closed = True
-						# 	break
-
 
 	'''
 Here is a (nonexhaustive) list of questions that I think I can answer in a very natural way:
