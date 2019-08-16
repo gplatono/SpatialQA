@@ -25,8 +25,15 @@ def cross_product(a, b):
 #Inputs: a,b,c - point coordinates as tuples or lists
 #Return value: normal vector as a triple of coordinates
 def get_normal(a, b, c):
-    return cross_product((a[0] - b[0], a[1] - b[1], a[2] - b[2]),
-                         (c[0] - b[0], c[1] - b[1], c[2] - b[2]))
+    a = np.array(a)
+    b = np.array(b)
+    c = np.array(c)
+    u = b - a
+    v = c - a
+    u_x_v = np.cross(u, v)
+    return u_x_v
+    #return cross_product((a[0] - b[0], a[1] - b[1], a[2] - b[2]),
+#                         (c[0] - b[0], c[1] - b[1], c[2] - b[2]))
 
 #Given a point and a plane defined by a, b and c
 #computes the orthogonal distance from the point to that plane

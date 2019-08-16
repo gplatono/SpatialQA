@@ -264,7 +264,7 @@ grammar[("TAdvAdjMod", "TAdj")] = lambda x, y: TAdj(content = y.content, mods = 
 grammar[("TNeg", "TAdj")] = lambda x, y: TAdj(content = y.content, mods = [x])
 
 #Determiner rules
-grammar[("TQuanMarker", "TAdj")] = lambda x, y: NDet(y) if (y.content != "many.a" or y.mod is None or y.mod.content != "how.mod-a") else NCardDet()
+grammar[("TQuanMarker", "TAdj")] = lambda x, y: NDet(y) if (y.content != "many.a" or y.mods == [] or y.mods[0].content != "how.mod-a") else NCardDet()
 
 #Argument + modifier rules
 grammar[("TName", "NArg")] = lambda x, y: NArg(obj_type = y.obj_type, obj_id = x.content)
@@ -327,7 +327,8 @@ grammar[("NSentenceParams", "NRel")] = lambda x, y: y
 
 grammar[("NVP", "TAdj")] = lambda x, y: NRel(y, children=[])
 
-grammar[("TAdv", "NRel")] = lambda x, y: NRel(y.content, y.children, y.neg, y.mods + [x])
+#grammar[("TAdv", "NRel")] = lambda x, y: NRel(y.content, y.children, y.neg, y.mods + [x])
+grammar[("TAdv", "NPred")] = lambda x, y: NPred(y.content, y.children, y.neg, y.mods + [x])
 
 grammar[("TDet", "TPrep")] = lambda x, y: y
 grammar[("TAdj", "TPrep")] = lambda x, y: y
@@ -343,7 +344,7 @@ grammar[("NPred", "TEmpty")] = lambda x, y: x
 grammar[("NPred", "NArg")] = lambda x, y: NPred(content = x.content, children = x.children + [y])
 
 grammar[("TRelativizer", "NPred")] = lambda x, y: y
-grammar[("TRelativizer", "NRel")] = lambda x, y: y
+#grammar[("TRelativizer", "NRel")] = lambda x, y: y
 
 grammar[("TSuperMarker", "NRel")] = lambda x, y: NRel(content = y.content, children = y.children, neg = y.neg, mods = y.mods + [x])
 

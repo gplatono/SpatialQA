@@ -191,29 +191,7 @@ def pick_descriptions(relatum):
     max_vals = [item[0] for item in max_vals]
     return tuple(max_vals[0:3])
 
-def func1():
-    hci_manager = HCIManager(world, debug_mode = False)
-    hci_manager.start()
-    
-#Entry point
-#Implementation of the evaluation pipeline
-def main():
-    world = World(bpy.context.scene, simulation_mode=False)
-
-    spatial.entities = world.entities
-    spatial.world = world
-    constraint_solver.world = world
-    
-    hci_manager = HCIManager(world, debug_mode = False)
-    hci_thread = Thread(target = hci_manager.start)
-    hci_thread.setDaemon(True)
-    hci_thread.start()
-    
-    return
-    
-    tracker = None
-    
-
+def run_debug(world, hci_manager):
     surface_forms = open("sqa_dev_surface.bw").readlines()
     ulfs = open("sqa_dev_ulf.bw").readlines()
     min_len = min(len(ulfs), len(surface_forms))
@@ -244,44 +222,37 @@ def main():
             query_frame = QueryFrame(surface_forms[idx], ulf, ulf_parser.parse(ulf))
             print (query_frame.raw)
             print ("\n" + ulf + "\n")
-            answer_set_rel, answer_set_ref = process_query(query_frame, world.entities)
+            answer_set_rel, answer_set_ref = constraint_solver.process_query(query_frame, world.entities)
             response_surface = hci_manager.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
             print ("ANSWER SET: ", answer_set_rel)
             print ("RESPONSE: ", response_surface)
-
-            print ([(bl, on(bl, mrc)) for bl in ent if bl != tbl])
+            print ([(bl, spatial.on(bl, mrc)) for bl in ent if bl != tbl])
             #print ([(bl, touching(bl, tbl)) for bl in ent if bl != tbl])           
             #print ([(bl, clear(bl)) for bl in ent])
             #print (extract_contiguous([entity for entity in ent if entity != tbl]))
+
+            print (spatial.get_normal((0, 0, 0), (1,0,0), (0, 1, 0)))
             input("Press Enter to continue...")
 
-    if "--" in sys.argv:
-        args = sys.argv[sys.argv.index("--") + 1:]
-        init_parser([entity.name for entity in entities])
-        if len(args) != 6:
-            result = "*RESULT: MALFORMED*"
-        else:
-            relation = args[0].lower()
-            relatum = args[1].lower()
-            referent1 = args[2].lower()
-            referent2 = args[3].lower()
-            task_type = args[4].lower()
-            response = args[5].lower()
-            print ("ANNOTATION PARAMS: {}, {}, {}, {}, {}, {}".format(task_type, relatum, relation, referent1, referent2, response))
-        
-            if task_type == "1":
-                best_cand = process_descr(relatum, response, entities)
-                if best_cand != None:
-                    print(process_descr(relatum, response, entities).name, "==?", relatum)
-                print("RESULT:", int(get_entity_by_name(relatum, entities) == best_cand))
-            elif task_type == "0":
-                print("RESULT:", process_truthjudg(relation, relatum, referent1, referent2, response, entities))
-            elif task_type == "2":
-                descr = pick_descriptions(relatum)
-                print("RESULT: {}".format("#".join(descr)))
-        return
 
+#Entry point
+def main():
+    world = World(bpy.context.scene, simulation_mode=True)
+
+    spatial.entities = world.entities
+    spatial.world = world
+    constraint_solver.world = world
+
+    hci_manager = HCIManager(world, debug_mode = True)
+
+    if hci_manager.debug_mode == True:
+        run_debug(world, hci_manager)
+        return
     
+    hci_thread = Thread(target = hci_manager.start)
+    hci_thread.setDaemon(True)
+    hci_thread.start()
+
 if __name__ == "__main__":
     #save_screenshot()
     #fix_ids()

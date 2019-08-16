@@ -91,6 +91,7 @@ class HCIManager(object):
 			result = "".join([line for line in msg])
 			result = re.sub(" +", " ", result.replace("\n", ""))
 			result = (result.split("* '")[1])[:-1]
+			self.log("ULF", result)
 		else:
 			result = ""
 			responses = [r.strip() for r in msg if r.strip() != ""]
@@ -109,6 +110,7 @@ class HCIManager(object):
 		response = self.read_from_eta(mode = "OUTPUT")
 		if response != "" and response is not None:
 			self.send_to_avatar('SAY', response)
+		self.log("DAVID", response)
 		return response
 
 	def is_talking(self):
@@ -174,8 +176,7 @@ class HCIManager(object):
 		while True:
 
 			if self.state == self.STATE.INIT:
-				response = self.read_and_vocalize_from_eta()
-				self.log("DAVID", response)				
+				response = self.read_and_vocalize_from_eta()				
 				#print ("RESP", response)
 				# if response is None:
 				# 	self.send_to_eta("REACTION", "\" EMPTY \"")
@@ -203,8 +204,8 @@ class HCIManager(object):
 					self.state = self.STATE.SUSPEND
 					self.send_to_avatar("USER_SPEECH", self.current_input)
 					self.send_to_avatar("SAY", "Sure, take your time")	
-					self.log("USER", self.current_input)				
-					self.log("DAVID", "Sure, take your time")				
+					# self.log("USER", self.current_input)
+					# self.log("DAVID", "Sure, take your time")				
 					self.speech_lock.release()					
 					print ("DIALOG SUSPENDED...")
 					self.current_input = ""
@@ -213,8 +214,8 @@ class HCIManager(object):
 					self.state = self.STATE.QUESTION_PENDING
 					self.send_to_avatar("USER_SPEECH", self.current_input)
 					self.send_to_avatar("SAY", "Yes, what is it?")
-					self.log("USER", self.current_input)				
-					self.log("DAVID", "Yes, what is it?")									
+					# self.log("USER", self.current_input)				
+					# self.log("DAVID", "Yes, what is it?")									
 					self.speech_lock.release()
 					print ("DIALOG RESUMED...")
 					self.current_input = ""
@@ -227,13 +228,13 @@ class HCIManager(object):
 
 					self.send_to_eta("INPUT", self.current_input)
 					self.send_to_avatar('USER_SPEECH', self.current_input)
-					self.log("USER", self.current_input)				
+					#self.log("USER", self.current_input)				
 					print ("SLEEPING...")
 					time.sleep(0.5)
 
 					print ("WAITING FOR ULF...")
 					ulf = self.read_from_eta(mode = "ULF")
-					self.log("ULF", ulf)
+					
 					response_surface = "NIL"
 
 					if ulf is not None and ulf != "" and ulf != "NIL":
@@ -253,7 +254,6 @@ class HCIManager(object):
 									POSS_FLAG = True
 									ulf = (ulf.split("POSS-QUES ")[1])[:-1]
 								query_tree = self.ulf_parser.parse(ulf)
-								#print ("\nQUERY TREE: ", query_tree, '\n')
 								query_frame = QueryFrame(self.current_input, ulf, query_tree)
 								#print ("QUERY TYPE: ", query_frame.query_type)
 								##bkg = self.world.find_entity_by_name('Burger King')
@@ -285,15 +285,7 @@ class HCIManager(object):
 								#query_frame.query_type = query_frame.QueryType.ERROR
 								response_surface = self.generate_response(query_frame, [], [])
 								print (str(e))
-
-					# response_surface = response_surface.lower()
-					# response_surface = response_surface.replace("you was", "i was")
-					# # response_surface = response_surface.replace("I'm ", "you're ")
-					# response_surface = response_surface.replace("i ", "you ")
-					# response_surface = response_surface.replace("i'm ", "you're ")
-					# response_surface = response_surface.replace("you ", "i ")
-					# response_surface = response_surface.replace("you're ", "i'm ")
-
+					
 					print ("SENDING REACTION AND WAITING FOR RESPONSE...")
 					print ("RESPONSE SURFACE: " + response_surface)
 					self.send_to_eta("ANSWER", "\"" + response_surface + "\"")
@@ -301,16 +293,12 @@ class HCIManager(object):
 					response = self.read_and_vocalize_from_eta()
 					response = response.lower()
 					response = response.replace("you was", "i was")
-					self.log("DAVID", response)
+					#self.log("DAVID", response)
 					self.clear_file(self.eta_answer)
 
 					print ("ORIGINAL INPUT: " + input)
 					print ("CLEANED ULF: ", ulf)
 					print ("RETURNED RESPONSE: " + str(response))										
-					# print ("DAVID IS TALKING...")
-					# time.sleep(2.6)
-					# while self.is_talking():
-					# 	time.sleep(1.0)					
 					
 					if response is not None and ("GOOD BYE" in response or "TAKE A BREAK" in response):
 						break
@@ -321,6 +309,61 @@ class HCIManager(object):
 				self.current_input = ""
 			self.speech_lock.release()
 			time.sleep(0.1)
+
+
+	def process_spatial_request(self, surface, ulf):
+		response_surface = "NIL"
+		if ulf is not None and ulf != "" and ulf != "NIL":
+			self.send_to_avatar('ULF', ulf)
+			if re.search(r"^\((\:OUT|OUT|OUT:)", ulf):
+				if "(OUT " in ulf:
+					ulf = (ulf.split("(OUT ")[1])[:-1]
+				else:
+					ulf = (ulf.split("(:OUT ")[1])[:-1]
+				response_surface = ulf
+			else:
+				self.state = self.STATE.QUESTION_PENDING
+				try:
+					print ("ULF: ", ulf)
+					POSS_FLAG = False
+					if "POSS-QUES" in ulf:
+						POSS_FLAG = True
+						ulf = (ulf.split("POSS-QUES ")[1])[:-1]
+					query_tree = self.ulf_parser.parse(ulf)
+					#print ("\nQUERY TREE: ", query_tree, '\n')
+					query_frame = QueryFrame(self.current_input, ulf, query_tree)
+					#print ("QUERY TYPE: ", query_frame.query_type)
+					##bkg = self.world.find_entity_by_name('Burger King')
+					#tbl = self.world.find_entity_by_name('Table')
+					#tar = self.world.find_entity_by_name('Target')
+					#stb = self.world.find_entity_by_name('Starbucks')
+					#print ("HIGHER THAN ", spatial.higher_than(tar, stb), spatial.higher_than(stb, tar), spatial.at_same_height(stb, tar))
+					#print ("TOUCH:")
+					#print ([(bl, touching(bl, tbl)) for bl in self.world.entities if bl != tbl])
+					print ("QUERY TYPE: ", query_frame.query_type)
+					if query_frame.query_type != query_frame.QueryType.DESCR:
+						answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
+						print ("ANSWER SET: ", answer_set_rel)								
+						response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
+					else:																		
+						pred_vals = process_query(query_frame, self.world.entities)
+						print ("ANSWER SET: ", pred_vals)								
+						response_surface = ""
+						for item in pred_vals:
+							if len(item[1][0]) == 2:
+								response_surface += "The " + item[1][0][0].name + " block is " + item[0] + " the " + item[1][0][1].name + " block."
+							else:
+								response_surface += "The " + item[1][0][0].name + " block is " + item[0] + " the " + item[1][0][1].name + " block and the "\
+								+ item[1][0][2].name + " block."
+					if POSS_FLAG:
+						response_surface = "POSS-ANS " + response_surface
+				except Exception as e:
+					query_frame = QueryFrame(None, None, None)					
+					response_surface = self.generate_response(query_frame, [], [])
+					print (str(e))
+
+		return response_surface
+
 
 	def send_to_avatar(self, mode, text):
 		#print ("Avatar's response: " + text)
@@ -336,9 +379,10 @@ class HCIManager(object):
 		elif mode == 'ULF':
 			req = requests.get(self.avatar_speech_servlet + "?ulf=" + text)
 		elif mode == 'USER_SPEECH':
+			self.log("USER", self.current_input)
 			req = requests.get(self.avatar_speech_servlet + "?user_speech=" + text)
 		avatar_status = str(req.status_code)
-		print ("STATUS: " + avatar_status)
+		#print ("STATUS: " + avatar_status)
 
 	def load_as_text(self, text):
 		def load_loop():
