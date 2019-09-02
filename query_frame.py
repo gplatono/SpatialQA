@@ -73,6 +73,7 @@ class QueryFrame(object):
 		if self.referent is not None and type(self.referent) == NArg:
 			self.resolve_referent = self.resolve_arg(self.referent)
 
+		#print ("RESOLVE WHICH ARGS: ", self.resolve_relatum, self.resolve_referent)
 		#print ("BEFORE ENTERING QUERY TPYE:")
 		self.scan_type()
 
@@ -103,6 +104,7 @@ class QueryFrame(object):
 		
 		self.IDENT_FLAG = True if re.search('^.*(what.d|which.d).*(block.n).*(be.v)', self.ulf, re.IGNORECASE) else False
 		self.IDENT_FLAG = True if re.search('^.*(what.pro|which.pro).*(be.v)', self.ulf, re.IGNORECASE) else self.IDENT_FLAG
+		self.IDENT_FLAG = True if re.search('(what.pro|which.pro|which.d|what.d)', self.ulf, re.IGNORECASE) else self.IDENT_FLAG
 
 		if re.search(r'^\(*what.pro', self.ulf, re.IGNORECASE):
 			self.IDENT_FLAG = True

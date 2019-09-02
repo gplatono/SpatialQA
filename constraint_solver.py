@@ -70,7 +70,10 @@ rel_to_func_map = {
     'between.p': spatial.between,
     'clear.a': spatial.clear,
     'where.a': spatial.where,
-    'exist.pred': exist
+    'exist.pred': exist,
+
+    'face.v': spatial.facing,
+    'facing.p': spatial.facing
 }
 
 #Dictionary mapping the predicates to the number of their arguments
@@ -148,6 +151,41 @@ def filter_by_relation(relatums, relation, referents, modifier=None):
 	else:
 		return filter_relation_by_threshold(relatums, relation, referents, 0.5)
 
+def form_arg_tuples(args, arity):	
+	cert_dict = {}
+	for item in args:
+		cert_dict[item[0]] = item[1]
+	bare_args = [item[0] for item in args]	
+	tuples = list(itertools.combinations(bare_args, arity))
+	ret_val = [(tup, np.average([cert_dict[item] for item in tup])) for tup in tuples]
+	# print ("TUPLES: ", arity)
+	# print ("BARE ARGS: ", bare_args)
+	# print ("TUPLE LIST: ", tuples)
+	# print ("ARGS: ", args)
+	# print ("PROC ARGS: ", ret_val)
+	return ret_val
+
+def filter_by_numeral(numeral, entities):
+	"""
+	Return the list of tuples of entities
+	determined by the numeral.
+
+	"""
+	print ("NUMERAL: ", numeral)
+	num = 1
+	if numeral.content == "two.d" or numeral.content == "two.a":
+		num = 2
+	elif numeral.content == "three.d" or numeral.content == "three.a":
+		num = 3
+	elif numeral.content == "four.d" or numeral.content == "four.a":
+		num = 4
+
+	# ret_val = list(itertools.combinations(entities, num))
+	# ret_val = [(arg, 1.0) for arg in ret_val]
+	ret_val = form_arg_tuples(entities, num)
+
+	return ret_val
+
 def compute_predicate(predicate, *arglists):	
 	arg_combinations = list(itertools.product(*arglists))
 	#print ("ARG_LISTS: ", arglists, *arglists, arg_combinations)
@@ -188,6 +226,8 @@ def filter_by_mod(entities, modifier, entity_list):
 		return [(item, 1.0) for item in ret_val]
 	elif type(modifier) == TNumber:
 		pass
+		ret_val = filter_by_numeral(modifier, entities)
+		return ret_val
 	elif type(modifier) == TAdj:
 		print ("ADJ PROCESSING... PRED = ", modifier, " RELATA = ", entities)
 		pred = NPred(content = modifier.content, mods = modifier.mods)
@@ -276,6 +316,8 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 		print ("AVG VAL: ", predicate_values)
 	#For the rest
 	else:
+		print ("FINAL_RELATA: ", relata)
+		print ("FINAL_REFERENTS: ", referents)
 		predicate_values = compute_predicate(predicate_func, relata, *referents) if referents is not None\
 						else compute_predicate(predicate_func, relata)
 
@@ -345,7 +387,7 @@ def resolve_argument(arg_object, entities):
 		for modifier in arg_mods:
 			print ("CURRENT MOD: ", modifier)
 			ret_args = filter_by_mod(ret_args, modifier, entities)
-			print ("CURRENT ARGS: ", modifier)
+			print ("CURRENT ARGS: ", ret_args)
 
 	print ("AFTER MOD APPLICATION:", ret_args)
 	return ret_args

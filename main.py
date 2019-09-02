@@ -237,13 +237,13 @@ def run_debug(world, hci_manager):
 
 #Entry point
 def main():
-    world = World(bpy.context.scene, simulation_mode=True)
+    world = World(bpy.context.scene, simulation_mode=False)
 
     spatial.entities = world.entities
     spatial.world = world
     constraint_solver.world = world
 
-    hci_manager = HCIManager(world, debug_mode = True)
+    hci_manager = HCIManager(world, debug_mode = False)
 
     if hci_manager.debug_mode == True:
         run_debug(world, hci_manager)
@@ -252,6 +252,7 @@ def main():
     hci_thread = Thread(target = hci_manager.start)
     hci_thread.setDaemon(True)
     hci_thread.start()
+    #print ("TEST")
 
 if __name__ == "__main__":
     #save_screenshot()

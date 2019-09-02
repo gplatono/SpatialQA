@@ -1,6 +1,7 @@
 import math
 import numpy as np
 
+
 #Computes the value of the univariate Gaussian
 #Inputs: x - random variable value; mu - mean; sigma - variance
 #Return value: real number
@@ -21,7 +22,7 @@ def cross_product(a, b):
     return (a[1] * b[2] - a[2] * b[1], b[0] * a[2] - b[2] * a[0],
             a[0] * b[1] - a[1] * b[0])
 
-#Given three points that define a plane, computes the normal vector to that plane
+#Given three points that define a plane, computes the unit normal vector to that plane
 #Inputs: a,b,c - point coordinates as tuples or lists
 #Return value: normal vector as a triple of coordinates
 def get_normal(a, b, c):
@@ -30,8 +31,8 @@ def get_normal(a, b, c):
     c = np.array(c)
     u = b - a
     v = c - a
-    u_x_v = np.cross(u, v)
-    return u_x_v
+    u_x_v = np.cross(u, v)    
+    return u_x_v / np.linalg.norm(u_x_v)
     #return cross_product((a[0] - b[0], a[1] - b[1], a[2] - b[2]),
 #                         (c[0] - b[0], c[1] - b[1], c[2] - b[2]))
 
@@ -282,7 +283,11 @@ def get_bbox_intersection(ent_a, ent_b):
 #Input: ent_a - entity
 #Return value: boolean value
 def isVertical(ent_a):
-    return ent_a.dimensions[0] < 0.5 * ent_a.dimensions[2] or ent_a.dimensions[1] < 0.5 * ent_a.dimensions[2]
+    if hasattr(ent_a, 'dimensions'):
+        return ent_a.dimensions[0] < 0.5 * ent_a.dimensions[2] or ent_a.dimensions[1] < 0.5 * ent_a.dimensions[2]
+    else:
+        normal = get_normal(ent_a[0], ent_a[1], ent_a[2])
+        return 1 - normal[2]
 
 def cosine_similarity(v1, v2):
     l1 = np.linalg.norm(v1)
@@ -455,6 +460,39 @@ def eye_projection(point, up, right, focus_dist, eye_dist):
     up0 = scaling_factor * point.dot(up) / np.linalg.norm(up)
     right0 = scaling_factor * point.dot(right) / np.linalg.norm(right)
     return right0, up0
+
+def signed_point_to_plane_dist(point, face):
+    unit_norm = get_normal(face[0], face[1], face[2])
+    dist = np.dot(unit_norm, point - face[0])
+    print ("SIGNED PLANE DISTANCE: ", dist)
+    return dist
+
+def unsigned_point_to_plane_dist(point, face):
+    dist = math.fabs(signed_point_to_face_dist(point, face))
+    print ("UNSIGNED PLANE DISTANCE: ", dist)
+    return dist
+
+def is_in_face(point, face):
+    if type(point) != np.ndarray:
+        point = np.array(point)
+    queue = [np.array(item) for item in face]
+    queue.append(queue[0])
+    angle = 0
+    for i in range(len(queue) - 1):
+        v1 = queue[i] - point
+        v2 = queue[i+1] - point
+        if np.linalg.norm(v1) < 0.00001 or np.linalg.norm(v2) < 0.00001:
+            return 1
+        v1 = v1 / np.linalg.norm(v1)
+        v2 = v2 / np.linalg.norm(v2)        
+        cosa = np.dot(v1, v2)
+        if cosa < -1:
+            cosa = -1
+        elif cosa > 1:
+            cosa = 1
+        angle += math.acos(cosa)
+#    print (angle)
+    return math.e ** (- math.fabs(angle - 2 * math.pi))
 
 def camera_matrix(location, direction):
     pass

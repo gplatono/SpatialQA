@@ -454,15 +454,27 @@ def touching(a, b):
     if get_centroid_distance_scaled(a, b) <= 1.5:
         #mesh_dist = closest_mesh_distance_scaled(a, b)
         mesh_dist = closest_mesh_distance(a, b) / (min(a.size, b.size) + 0.01)
-    print ("MESH DIST: ", mesh_dist)    
+    #print ("MESH DIST: ", mesh_dist)    
     mesh_dist = min(mesh_dist, planar_dist)
-    print ("MESH DIST: ", mesh_dist)
+    #print ("MESH DIST: ", mesh_dist)
+    touch_face = 0
+    for face in b.faces:
+        for v in a.vertex_set:
+            touch_face = max(is_in_face(v, face), touch_face)
+    #print("MIN FACE DIST: ", min_face_dist)
+    print ("SHORTEST MESH DIST:" , mesh_dist)
     if shared_volume == 0:
-        print ("SHARED_VOLUME_ZERO:" ,math.exp(- 0.5 * mesh_dist))
-        return math.exp(- 0.5 * mesh_dist)
+        if touch_face > 0.95:
+            ret_val = touch_face
+        elif mesh_dist < 0.1:
+            ret_val = math.exp(- mesh_dist)
+        else:
+            ret_val = math.exp(- 2 * mesh_dist)
     else:
         print (0.3 * math.exp(- 2 * mesh_dist) + 0.7 * (shared_volume > 0))
-        return 0.3 * math.exp(- 2 * mesh_dist) + 0.7 * (shared_volume > 0)
+        ret_val = 0.3 * math.exp(- 2 * mesh_dist) + 0.7 * (shared_volume > 0)
+    print ("Touching " + a.name + ", " + b.name + ": " + str(ret_val))
+    return ret_val
 
 
 #Computes a special function that takes a maximum value at cutoff point
@@ -566,6 +578,18 @@ def below(a, b):
 #STUB
 #def behind_intr(a, b):
 #    in_front_of_intr(b, a)
+
+def facing(a, b):
+    a_fr = a.front
+    b_fr = b.front
+    centroid_disp = a.centroid - b.centroid
+    centroid_disp /= np.linalg.norm(centroid_disp)
+    a_angle = math.fabs(np.dot(a_fr, centroid_disp))
+    b_angle = math.fabs(np.dot(b_fr, centroid_disp))
+    a_facing = math.e ** (- (a_angle * (1 - a_angle)))
+    b_facing = math.e ** (- (b_angle * (1 - b_angle)))
+    print ("FACING: ", a_facing * b_facing)
+    return a_facing * b_facing
 
 def clear(obj):
     """Return the degree to which the object obj is clear, i.e., has nothing on top."""

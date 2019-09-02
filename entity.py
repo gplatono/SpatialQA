@@ -100,10 +100,11 @@ class Entity(object):
         self.location = self.centroid
       
         #The fundamental intrinsic vectors
-        self.up = []
+        self.up = np.array([0, 0, 1])
         self.right = []
         self.front = np.array(self.components[0].get('frontal')) \
-            if self.components[0].get('frontal') is not None else []
+            if self.components[0].get('frontal') is not None else self.generate_frontal()
+        #print (self.name, self.front)
 
         self.radius = self.compute_radius()
         self.volume = self.compute_volume()
@@ -237,7 +238,14 @@ class Entity(object):
 
     #Sets the direction of the frontal axis of the entity
     def set_frontal(self, frontal):
-       	self.frontal = frontal      
+       	self.frontal = frontal
+
+    def generate_frontal(self):
+        for face in self.faces:
+            normal = get_normal(face[0], face[1], face[2])            
+            if math.fabs(normal[2]) < 0.3:
+                return normal
+        return []
 
     #Checks if the entity has a given property
     def get(self, property):

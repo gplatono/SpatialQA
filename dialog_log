@@ -1121,3 +1121,2153 @@ NEW SESSION: 2019-07-25 12:18:16
 12:19:14 DAVID: Sure, take your time
 12:19:25 USER:  david
 12:19:25 DAVID: Yes, what is it?
+
+NEW SESSION: 2019-08-15 16:19:40
+=============================================================
+16:19:53 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS. DO YOU HAVE A SPATIAL QUESTION FOR ME?
+16:19:56 USER: hi, my name is david. i'm ready to on sale special questions. do you have a spatial question for me?
+16:19:57 ULF: NIL
+16:20:03 DAVID:  do you have a spatial question for me?
+16:20:04 USER:  do you have a special person for me?
+16:20:05 ULF: None
+
+NEW SESSION: 2019-08-16 09:49:53
+=============================================================
+09:49:53 DAVID: None
+
+NEW SESSION: 2019-08-16 09:50:33
+=============================================================
+09:50:33 DAVID: None
+
+NEW SESSION: 2019-08-16 09:51:20
+=============================================================
+09:51:20 DAVID: None
+
+NEW SESSION: 2019-08-16 09:51:57
+=============================================================
+09:51:57 DAVID: None
+
+NEW SESSION: 2019-08-16 09:53:01
+=============================================================
+09:53:01 DAVID: None
+
+NEW SESSION: 2019-08-16 09:53:18
+=============================================================
+09:53:18 DAVID: None
+
+NEW SESSION: 2019-08-16 09:54:34
+=============================================================
+09:54:34 DAVID: None
+09:54:44 USER: how many blocks are on the table?
+09:54:45 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+09:54:54 DAVID:  THERE ARE 8 BLOCKS THAT ARE ON THE TABLE . DO YOU HAVE A SPATIAL QUESTION FOR ME?
+09:55:05 USER:  how many red blocks are on the table?
+09:55:06 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+09:55:14 DAVID:  THERE ARE 2  DO YOU HAVE A SPATIAL QUESTION FOR ME?
+
+NEW SESSION: 2019-08-16 09:58:29
+=============================================================
+09:58:38 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS. DO YOU HAVE A SPATIAL QUESTION FOR ME?
+09:58:55 USER: hello, david.
+09:59:05 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID . DO YOU HAVE A SPATIAL QUESTION FOR ME?
+09:59:05 USER:  i apologize. i couldn't.
+09:59:14 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID . DO YOU HAVE A SPATIAL QUESTION FOR ME?
+09:59:22 USER:  how many blocks are on the table?
+09:59:23 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+09:59:31 DAVID:  THERE ARE 8 BLOCKS THAT ARE ON THE TABLE . DO YOU HAVE A SPATIAL QUESTION FOR ME?
+
+NEW SESSION: 2019-08-16 10:00:22
+=============================================================
+10:00:23 DAVID: None
+10:00:29 USER: how many blocks are on the table?
+10:00:30 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+10:00:38 DAVID:  THERE ARE 8 BLOCKS THAT ARE ON THE TABLE . DO YOU HAVE A SPATIAL QUESTION FOR ME?
+
+NEW SESSION: 2019-08-16 10:02:05
+=============================================================
+10:02:05 DAVID: None
+10:02:10 USER: how many blocks are on the table?
+10:02:11 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+10:02:19 DAVID:  THERE ARE 8 BLOCKS THAT ARE ON THE TABLE . DO YOU HAVE A SPATIAL QUESTION FOR ME?
+
+NEW SESSION: 2019-08-16 10:09:14
+=============================================================
+10:09:14 DAVID: None
+10:09:22 USER: which blocks are to the left of the target block?
+10:09:23 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_LEFT_OF.P (THE.D (Target BLOCK.N))))) ?)
+10:09:32 DAVID:  THERE ARE NO BLOCKS THAT ARE TO THE LEFT OF THE TARGET BLOCK . DO YOU HAVE A SPATIAL QUESTION FOR ME?
+10:09:42 USER:  how many blocks are between two red blocks?
+10:09:43 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P (TWO.D (RED.A (PLUR BLOCK.N)))))) ?)
+10:09:54 DAVID:  THERE ARE NO BLOCKS THAT ARE BETWEEN TWO RED BLOCKS . DO YOU HAVE A SPATIAL QUESTION FOR ME?
+10:10:00 USER:  david stop
+10:10:23 USER: david
+
+NEW SESSION: 2019-08-16 12:19:29
+=============================================================
+12:19:39 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS. DO YOU HAVE A SPATIAL QUESTION FOR ME?
+
+NEW SESSION: 2019-08-16 12:20:20
+=============================================================
+12:20:21 DAVID: None
+12:20:25 USER: how many blocks are on the table?
+12:20:26 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+12:20:32 DAVID:  THERE ARE 8 BLOCKS THAT ARE ON THE TABLE .
+12:20:43 USER:  which blocks are to the left with a toyota block?
+12:20:44 ULF: (POSS-QUES (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO.P (THE.D LEFT.N)))) ?))
+12:20:54 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+12:21:44 USER: how many blocks are to the left of the toyota block?
+12:21:45 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_LEFT_OF.P (THE.D (Toyota BLOCK.N))))) ?)
+12:21:52 DAVID:  THERE ARE 6 BLOCKS THAT ARE TO THE LEFT OF THE TOYOTA BLOCK .
+
+NEW SESSION: 2019-08-16 12:24:31
+=============================================================
+12:24:31 DAVID: None
+12:24:36 USER: david can you give us a minute?
+12:24:52 DAVID:  I CAN TRY MY BEST TO ANSWER YES NO QUESTIONS , WH QUESTIONS , AND HOW MANY QUESTIONS . I CANNOT ANSWER MODAL QUESTIONS RIGHT NOW , THOUGH .
+12:25:00 USER:  david stop
+12:25:08 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+12:25:12 USER:  stop
+12:25:19 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+12:25:20 USER:  i apologize. i couldn't understand.
+12:25:27 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+12:25:44 USER: david please give me a minute.
+12:25:51 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+12:31:32 USER: google one question. what is the the stopping?
+12:31:33 ULF: NIL
+12:31:34 DAVID: 
+12:31:41 USER: i'm just get fire by. oh, no.
+12:31:49 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+12:31:56 USER: david can you give me a moment?
+
+NEW SESSION: 2019-08-16 12:32:45
+=============================================================
+12:32:46 DAVID: None
+12:32:50 USER: david
+12:32:55 DAVID:  HELLO AGAIN.
+
+NEW SESSION: 2019-08-21 13:39:43
+=============================================================
+13:39:43 DAVID: None
+
+NEW SESSION: 2019-08-21 13:41:08
+=============================================================
+13:41:08 DAVID: None
+13:41:39 USER: david
+13:41:44 DAVID:  HELLO AGAIN.
+13:41:57 USER: how many blocks are to the right of the mercedes block?
+13:41:58 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_RIGHT_OF.P (THE.D (Mercedes BLOCK.N))))) ?)
+13:42:00 DAVID: 
+13:42:09 USER: david
+13:42:15 DAVID:  HELLO AGAIN.
+13:42:26 USER:  how many blocks are to the right of the mercedes block?
+13:42:26 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_RIGHT_OF.P (THE.D (Mercedes BLOCK.N))))) ?)
+13:42:28 DAVID: 
+
+NEW SESSION: 2019-08-21 13:43:21
+=============================================================
+13:43:29 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+13:43:32 USER: hi, my name is david. i'm ready to answer you on special question.
+
+NEW SESSION: 2019-08-21 13:43:49
+=============================================================
+13:43:49 DAVID: None
+13:43:57 USER: how many blocks are on the table?
+13:43:59 DAVID: 
+
+NEW SESSION: 2019-08-21 14:33:42
+=============================================================
+14:33:42 DAVID: None
+
+NEW SESSION: 2019-08-21 14:34:39
+=============================================================
+14:34:39 DAVID: None
+14:34:46 USER: how many blocks are on the table?
+
+NEW SESSION: 2019-08-21 14:35:41
+=============================================================
+14:35:42 DAVID: None
+14:35:46 USER: how many blocks are on a table?
+14:35:49 DAVID: 
+
+NEW SESSION: 2019-08-21 14:39:29
+=============================================================
+14:39:30 DAVID: None
+14:39:34 USER: how many blocks are on the table?
+14:39:36 DAVID: 
+
+NEW SESSION: 2019-08-21 14:40:08
+=============================================================
+14:40:15 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+14:40:17 USER: hi.
+14:40:24 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+14:40:43 USER:  how many blocks are on the table?
+14:40:44 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+14:40:46 DAVID: 
+
+NEW SESSION: 2019-08-21 14:48:05
+=============================================================
+14:48:13 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+14:48:16 USER: hi, my name is
+14:48:24 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+
+NEW SESSION: 2019-08-21 14:51:30
+=============================================================
+14:51:40 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+14:51:44 USER: hi, my name is david. i'm ready to unseal spatial quiz.
+
+NEW SESSION: 2019-08-21 14:53:14
+=============================================================
+14:53:24 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+14:53:28 USER: hi, my name is david. i'm ready to aunt sales facial question.
+
+NEW SESSION: 2019-08-21 14:54:12
+=============================================================
+14:54:23 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+14:54:26 USER: hi, my name is david. i'm ready to on sales facial questions.
+14:54:27 ULF: NIL
+14:54:29 DAVID: 
+
+NEW SESSION: 2019-08-21 14:58:05
+=============================================================
+14:58:14 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+
+NEW SESSION: 2019-08-21 14:58:44
+=============================================================
+14:58:53 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+
+NEW SESSION: 2019-08-21 14:59:33
+=============================================================
+14:59:42 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+14:59:55 USER: how many blocks are touching the starbucks block?
+14:59:56 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Starbucks BLOCK.N))))) ?)
+15:00:06 DAVID:  THERE ARE 2 THAT ARE TOUCHING THE STARBUCKS BLOCK . THE TARGET BLOCK AND THE TWITTER BLOCK .
+15:00:15 USER:  how many blocks are on the table?
+15:00:16 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+15:00:23 DAVID:  THERE ARE 8 BLOCKS THAT ARE ON THE TABLE .
+
+NEW SESSION: 2019-08-21 15:12:05
+=============================================================
+15:12:14 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+15:12:24 USER: which block is between the twitter block and the mcdonald's block?
+15:12:25 ULF: (((WHICH.D BLOCK.N) ((PRES BE.V) (BETWEEN.P ((THE.D (Twitter BLOCK.N)) AND.CC (THE.D (McDonalds BLOCK.N)))))) ?)
+15:12:34 DAVID:  THE TEXACO BLOCK IS BETWEEN THE TWITTER BLOCK AND THE MCDONALD'S BLOCK .
+15:12:39 USER:  which blocks are to the left of the twitter block?
+15:12:40 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_LEFT_OF.P (THE.D (Twitter BLOCK.N))))) ?)
+15:12:49 DAVID:  THE STARBUCKS BLOCK AND THE TARGET BLOCK ARE TO THE LEFT OF THE TWITTER BLOCK .
+15:12:58 USER: which blocks are passing the mcdonald's block?
+15:13:07 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+
+NEW SESSION: 2019-08-21 15:14:19
+=============================================================
+15:14:19 DAVID: None
+15:14:30 USER: which blocks are touching the toyota block?
+15:14:32 DAVID: 
+
+NEW SESSION: 2019-08-21 15:15:39
+=============================================================
+15:15:48 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+15:15:54 USER: which blocks are touching the toyota block?
+15:15:55 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+15:16:04 DAVID:  THE BURGER KING BLOCK AND THE MERCEDES BLOCK ARE TOUCHING THE TOYOTA BLOCK .
+15:16:10 USER:  how many blocks are touching the toyota blue?
+15:16:20 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+15:16:29 USER:  how many blocks are touching the toyota block?
+15:16:30 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+15:16:32 DAVID: 
+15:17:02 USER: which blocks are to the right of the toyota block?
+15:17:03 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_RIGHT_OF.P (THE.D (Toyota BLOCK.N))))) ?)
+15:17:15 DAVID:  THERE ARE 2 THAT ARE TOUCHING THE TOYOTA BLOCK . THE BURGER KING BLOCK AND THE MERCEDES BLOCK .
+
+NEW SESSION: 2019-08-21 15:20:00
+=============================================================
+15:20:00 DAVID: None
+15:20:05 USER: how many blocks are touching the toyota block?
+15:20:06 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+15:20:17 DAVID:  THERE ARE 2 THAT ARE TOUCHING THE TOYOTA BLOCK . THE BURGER KING BLOCK AND THE MERCEDES BLOCK .
+15:20:24 USER:  how many blocks are to the right of the toyota block?
+15:20:25 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_RIGHT_OF.P (THE.D (Toyota BLOCK.N))))) ?)
+15:20:33 DAVID:  JUST THE BURGER KING BLOCK IS TO THE RIGHT OF THE TOYOTA BLOCK .
+15:20:38 USER: which red blocks are touching the toyota block?
+15:20:39 ULF: (((WHICH.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+15:20:46 DAVID:  ONLY THE MERCEDES BLOCK .
+15:20:50 USER:  which blocks are on top of the texaco block?
+15:20:51 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Texaco BLOCK.N))))) ?)
+15:21:00 DAVID:  THERE ARE NO BLOCKS THAT ARE ON TOP OF THE TEXACO BLOCK .
+15:21:07 USER: where is the twitter block?
+15:21:08 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Twitter BLOCK.N)) *H)) ?)
+15:21:16 DAVID:  THE TWITTER BLOCK IS NEXT TO THE TEXACO BLOCK .
+15:21:35 USER: what is the highest block?
+15:21:36 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N HIGH.A BLOCK.N))))) ?)
+15:21:42 DAVID:  THERE IS NO SUCH BLOCK .
+15:21:50 USER: david stop
+15:21:59 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+15:22:14 USER: goodbye.
+15:22:25 DAVID:  OH, THANK YOU FOR THE QUESTIONS. GOOD BYE FOR NOW!
+
+NEW SESSION: 2019-08-21 15:23:52
+=============================================================
+15:24:01 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+15:24:04 USER: goodbye, david.
+15:24:15 DAVID:  OH, THANK YOU FOR THE QUESTIONS. GOOD BYE FOR NOW!
+
+NEW SESSION: 2019-08-21 15:25:47
+=============================================================
+15:25:56 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+15:26:00 USER: david goodbye.
+15:26:09 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+15:26:14 USER:  goodbye, david.
+15:26:23 DAVID:  OH, THANK YOU FOR THE QUESTIONS. GOOD BYE FOR NOW!
+
+NEW SESSION: 2019-08-26 11:15:15
+=============================================================
+11:15:15 DAVID: None
+11:15:32 USER: how many blocks are on the table?
+11:15:35 DAVID: None
+
+NEW SESSION: 2019-08-26 11:16:24
+=============================================================
+11:16:33 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+11:16:45 USER: david can you give me a minute?
+11:16:55 DAVID:  SURE, LET ME KNOW WHEN YOU WANT TO CONTINUE.
+11:17:03 USER: david
+11:17:10 DAVID:  HELLO AGAIN.
+11:17:15 USER:  how many blocks are on the table?
+11:17:16 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+11:17:19 DAVID: 
+11:17:47 USER: how many red blocks are on the table?
+11:17:48 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+11:17:57 DAVID:  THERE ARE 8 BLOCKS THAT ARE ON THE TABLE .
+
+NEW SESSION: 2019-08-26 11:18:32
+=============================================================
+11:18:32 DAVID: None
+11:18:38 USER: how many blocks are on the table?
+11:18:39 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+11:18:47 DAVID:  THERE ARE 8 BLOCKS THAT ARE ON THE TABLE .
+11:18:54 USER:  which red blocks are on the table?
+11:18:55 ULF: (((WHICH.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+11:19:06 DAVID:  THE MERCEDES BLOCK AND THE TWITTER BLOCK DO .
+11:19:52 USER: which blocks are to the left of the twitter block?
+11:19:53 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_LEFT_OF.P (THE.D (Twitter BLOCK.N))))) ?)
+11:20:03 DAVID:  THE TARGET BLOCK AND THE STARBUCKS BLOCK ARE TO THE LEFT OF THE TWITTER BLOCK .
+11:20:11 USER: which blocks are between two green blocks?
+11:20:12 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P (TWO.D (GREEN.A (PLUR BLOCK.N)))))) ?)
+11:20:21 DAVID:  THERE ARE NO BLOCKS THAT ARE BETWEEN TWO GREEN BLOCKS .
+11:20:29 USER: which blocks are between some blue block and some blue block?
+11:20:30 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P ((SOME.D (BLUE.A BLOCK.N)) AND.CC (SOME.D (BLUE.A BLOCK.N)))))) ?)
+11:20:46 DAVID:  THE TEXACO , TWITTER , MCDONALD'S , STARBUCKS , AND MERCEDES BLOCKS ARE BETWEEN SOME BLUE BLOCK AND SOME BLUE BLOCK .
+11:21:07 USER: is the target block touching the starbucks block?
+11:21:08 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Starbucks BLOCK.N)))) ?)
+11:21:15 DAVID:  YES .
+11:21:18 USER: is the target block touching the
+11:21:19 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) TOUCHING.A) ?)
+11:21:26 DAVID:  PROBABLY .
+11:21:27 USER:  probably
+11:21:37 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+11:22:09 USER: is the twitter block between the starbucks block and the texaco block?
+11:22:10 ULF: (((PRES BE.V) (THE.D (Twitter BLOCK.N)) (BETWEEN.P ((THE.D (Starbucks BLOCK.N)) AND.CC (THE.D (Texaco BLOCK.N))))) ?)
+11:22:12 DAVID: 
+11:22:29 USER: is the twitter block between the starbucks block and the texaco block?
+11:22:30 ULF: (((PRES BE.V) (THE.D (Twitter BLOCK.N)) (BETWEEN.P ((THE.D (Starbucks BLOCK.N)) AND.CC (THE.D (Texaco BLOCK.N))))) ?)
+11:22:37 DAVID:  YES .
+11:22:50 USER: which blocks are touching the mercedes block?
+11:22:51 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Mercedes BLOCK.N))))) ?)
+
+NEW SESSION: 2019-08-26 11:23:26
+=============================================================
+11:23:26 DAVID: None
+11:23:49 USER: which blocks are facing the target block?
+11:24:00 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+11:24:11 USER:  which block is between 2 ram blocks?
+11:24:24 DAVID:  SORRY, YOU ARE ASKING ABOUT SOME BLOCK BEING BETWEEN OBJECTS , BUT I DIDN'T REALLY CATCH WHAT IT WAS.
+11:24:31 USER: which block is between two red blocks?
+11:24:32 ULF: (((WHICH.D BLOCK.N) ((PRES BE.V) (BETWEEN.P (TWO.D (RED.A (PLUR BLOCK.N)))))) ?)
+11:24:34 DAVID: 
+
+NEW SESSION: 2019-08-26 11:26:09
+=============================================================
+11:26:10 DAVID: None
+11:26:15 USER: how many blocks are on the table?
+11:26:16 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+11:26:22 DAVID:  THERE ARE 8 BLOCKS THAT ARE ON THE TABLE .
+11:26:26 USER:  which blocks are touching the mcdonald's block?
+11:26:27 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+11:26:36 DAVID:  THE TEXACO BLOCK AND THE MERCEDES BLOCK ARE TOUCHING THE MCDONALD'S BLOCK .
+11:29:09 USER: david stop
+11:29:15 DAVID:  SURE, LET ME KNOW WHEN YOU WANT TO CONTINUE.
+11:29:21 USER: set alarm.
+11:29:23 DAVID: 
+11:29:24 USER:  how's it going to work?
+11:29:26 DAVID: 
+
+NEW SESSION: 2019-08-26 11:50:33
+=============================================================
+11:50:33 DAVID: None
+11:50:47 USER: which blocks are touching two blocks?
+11:50:50 DAVID: 
+11:51:22 USER:  david
+11:51:27 DAVID:  HELLO AGAIN.
+11:51:33 USER: which blocks are touching to other blocks?
+11:51:42 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+11:51:45 USER: two other blocks
+11:51:54 DAVID:  I'M ASKING ABOUT SOME OTHER BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+11:52:01 USER:  which blocks are touching to other blocks?
+11:52:10 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+11:52:16 USER:  which blocks are touching to other blocks?
+11:52:25 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+
+NEW SESSION: 2019-08-26 11:52:56
+=============================================================
+11:52:56 DAVID: None
+11:53:03 USER: which blocks are touching two other blocks?
+11:53:04 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (TWO.D (OTHER.A (PLUR BLOCK.N)))))) ?)
+11:53:15 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+
+NEW SESSION: 2019-08-26 11:54:39
+=============================================================
+11:54:39 DAVID: None
+11:54:46 USER: which block is starch into other blocks?
+11:54:56 DAVID:  I'M ASKING ABOUT SOME BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+11:55:05 USER:  which block is starch into other blocks?
+11:55:12 DAVID:  I'M ASKING ABOUT SOME BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+11:55:20 USER:  which block is blocking two other blocks?
+11:55:29 DAVID:  I'M ASKING ABOUT SOME BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+11:55:41 USER: which blocks are touching two other blocks?
+11:55:42 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (TWO.D (OTHER.A (PLUR BLOCK.N)))))) ?)
+11:55:44 DAVID: 
+
+NEW SESSION: 2019-08-26 11:57:34
+=============================================================
+11:57:34 DAVID: None
+11:57:42 USER: which blocks are touching two other blocks?
+11:57:43 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (TWO.D (OTHER.A (PLUR BLOCK.N)))))) ?)
+11:57:54 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+
+NEW SESSION: 2019-08-26 12:09:04
+=============================================================
+12:09:04 DAVID: None
+12:09:27 USER: which blocks are touching two other blocks?
+12:09:28 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (TWO.D (OTHER.A (PLUR BLOCK.N)))))) ?)
+12:09:38 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+
+NEW SESSION: 2019-08-26 12:10:25
+=============================================================
+12:10:26 DAVID: None
+12:10:32 USER: which blocks are touching two other blocks?
+12:10:33 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (TWO.D (OTHER.A (PLUR BLOCK.N)))))) ?)
+12:10:44 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+
+NEW SESSION: 2019-08-26 12:11:08
+=============================================================
+12:11:09 DAVID: None
+12:11:15 USER: which blocks are touching two other blocks?
+12:11:16 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (TWO.D (OTHER.A (PLUR BLOCK.N)))))) ?)
+12:11:22 DAVID:  THERE ARE NO BLOCKS THAT ARE TOUCHING TWO OTHER BLOCKS .
+
+NEW SESSION: 2019-08-26 12:13:34
+=============================================================
+12:13:34 DAVID: None
+12:13:42 USER: which blocks are touching two other blocks?
+12:13:43 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (TWO.D (OTHER.A (PLUR BLOCK.N)))))) ?)
+12:13:49 DAVID:  THERE ARE NO BLOCKS THAT ARE TOUCHING TWO OTHER BLOCKS .
+
+NEW SESSION: 2019-08-26 12:15:17
+=============================================================
+12:15:17 DAVID: None
+12:15:24 USER: which blocks are touching two other blocks?
+12:15:25 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (TWO.D (OTHER.A (PLUR BLOCK.N)))))) ?)
+12:15:32 DAVID:  THERE ARE NO BLOCKS THAT ARE TOUCHING TWO OTHER BLOCKS .
+
+NEW SESSION: 2019-08-26 12:17:38
+=============================================================
+12:17:39 DAVID: None
+12:17:45 USER: which blocks are touching two other blocks?
+12:17:46 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (TWO.D (OTHER.A (PLUR BLOCK.N)))))) ?)
+12:17:52 DAVID:  THERE ARE NO BLOCKS THAT ARE TOUCHING TWO OTHER BLOCKS .
+
+NEW SESSION: 2019-08-26 12:21:11
+=============================================================
+12:21:11 DAVID: None
+12:21:16 USER: which blocks are touching two other blocks?
+12:21:17 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (TWO.D (OTHER.A (PLUR BLOCK.N)))))) ?)
+12:21:24 DAVID:  THERE ARE NO BLOCKS THAT ARE TOUCHING TWO OTHER BLOCKS .
+
+NEW SESSION: 2019-08-26 12:23:33
+=============================================================
+12:23:34 DAVID: None
+12:23:40 USER: which blocks are touching two other blocks?
+12:23:41 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (TWO.D (OTHER.A (PLUR BLOCK.N)))))) ?)
+12:23:48 DAVID:  THERE ARE NO BLOCKS THAT ARE TOUCHING TWO OTHER BLOCKS .
+
+NEW SESSION: 2019-08-26 14:06:08
+=============================================================
+14:06:09 DAVID: None
+14:06:17 USER: is this how you want it just with these date?
+14:06:18 ULF: NIL
+14:06:19 DAVID: 
+14:06:27 USER:  yeah, i just want to know if you would you want to include.
+14:06:43 DAVID:  I CAN TRY MY BEST TO ANSWER YES NO QUESTIONS , WH QUESTIONS , AND HOW MANY QUESTIONS . I CANNOT ANSWER MODAL QUESTIONS RIGHT NOW , THOUGH .
+14:06:50 USER: which blocks are touching the twitter block?
+14:06:51 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Twitter BLOCK.N))))) ?)
+14:06:52 DAVID: 
+
+NEW SESSION: 2019-08-26 14:07:14
+=============================================================
+14:07:15 DAVID: None
+14:07:21 USER: which blocks are touching the twitter block?
+14:07:22 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Twitter BLOCK.N))))) ?)
+14:07:30 DAVID:  THE TEXACO BLOCK AND THE STARBUCKS BLOCK ARE TOUCHING THE TWITTER BLOCK .
+
+NEW SESSION: 2019-08-26 14:08:11
+=============================================================
+14:08:12 DAVID: None
+14:08:16 USER: david
+14:08:21 DAVID:  HELLO AGAIN.
+14:08:30 USER:  how many blocks are touching the texaco block?
+14:08:31 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Texaco BLOCK.N))))) ?)
+14:08:33 DAVID: 
+
+NEW SESSION: 2019-08-26 14:08:50
+=============================================================
+14:08:50 DAVID: None
+14:08:59 USER: how many blocks are touching the texaco block?
+14:09:00 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Texaco BLOCK.N))))) ?)
+14:09:10 DAVID:  THERE ARE 2 THAT ARE TOUCHING THE TEXACO BLOCK . THE TWITTER BLOCK AND THE MCDONALD'S BLOCK .
+14:09:22 USER:  how many red blocks are touching the mcdonald's block?
+14:09:23 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+14:09:29 DAVID:  ONLY ONE , THE MERCEDES BLOCK .
+14:10:14 USER: how many blocks are left of the burger king block?
+14:10:22 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:10:35 USER:  how many blocks are left of the burger king block?
+14:10:44 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:10:55 USER: how many blocks are on top of the toyota block?
+14:10:56 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Toyota BLOCK.N))))) ?)
+14:10:58 DAVID: 
+14:11:08 USER:  david
+14:11:13 DAVID:  HELLO AGAIN.
+14:11:22 USER:  how many blocks are on top of the toyota block?
+14:11:23 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Toyota BLOCK.N))))) ?)
+14:11:25 DAVID: 
+14:11:40 USER: how many blocks are on top of the target block?
+14:11:41 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Target BLOCK.N))))) ?)
+14:11:48 DAVID:  THERE ARE NO BLOCKS THAT ARE ON TOP OF THE TOYOTA BLOCK .
+14:12:00 USER:  david can you give us a minute?
+14:12:08 DAVID:  SURE, LET ME KNOW WHEN YOU WANT TO CONTINUE.
+14:12:22 USER: there is a decent conversation between the current question and the answer goes into the back hole.
+14:12:24 DAVID: 
+14:12:30 USER:  example you ask a question and it gives you correct answer to the previous question instead.
+14:12:33 DAVID: 
+14:12:46 USER: i've noticed that what i noticed is that it just simply basically it blocks like it just gave back in the hole just an old statement. it don't say anything. oh really like leads to
+14:12:48 DAVID: 
+14:13:10 USER:  because like it all puts the answer to this question but like too late and so when you're at the second the next question, it will be the answer to that previous question. so if you can just restart the pipeline basically if it's running like you
+14:13:13 DAVID: 
+
+NEW SESSION: 2019-08-26 14:13:36
+=============================================================
+14:13:36 DAVID: None
+
+NEW SESSION: 2019-08-26 14:15:08
+=============================================================
+14:15:08 DAVID: None
+14:15:14 USER: how many blocks are to the left of the burger king block?
+14:15:16 DAVID: 
+
+NEW SESSION: 2019-08-26 14:15:34
+=============================================================
+14:15:34 DAVID: None
+14:15:41 USER: how many blocks are to the left of the burger king block?
+14:15:43 DAVID: 
+14:15:52 USER:  how many blocks are to the left of the burger king block?
+14:15:54 DAVID: 
+14:15:57 USER:  don't seem to be working.
+14:15:59 DAVID: 
+14:16:04 USER:  david
+14:16:10 DAVID:  HELLO AGAIN.
+14:16:16 USER:  how many blocks are to the left of the burger king block?
+14:16:17 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_LEFT_OF.P (THE.D (Burger King BLOCK.N))))) ?)
+14:16:18 DAVID: 
+
+NEW SESSION: 2019-08-26 14:16:38
+=============================================================
+14:16:46 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+14:16:52 USER: how many blocks are to the left of the burger king block?
+14:16:53 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_LEFT_OF.P (THE.D (Burger King BLOCK.N))))) ?)
+14:17:01 DAVID:  THERE ARE 7 BLOCKS THAT ARE TO THE LEFT OF THE BURGER KING BLOCK .
+14:17:33 USER:  how many blocks are behind?
+14:17:42 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:17:43 USER: the twitter block
+14:17:52 DAVID:  I'M ASKING ABOUT SOME TWITTER BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+14:17:59 USER: how many blocks are behind the target block?
+14:18:00 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Target BLOCK.N))))) ?)
+14:18:01 DAVID: 
+14:18:12 USER:  david
+14:18:18 DAVID:  HELLO AGAIN.
+14:18:23 USER: how many blocks are behind the twitter block?
+14:18:24 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Twitter BLOCK.N))))) ?)
+14:18:26 DAVID: 
+14:18:37 USER: how many blocks are right to the mcdonald's block?
+14:18:46 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:19:01 USER:  how many green blocks are touching the target block?
+14:19:02 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Target BLOCK.N))))) ?)
+14:19:04 DAVID: 
+14:19:59 USER: how many green blocks are touching the mercedes block?
+14:20:00 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Mercedes BLOCK.N))))) ?)
+14:20:05 DAVID:  THERE ARE 0 .
+14:20:24 USER: how many green blocks are touching the mercedes block?
+14:20:25 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Mercedes BLOCK.N))))) ?)
+14:20:31 DAVID:  ONLY ONE , THE MCDONALD'S BLOCK .
+14:20:45 USER:  how many blocks are behind the twitter block?
+14:20:46 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Twitter BLOCK.N))))) ?)
+14:20:51 DAVID:  ONLY ONE , THE MCDONALD'S BLOCK .
+14:20:57 USER:  how many blocks are behind the twitter block?
+14:20:58 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Twitter BLOCK.N))))) ?)
+14:21:05 DAVID:  JUST THE TARGET BLOCK IS BEHIND THE TWITTER BLOCK .
+14:21:31 USER: how many blocks are touching the starbucks block?
+14:21:32 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Starbucks BLOCK.N))))) ?)
+14:21:38 DAVID:  JUST THE TARGET BLOCK IS BEHIND THE TWITTER BLOCK .
+14:21:49 USER: how many block blocks are touching the starbucks block?
+14:21:58 DAVID:  I'M ASKING ABOUT SOME BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+14:22:04 USER:  which blocks are touching the starbucks block?
+14:22:05 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Starbucks BLOCK.N))))) ?)
+14:22:07 DAVID: 
+14:22:14 USER: which blocks are touching the starbucks blocks?
+14:22:15 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Starbucks (PLUR BLOCK.N)))))) ?)
+14:22:23 DAVID:  JUST THE TWITTER BLOCK IS TOUCHING THE STARBUCKS BLOCK .
+14:22:39 USER: how many green blocks are touching the mcdonald's block?
+14:22:40 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+14:22:48 DAVID:  JUST THE TWITTER BLOCK IS TOUCHING THE STARBUCKS BLOCKS .
+14:23:00 USER: how many green blocks are touching the mcdonald's block?
+14:23:01 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+14:23:05 DAVID:  THERE ARE 0 .
+14:23:21 USER: how many blocks are touching the target block?
+14:23:22 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Target BLOCK.N))))) ?)
+14:23:26 DAVID:  THERE ARE 0 .
+14:23:32 USER:  how many blocks are touching the target block?
+14:23:33 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Target BLOCK.N))))) ?)
+14:23:39 DAVID:  THERE ARE NO BLOCKS THAT ARE TOUCHING THE TARGET BLOCK .
+14:23:59 USER:  how
+14:24:07 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+14:24:13 USER: how many blocks are right of the mercedes block?
+14:24:22 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:24:27 USER: our right to the mercedes block
+14:24:37 DAVID:  I'M ASKING ABOUT SOME MERCEDES BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+14:24:42 USER: blocks are right to the mercedes block.
+14:24:51 DAVID:  I'M ASKING ABOUT SOME MERCEDES BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+14:24:54 USER:  how many?
+14:24:55 ULF: NIL
+14:24:56 DAVID: 
+14:24:58 USER: blocks are right to the mercedes block.
+14:25:07 DAVID:  I'M ASKING ABOUT SOME MERCEDES BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+14:25:21 USER:  how many blocks are right to the mercedes block?
+14:25:30 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:25:40 USER:  how many blocks are left to the starbucks block?
+14:25:49 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:25:54 USER: how many blocks are left to the starbucks block?
+14:26:03 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:26:12 USER:  how many blue blocks are touching the toyota block?
+14:26:13 ULF: (((HOW_MANY.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+14:26:14 DAVID: 
+14:26:26 USER:  how many blue blocks are touching the toyota block?
+14:26:27 ULF: (((HOW_MANY.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+14:26:31 DAVID:  THERE ARE 0 .
+14:26:59 USER: how many blocks are touching the mercedes block?
+14:27:00 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Mercedes BLOCK.N))))) ?)
+14:27:05 DAVID:  THERE ARE 0 .
+14:27:10 USER:  how many blocks are touching the mercedes block?
+14:27:11 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Mercedes BLOCK.N))))) ?)
+14:27:17 DAVID:  THERE ARE NO BLOCKS THAT ARE TOUCHING THE MERCEDES BLOCK .
+14:27:28 USER:  how many blocks are behind the texaco block?
+14:27:29 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Texaco BLOCK.N))))) ?)
+14:27:35 DAVID:  THERE ARE NO BLOCKS THAT ARE TOUCHING THE MERCEDES BLOCK .
+14:27:39 USER:  how many blocks?
+14:27:48 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:27:55 USER: how many blocks are behind the texaco block?
+14:27:56 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Texaco BLOCK.N))))) ?)
+14:27:57 DAVID: 
+14:28:09 USER:  how many blocks are behind the texaco block?
+14:28:10 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Texaco BLOCK.N))))) ?)
+14:28:20 DAVID:  THERE ARE 2 THAT ARE BEHIND THE TEXACO BLOCK . THE MERCEDES BLOCK AND THE TARGET BLOCK .
+14:28:34 USER: how many red blocks are touching?
+14:28:35 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) TOUCHING.A)) ?)
+14:28:44 DAVID:  THERE ARE 2 THAT ARE BEHIND THE TEXACO BLOCK . THE MERCEDES BLOCK AND THE TARGET BLOCK .
+14:28:45 USER: the toyota block
+14:28:55 DAVID:  I'M ASKING ABOUT SOME TOYOTA BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+14:29:06 USER:  how many red blocks are touching a toyota block?
+14:29:07 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (A.D (Toyota BLOCK.N))))) ?)
+14:29:09 DAVID: 
+14:29:19 USER:  how many blocks are touching is the toyota block?
+14:29:28 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:29:39 USER: how many red blocks are touching the toyota block?
+14:29:40 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+14:29:41 DAVID: 
+14:29:52 USER:  how many red blocks are touching the toyota block?
+14:29:53 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+14:29:57 DAVID:  THERE ARE 0 .
+14:30:05 USER: how many red blocks are touching the toyota block?
+14:30:06 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+14:30:11 DAVID:  THERE ARE 0 .
+14:30:24 USER:  how many blue blocks are touching the mcdonald's?
+14:30:25 ULF: (((HOW_MANY.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) TOUCHING.A)) ?)
+14:30:30 DAVID:  THERE ARE 0 .
+14:30:31 USER:  baby cereal
+14:30:38 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+14:30:43 USER: how many blue blocks are touching the mcdonald's block?
+14:30:44 ULF: (((HOW_MANY.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+14:30:46 DAVID: 
+14:30:54 USER:  how many blue blocks are touching the mcdonald's block?
+14:30:55 ULF: (((HOW_MANY.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+14:31:00 DAVID:  ONLY ONE , THE TEXACO BLOCK .
+14:31:26 USER: which blocks are touching the twitter block?
+14:31:27 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Twitter BLOCK.N))))) ?)
+14:31:32 DAVID:  ONLY ONE , THE TEXACO BLOCK .
+14:31:41 USER:  which block which blocks are touching the twitter block?
+14:31:49 DAVID:  I'M ASKING ABOUT SOME BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+14:31:56 USER:  which blocks are touching the twitter block?
+14:31:57 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Twitter BLOCK.N))))) ?)
+14:31:58 DAVID: 
+14:32:05 USER:  which blocks are touching the twitter block?
+14:32:06 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Twitter BLOCK.N))))) ?)
+14:32:14 DAVID:  THE TEXACO BLOCK AND THE STARBUCKS BLOCK ARE TOUCHING THE TWITTER BLOCK .
+14:32:39 USER: is the mcdonalds block touching the burger king block?
+14:32:40 ULF: (((PRES BE.V) (THE.D (McDonalds BLOCK.N)) (TOUCHING.P (THE.D (Burger King BLOCK.N)))) ?)
+14:32:48 DAVID:  THE TEXACO BLOCK AND THE STARBUCKS BLOCK ARE TOUCHING THE TWITTER BLOCK .
+14:33:01 USER: is the mcdonalds block touching the burger king block?
+14:33:02 ULF: (((PRES BE.V) (THE.D (McDonalds BLOCK.N)) (TOUCHING.P (THE.D (Burger King BLOCK.N)))) ?)
+14:33:06 DAVID:  NO .
+14:33:47 USER: how many blocks are touching the mcdonald's block?
+14:33:48 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+14:33:52 DAVID:  NO .
+14:33:59 USER: how many blocks is touching the mcdonald's block?
+14:34:00 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+14:34:10 DAVID:  THERE ARE 2 THAT ARE TOUCHING THE MCDONALD'S BLOCK . THE TEXACO BLOCK AND THE STARBUCKS BLOCK .
+14:34:30 USER: how many blocks are on top of the starbucks block?
+14:34:31 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+14:34:40 DAVID:  THERE ARE 2 THAT ARE TOUCHING THE MCDONALD'S BLOCK . THE TEXACO BLOCK AND THE STARBUCKS BLOCK .
+14:34:47 USER: how many blocks are on top of the starbucks block?
+14:34:48 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+14:34:55 DAVID:  THERE ARE NO BLOCKS THAT ARE ON TOP OF THE STARBUCKS BLOCK .
+14:35:10 USER: which blocks are touching the texaco block?
+14:35:11 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Texaco BLOCK.N))))) ?)
+14:35:18 DAVID:  THERE ARE NO BLOCKS THAT ARE ON TOP OF THE STARBUCKS BLOCK .
+14:35:27 USER:  which blocks are touching the texaco block?
+14:35:28 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Texaco BLOCK.N))))) ?)
+14:35:37 DAVID:  THE TWITTER , STARBUCKS , AND MCDONALD'S BLOCKS ARE TOUCHING THE TEXACO BLOCK .
+14:35:52 USER: how many blocks are right to the starbucks block?
+14:36:01 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:36:07 USER: how many blocks are right to the starbucks block?
+14:36:15 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:36:45 USER: how many blocks are in between the texaco block on the toyota block?
+14:36:57 DAVID:  SORRY, YOU ARE ASKING ABOUT SOME BLOCKS BEING BETWEEN OBJECTS , BUT I DIDN'T REALLY CATCH WHAT IT WAS.
+14:37:06 USER: how many blocks are in between the texaco block and the burger king block?
+14:37:07 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P ((THE.D (Texaco BLOCK.N)) AND.CC (THE.D (Burger King BLOCK.N)))))) ?)
+14:37:09 DAVID: 
+14:37:20 USER:  how many blocks are in between the texaco block and the burger king block?
+14:37:21 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P ((THE.D (Texaco BLOCK.N)) AND.CC (THE.D (Burger King BLOCK.N)))))) ?)
+14:37:33 DAVID:  THERE ARE 2 THAT ARE IN BETWEEN THE TEXACO BLOCK AND THE BURGER KING BLOCK . THE TOYOTA BLOCK AND THE MCDONALD'S BLOCK .
+14:37:52 USER: how many red blocks are touching the starbucks block?
+14:37:53 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Starbucks BLOCK.N))))) ?)
+14:38:03 DAVID:  THERE ARE 2 THAT ARE IN BETWEEN THE TEXACO BLOCK AND THE BURGER KING BLOCK . THE TOYOTA BLOCK AND THE MCDONALD'S BLOCK .
+14:38:15 USER:  how many blocks are touching the starbucks block and are red?
+14:38:24 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:38:31 USER:  how many red blocks are touching the starbucks block?
+14:38:32 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Starbucks BLOCK.N))))) ?)
+14:38:34 DAVID: 
+14:38:40 USER:  how many red blocks are touching the sky?
+14:38:41 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) TOUCHING.A)) ?)
+14:38:46 DAVID:  THERE ARE 0 .
+14:38:46 USER: fox block
+14:38:47 ULF: NIL
+14:38:57 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+14:39:16 USER:  how many blocks are left to the twitter block?
+14:39:24 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:39:28 USER: are left to the twitter block.
+14:39:37 DAVID:  I'M ASKING ABOUT SOME TWITTER BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+14:39:42 USER: how many blocks are left to the twitter block?
+14:39:51 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:39:56 USER: are left.
+14:39:57 ULF: NIL
+14:39:58 DAVID: 
+14:40:05 USER:  how many blocks are left to the twitter block?
+14:40:14 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:40:16 USER: are left.
+14:40:17 ULF: NIL
+14:40:19 DAVID: 
+14:40:25 USER:  how many blocks are left to the twitter block?
+14:40:34 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:40:41 USER: how many blocks are left to the twitter block?
+14:40:50 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:41:02 USER: david
+14:41:07 DAVID:  HELLO AGAIN.
+14:41:13 USER: how many blocks are left to the twitter block?
+14:41:22 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:41:32 USER: which blue blocks are touching the texaco block?
+14:41:33 ULF: (((WHICH.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Texaco BLOCK.N))))) ?)
+14:41:34 DAVID: 
+14:41:42 USER:  which blue blocks are touching the texaco block?
+14:41:43 ULF: (((WHICH.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Texaco BLOCK.N))))) ?)
+14:41:49 DAVID:  THERE IS NO SUCH BLUE BLOCK .
+14:42:08 USER:  how many green blocks are touching the toyota block?
+14:42:09 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+14:42:14 DAVID:  THERE IS NO SUCH BLUE BLOCK .
+14:42:20 USER: how many green blocks are touching the toyota block?
+14:42:21 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+14:42:27 DAVID:  ONLY ONE , THE BURGER KING BLOCK .
+14:42:56 USER: how many blocks are below the mercedes block?
+14:42:57 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BELOW.P (THE.D (Mercedes BLOCK.N))))) ?)
+14:43:02 DAVID:  ONLY ONE , THE BURGER KING BLOCK .
+14:43:10 USER:  how many blocks are below the mercedes block?
+14:43:11 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BELOW.P (THE.D (Mercedes BLOCK.N))))) ?)
+14:43:20 DAVID:  THERE ARE 2 THAT ARE BELOW THE MERCEDES BLOCK . THE TWITTER BLOCK AND THE TEXACO BLOCK .
+14:43:31 USER: how many red blocks are above the twitter block?
+14:43:32 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (ABOVE.P (THE.D (Twitter BLOCK.N))))) ?)
+14:43:42 DAVID:  THERE ARE 2 THAT ARE BELOW THE MERCEDES BLOCK . THE TWITTER BLOCK AND THE TEXACO BLOCK .
+14:43:49 USER:  how many blocks are above the twitter block?
+14:43:50 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Twitter BLOCK.N))))) ?)
+14:43:56 DAVID:  ONLY ONE , THE MERCEDES BLOCK .
+14:44:06 USER: how many blue blocks are touching the texaco block?
+14:44:07 ULF: (((HOW_MANY.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Texaco BLOCK.N))))) ?)
+14:44:14 DAVID:  JUST THE MERCEDES BLOCK IS ABOVE THE TWITTER BLOCK .
+14:44:21 USER: how many blue blocks are touching the texaco block?
+14:44:22 ULF: (((HOW_MANY.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Texaco BLOCK.N))))) ?)
+14:44:27 DAVID:  THERE ARE 0 .
+14:44:41 USER:  how many blocks are left to the starbucks block?
+14:44:50 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:44:54 USER:  how many blocks are left to the starbucks block?
+14:45:03 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:45:29 USER: how many blocks are above the texaco block?
+14:45:30 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Texaco BLOCK.N))))) ?)
+14:45:32 DAVID: 
+14:45:39 USER:  how many blocks are above the texaco block?
+14:45:40 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Texaco BLOCK.N))))) ?)
+14:45:51 DAVID:  THERE ARE 2 THAT ARE ABOVE THE TEXACO BLOCK . THE STARBUCKS BLOCK AND THE MERCEDES BLOCK .
+14:46:10 USER: how many blocks are behind the toyota block?
+14:46:11 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Toyota BLOCK.N))))) ?)
+14:46:20 DAVID:  THERE ARE 2 THAT ARE ABOVE THE TEXACO BLOCK . THE STARBUCKS BLOCK AND THE MERCEDES BLOCK .
+14:46:25 USER:  how many blocks are behind the toyota block?
+14:46:26 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Toyota BLOCK.N))))) ?)
+14:46:33 DAVID:  THERE ARE NO BLOCKS THAT ARE BEHIND THE TOYOTA BLOCK .
+14:46:44 USER:  how many blocks are touching the mercedes block?
+14:46:45 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Mercedes BLOCK.N))))) ?)
+14:46:52 DAVID:  THERE ARE NO BLOCKS THAT ARE BEHIND THE TOYOTA BLOCK .
+14:46:56 USER:  how many blocks are touching the
+14:46:57 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) TOUCHING.A)) ?)
+14:47:07 DAVID:  THERE ARE 2 THAT ARE TOUCHING THE MERCEDES BLOCK . THE TEXACO BLOCK AND THE TWITTER BLOCK .
+14:47:08 USER: mercedes block
+14:47:09 ULF: NIL
+14:47:19 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+14:47:28 USER: how many blocks are above the toyota block?
+14:47:29 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Toyota BLOCK.N))))) ?)
+14:47:31 DAVID: 
+14:47:38 USER:  how many blocks are above the toyota block?
+14:47:39 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Toyota BLOCK.N))))) ?)
+14:47:46 DAVID:  THERE ARE NO BLOCKS THAT ARE ABOVE THE TOYOTA BLOCK .
+14:47:51 USER:  how many red blocks are above the
+14:48:00 DAVID:  I'M ASKING ABOUT SOME RED BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:48:00 USER: block
+14:48:01 ULF: NIL
+14:48:03 DAVID: 
+14:48:08 USER:  how many red blocks are on top of the mercedes block?
+14:48:09 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Mercedes BLOCK.N))))) ?)
+14:48:10 DAVID: 
+14:48:17 USER:  how many red blocks are on top of the mercedes block?
+14:48:18 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Mercedes BLOCK.N))))) ?)
+14:48:23 DAVID:  THERE ARE 0 .
+14:48:37 USER:  how many blocks are on the same level as the texaco block?
+14:48:46 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:48:53 USER: how many blocks are on the same level as the texaco block?
+14:49:01 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:49:15 USER:  how many blocks are on the same level as the burger king block?
+14:49:24 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+14:49:29 USER:  how many red blocks are touching the mcdonald's block?
+14:49:30 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+14:49:32 DAVID: 
+14:49:39 USER:  how many red blocks are touching the mcdonald's block?
+14:49:40 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+14:49:44 DAVID:  THERE ARE 0 .
+14:49:54 USER: how many blocks are next to the target block?
+14:49:55 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (NEXT_TO.P (THE.D (Target BLOCK.N))))) ?)
+14:50:00 DAVID:  THERE ARE 0 .
+14:50:05 USER: how many blocks are next to the target block?
+14:50:06 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (NEXT_TO.P (THE.D (Target BLOCK.N))))) ?)
+14:50:16 DAVID:  THERE ARE 2 THAT ARE NEXT TO THE TARGET BLOCK . THE TWITTER BLOCK AND THE TEXACO BLOCK .
+14:50:34 USER:  how many blocks are above the starbucks block?
+14:50:35 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Starbucks BLOCK.N))))) ?)
+14:50:44 DAVID:  THERE ARE 2 THAT ARE NEXT TO THE TARGET BLOCK . THE TWITTER BLOCK AND THE TEXACO BLOCK .
+14:50:50 USER: how many blocks are above the mercedes block?
+14:50:51 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Mercedes BLOCK.N))))) ?)
+14:50:58 DAVID:  THERE ARE NO BLOCKS THAT ARE ABOVE THE STARBUCKS BLOCK .
+14:51:07 USER:  how many blocks are above the mercedes block?
+14:51:08 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Mercedes BLOCK.N))))) ?)
+14:51:15 DAVID:  THERE ARE NO BLOCKS THAT ARE ABOVE THE MERCEDES BLOCK .
+14:51:23 USER:  how many blocks are in between the mcdonald's block in the toyota block?
+14:51:34 DAVID:  SORRY, YOU ARE ASKING ABOUT SOME BLOCKS BEING BETWEEN OBJECTS , BUT I DIDN'T REALLY CATCH WHAT IT WAS.
+14:51:43 USER: how many blocks are in between the mcdonald's block in the toyota block?
+14:51:54 DAVID:  SORRY, YOU ARE ASKING ABOUT SOME BLOCKS BEING BETWEEN OBJECTS , BUT I DIDN'T REALLY CATCH WHAT IT WAS.
+14:52:03 USER:  how many blocks are in between the mcdonald's block in the toyota block?
+14:52:14 DAVID:  SORRY, YOU ARE ASKING ABOUT SOME BLOCKS BEING BETWEEN OBJECTS , BUT I DIDN'T REALLY CATCH WHAT IT WAS.
+14:52:23 USER:  how many blocks are in between the mcdonald's block and the toyota block?
+14:52:24 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P ((THE.D (McDonalds BLOCK.N)) AND.CC (THE.D (Toyota BLOCK.N)))))) ?)
+14:52:26 DAVID: 
+14:52:38 USER: how many blocks are in between the mcdonald's block and the toyota block?
+14:52:39 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P ((THE.D (McDonalds BLOCK.N)) AND.CC (THE.D (Toyota BLOCK.N)))))) ?)
+14:52:47 DAVID:  THERE ARE NO BLOCKS THAT ARE IN BETWEEN THE MCDONALD'S BLOCK AND THE TOYOTA BLOCK .
+14:52:59 USER:  exit
+14:53:07 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+15:15:56 USER: design is like unique system. so then like right before or like.
+15:15:57 ULF: NIL
+15:15:58 DAVID: 
+15:16:13 USER: really with very short notice you tell us that we're going to the paper so i can print it out and go then discuss it. so now i'm really sad.
+15:16:14 ULF: NIL
+15:16:15 DAVID: 
+
+NEW SESSION: 2019-08-27 14:17:28
+=============================================================
+14:17:29 DAVID: None
+
+NEW SESSION: 2019-08-27 14:22:43
+=============================================================
+14:22:44 DAVID: None
+14:22:52 USER: which blocks are in between two green blocks?
+14:22:53 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P (TWO.D (GREEN.A (PLUR BLOCK.N)))))) ?)
+14:23:06 DAVID:  THE MERCEDES , TWITTER , TOYOTA , TEXACO , AND MCDONALD'S BLOCKS ARE IN BETWEEN TWO GREEN BLOCKS .
+14:23:19 USER: which blocks are left of the mcdonald's block?
+14:23:20 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (OF.P (THE.D (McDonalds BLOCK.N))))) ?)
+14:23:32 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+14:23:48 USER: which blocks are left of the mcdonald's block?
+14:23:49 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (OF.P (THE.D (McDonalds BLOCK.N))))) ?)
+14:24:00 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+14:24:10 USER: which blocks are left to the mcdonald's block?
+14:24:11 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO.P (THE.D (McDonalds BLOCK.N))))) ?)
+14:24:21 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+
+NEW SESSION: 2019-08-27 15:37:39
+=============================================================
+15:37:39 DAVID: None
+15:37:46 USER: which blocks are not touching any other blocks?
+15:37:47 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (ANY.D (OTHER.A (PLUR BLOCK.N)))))) ?)
+15:38:03 DAVID:  THERE ARE 8 THAT AREN'T TOUCHING ANY OTHER BLOCKS , INCLUDING THE TARGET , STARBUCKS , TEXACO , MCDONALD'S , AND MERCEDES BLOCKS .
+15:38:21 USER: which blocks are bashing some blue block?
+15:38:30 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+15:38:34 USER:  which blocks are touching some blue block?
+15:38:35 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (SOME.D (BLUE.A BLOCK.N))))) ?)
+15:38:37 DAVID: 
+15:39:41 USER: which block is in front of the texaco block?
+15:39:42 ULF: (((WHICH.D BLOCK.N) ((PRES BE.V) (IN_FRONT_OF.P (THE.D (Texaco BLOCK.N))))) ?)
+15:39:54 DAVID:  THE STARBUCKS , MCDONALD'S , MERCEDES , TWITTER , AND BURGER KING BLOCKS ARE TOUCHING SOME BLUE BLOCK .
+15:40:00 USER: which blocks are not in front of the texaco block?
+15:40:01 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (IN_FRONT_OF.P (THE.D (Texaco BLOCK.N))))) ?)
+15:40:08 DAVID:  THERE IS NO BLOCK THAT IS IN FRONT OF THE TEXACO BLOCK .
+
+NEW SESSION: 2019-08-27 15:41:28
+=============================================================
+15:41:28 DAVID: None
+
+NEW SESSION: 2019-08-27 15:41:55
+=============================================================
+15:41:55 DAVID: None
+
+NEW SESSION: 2019-08-27 15:43:09
+=============================================================
+15:43:09 DAVID: None
+
+NEW SESSION: 2019-08-27 15:44:03
+=============================================================
+15:44:04 DAVID: None
+
+NEW SESSION: 2019-08-27 15:44:43
+=============================================================
+15:44:43 DAVID: None
+
+NEW SESSION: 2019-08-28 10:29:18
+=============================================================
+10:29:27 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+10:29:39 USER: how many blocks are on the table?
+10:29:40 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+10:29:51 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+
+NEW SESSION: 2019-08-28 10:33:15
+=============================================================
+10:33:15 DAVID: None
+10:33:21 USER: how many blocks are on the table?
+10:33:22 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+10:33:31 DAVID:  THERE ARE 8 BLOCKS THAT ARE ON THE TABLE .
+10:33:47 USER:  which red blocks are on the table?
+10:33:48 ULF: (((WHICH.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+10:33:54 DAVID:  THE MERCEDES BLOCK AND THE TWITTER BLOCK DO .
+10:34:44 USER: which blocks are above the texaco block?
+10:34:45 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Texaco BLOCK.N))))) ?)
+10:34:53 DAVID:  THERE ARE NO BLOCKS THAT ARE ABOVE THE TEXACO BLOCK .
+
+NEW SESSION: 2019-08-28 10:37:55
+=============================================================
+10:37:55 DAVID: None
+10:38:13 USER: which blocks are lava starbucks block?
+10:38:24 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+10:38:49 USER:  which blocks are above the starbucks block?
+10:38:50 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Starbucks BLOCK.N))))) ?)
+10:38:52 DAVID: 
+10:43:25 USER: which blocks are above the starbucks block?
+10:43:26 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Starbucks BLOCK.N))))) ?)
+10:43:35 DAVID:  THERE ARE NO BLOCKS THAT ARE ABOVE THE STARBUCKS BLOCK .
+10:43:43 USER: which blocks are above the starbucks block?
+10:43:44 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Starbucks BLOCK.N))))) ?)
+10:43:53 DAVID:  THERE ARE NO BLOCKS THAT ARE ABOVE THE STARBUCKS BLOCK .
+10:44:08 USER:  which blocks are above the starbucks block?
+10:44:09 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Starbucks BLOCK.N))))) ?)
+10:44:18 DAVID:  JUST THE TARGET BLOCK IS ABOVE THE STARBUCKS BLOCK .
+10:44:21 USER: target block
+10:44:22 ULF: NIL
+10:44:24 DAVID: 
+10:44:38 USER: which blocks are below the starbucks block?
+10:44:39 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (BELOW.P (THE.D (Starbucks BLOCK.N))))) ?)
+10:44:48 DAVID:  THERE ARE NO BLOCKS THAT ARE BELOW THE STARBUCKS BLOCK .
+
+NEW SESSION: 2019-08-28 10:48:47
+=============================================================
+10:48:56 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+10:49:03 USER: how many blocks are on the table?
+10:49:04 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+10:49:10 DAVID:  THERE ARE 8 BLOCKS THAT ARE ON THE TABLE .
+10:49:15 USER:  which blocks are passing the mcdonald's block?
+10:49:24 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+10:49:29 USER:  which blocks are touching the mcdonald's block?
+10:49:30 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+10:49:31 DAVID: 
+10:49:46 USER: blocks are passing the mcdonald's block.
+10:49:56 DAVID:  I'M ASKING ABOUT SOME MCDONALDS BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+10:50:02 USER:  which blocks are touching the toyota block?
+10:50:03 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+10:50:04 DAVID: 
+
+NEW SESSION: 2019-08-28 10:55:46
+=============================================================
+10:55:55 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+10:56:02 USER: which red blocks are touching the toyota block?
+10:56:03 ULF: (((WHICH.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Toyota BLOCK.N))))) ?)
+10:56:10 DAVID:  ONLY THE MERCEDES BLOCK .
+10:56:18 USER: how many blocks are above the starbucks block?
+10:56:20 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Starbucks BLOCK.N))))) ?)
+10:56:27 DAVID:  THERE ARE NO BLOCKS THAT ARE ABOVE THE STARBUCKS BLOCK .
+10:56:35 USER:  how many blocks are above the starbucks block?
+10:56:36 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Starbucks BLOCK.N))))) ?)
+10:56:44 DAVID:  JUST THE TARGET BLOCK IS ABOVE THE STARBUCKS BLOCK .
+10:56:48 USER: is the target block above the starbucks block?
+10:56:49 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (ABOVE.P (THE.D (Starbucks BLOCK.N)))) ?)
+10:56:55 DAVID:  YES .
+10:57:00 USER: is the target block touching the starbucks block?
+10:57:01 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Starbucks BLOCK.N)))) ?)
+10:57:06 DAVID:  YES .
+10:57:11 USER: is the target block touching the texaco block?
+10:57:12 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Texaco BLOCK.N)))) ?)
+10:57:18 DAVID:  NO .
+10:57:33 USER:  which blocks are below the target block?
+10:57:35 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (BELOW.P (THE.D (Target BLOCK.N))))) ?)
+10:57:42 DAVID:  THE STARBUCKS BLOCK AND THE TWITTER BLOCK ARE BELOW THE TARGET BLOCK .
+10:58:06 USER: what is the target block?
+10:58:17 DAVID:  I'M ASKING ABOUT SOME TARGET BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+10:58:25 USER: where is the target block?
+10:58:26 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Target BLOCK.N)) *H)) ?)
+10:58:34 DAVID:  THE TARGET BLOCK IS ON TOP OF THE STARBUCKS BLOCK .
+10:58:47 USER: where is the target block?
+10:58:48 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Target BLOCK.N)) *H)) ?)
+10:58:56 DAVID:  THE TARGET BLOCK IS ON TOP OF THE TABLE BLOCK .
+
+SESSION: 2019-08-28 11:08:40
+=============================================================
+11:08:50 USER: where is the target block?
+11:08:51 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Target BLOCK.N)) *H)) ?)
+11:08:59 DAVID:  THE TARGET BLOCK IS ON TOP OF THE TABLE .
+11:09:36 USER: which blocks are not touching the target block?
+11:09:37 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Target BLOCK.N))))) ?)
+11:09:46 DAVID:  THERE ARE NO BLOCKS THAT AREN'T TOUCHING THE TARGET BLOCK .
+11:14:35 USER: does the target block touch the starbucks block?
+11:14:36 ULF: ((DOES.V (THE.D (Target BLOCK.N)) (TOUCH.V (THE.D (Starbucks BLOCK.N)))) ?)
+11:14:42 DAVID:  NO .
+11:14:46 USER: does the starbucks block touch the twitter block?
+11:14:47 ULF: ((DOES.V (THE.D (Starbucks BLOCK.N)) (TOUCH.V (THE.D (Twitter BLOCK.N)))) ?)
+11:14:53 DAVID:  YES .
+11:16:36 USER: which blocks are not touching the target block?
+11:16:37 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Target BLOCK.N))))) ?)
+11:16:45 DAVID:  THERE ARE NO BLOCKS THAT AREN'T TOUCHING THE TARGET BLOCK .
+
+SESSION: 2019-08-28 11:20:16
+=============================================================
+11:20:24 USER: is the target block touching the starbucks block?
+11:20:25 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Starbucks BLOCK.N)))) ?)
+11:20:31 DAVID:  YES .
+11:20:46 USER: is the target block touching the starbucks block?
+11:20:48 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Starbucks BLOCK.N)))) ?)
+11:20:53 DAVID:  NO .
+11:21:37 USER: does the starbucks block touch the twitter block?
+11:21:38 ULF: ((DOES.V (THE.D (Starbucks BLOCK.N)) (TOUCH.V (THE.D (Twitter BLOCK.N)))) ?)
+11:21:44 DAVID:  YES .
+
+SESSION: 2019-08-28 11:23:29
+=============================================================
+11:23:37 USER: is the target block touching the starbucks block?
+11:23:38 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Starbucks BLOCK.N)))) ?)
+11:23:44 DAVID:  YES .
+
+SESSION: 2019-08-28 11:26:34
+=============================================================
+11:26:40 USER: does the target block watch the starbucks block?
+11:26:50 DAVID:  I'M ASKING ABOUT SOME TARGET BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+11:27:16 USER:  does the target block touch the starbucks block?
+11:27:18 ULF: ((DOES.V (THE.D (Target BLOCK.N)) (TOUCH.V (THE.D (Starbucks BLOCK.N)))) ?)
+11:27:23 DAVID:  YES .
+11:27:33 USER: is the target block touching the twitter block?
+11:27:34 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Twitter BLOCK.N)))) ?)
+11:27:38 DAVID:  NO .
+11:27:53 USER: is the starbucks block touching the target block?
+11:27:54 ULF: (((PRES BE.V) (THE.D (Starbucks BLOCK.N)) (TOUCHING.P (THE.D (Target BLOCK.N)))) ?)
+11:28:00 DAVID:  NO .
+11:28:07 USER: which blocks are not touching the target block?
+11:28:08 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Target BLOCK.N))))) ?)
+11:28:16 DAVID:  THERE ARE NO BLOCKS THAT AREN'T TOUCHING THE TARGET BLOCK .
+11:29:02 USER: which blocks are not to the right of the starbucks block?
+11:29:03 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_RIGHT_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+
+SESSION: 2019-08-28 11:29:45
+=============================================================
+11:29:54 USER: which blocks are not to the right of the starbucks block?
+11:29:55 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_RIGHT_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+
+SESSION: 2019-08-28 11:30:20
+=============================================================
+11:30:29 USER: which blocks are to the right of the starbucks block?
+11:30:30 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_RIGHT_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+11:30:44 DAVID:  THERE ARE 6 THAT ARE TO THE RIGHT OF THE STARBUCKS BLOCK , INCLUDING THE TWITTER , TEXACO , MCDONALD'S , MERCEDES , AND TOYOTA BLOCKS .
+11:30:53 USER:  which blocks are not to the right of the starbucks block?
+11:30:54 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_RIGHT_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+
+SESSION: 2019-08-28 11:49:32
+=============================================================
+11:49:46 USER: hello, david.
+11:49:54 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+11:50:28 USER: which blocks are below the mcdonald's block?
+11:50:29 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (BELOW.P (THE.D (McDonalds BLOCK.N))))) ?)
+11:50:38 DAVID:  THE TOYOTA , MERCEDES , AND BURGER KING BLOCKS ARE BELOW THE MCDONALD'S BLOCK .
+11:50:52 USER: the mcdonald's block is on top of which blocks.
+11:50:53 ULF: (((THE.D (McDonalds BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (WHICH.D (PLUR BLOCK.N))))) ?)
+11:51:03 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+11:51:23 USER:  which blocks are to the right of the mcdonald's block?
+11:51:24 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_RIGHT_OF.P (THE.D (McDonalds BLOCK.N))))) ?)
+11:51:31 DAVID:  JUST THE BURGER KING BLOCK IS TO THE RIGHT OF THE MCDONALD'S BLOCK .
+11:52:22 USER: how many blocks are on top of the mercedes block?
+11:52:23 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Mercedes BLOCK.N))))) ?)
+11:52:29 DAVID:  THERE ARE NO BLOCKS THAT ARE ON TOP OF THE MERCEDES BLOCK .
+11:52:40 USER:  how many blocks are above the mercedes block?
+11:52:42 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Mercedes BLOCK.N))))) ?)
+11:52:52 DAVID:  THERE ARE 2 THAT ARE ABOVE THE MERCEDES BLOCK . THE BURGER KING BLOCK AND THE MCDONALD'S BLOCK .
+11:53:19 USER: how many green blocks are on top of the mercedes block?
+11:53:20 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Mercedes BLOCK.N))))) ?)
+11:53:24 DAVID:  THERE ARE 0 .
+11:53:54 USER:  how many blocks are touching the burger king block?
+11:53:55 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Burger King BLOCK.N))))) ?)
+11:54:05 DAVID:  THERE ARE 2 THAT ARE TOUCHING THE BURGER KING BLOCK . THE TEXACO BLOCK AND THE MCDONALD'S BLOCK .
+11:54:08 USER: what blue blue?
+11:54:09 ULF: NIL
+11:54:11 USER: is touching a burger king block?
+11:54:21 DAVID:  I'M ASKING ABOUT SOME BURGER_KING BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+11:54:24 USER: watching the burger king block.
+11:54:33 DAVID:  I'M ASKING ABOUT SOME BURGER_KING BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+11:54:40 USER:  what blue block is touching a burger king block?
+11:54:41 ULF: (((WHAT.D (BLUE.A BLOCK.N)) ((PRES BE.V) (TOUCHING.P (A.D (Burger King BLOCK.N))))) ?)
+11:54:46 DAVID:  ONLY THE TEXACO BLOCK .
+11:55:03 USER:  what blocks are on top of the mercedes block?
+11:55:04 ULF: (((WHAT.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Mercedes BLOCK.N))))) ?)
+11:55:11 DAVID:  THERE ARE NO BLOCKS THAT ARE ON TOP OF THE MERCEDES BLOCK .
+11:55:18 USER: which blocks are above the mercedes block?
+11:55:20 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Mercedes BLOCK.N))))) ?)
+11:55:27 DAVID:  THE BURGER KING BLOCK AND THE TEXACO BLOCK ARE ABOVE THE MERCEDES BLOCK .
+11:55:39 USER: is the mcdonalds block above the mercedes block?
+11:55:40 ULF: (((PRES BE.V) (THE.D (McDonalds BLOCK.N)) (ABOVE.P (THE.D (Mercedes BLOCK.N)))) ?)
+11:55:44 DAVID:  NO .
+11:56:22 USER: which blocks are above the mercedes block?
+11:56:23 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Mercedes BLOCK.N))))) ?)
+11:56:32 DAVID:  THE MCDONALD'S , TEXACO , AND BURGER KING BLOCKS ARE ABOVE THE MERCEDES BLOCK .
+11:56:53 USER: are there any block?
+11:56:54 ULF: (((PRES BE.V) THERE.PRO (ANY.D BLOCK.N)) ?)
+11:57:00 DAVID:  YES , IT IS THE STARBUCKS BLOCK .
+11:57:13 USER: are there any blocks behind adam texaco block?
+11:57:22 DAVID:  I'M ASKING ABOUT SOME BLOCKS , BUT I DIDN'T CATCH WHAT IT WAS.
+11:57:28 USER:  are there any blocks behind the texaco block?
+11:57:29 ULF: (((PRES BE.V) THERE.PRO (ANY.D (PLUR BLOCK.N)) (BEHIND.P (THE.D (Texaco BLOCK.N)))) ?)
+11:57:33 DAVID:  YES .
+11:57:57 USER: which blocks are behind the texaco block?
+11:57:58 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Texaco BLOCK.N))))) ?)
+11:58:06 DAVID:  THE TARGET BLOCK AND THE TWITTER BLOCK ARE BEHIND THE TEXACO BLOCK .
+11:58:14 USER:  where is the starbucks block?
+11:58:15 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Starbucks BLOCK.N)) *H)) ?)
+11:58:22 DAVID:  THE STARBUCKS BLOCK IS ON TOP OF THE TABLE .
+11:58:43 USER: is the starbuck?
+11:58:51 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+11:58:55 USER: is the starbucks block near the mercedes block?
+11:58:57 ULF: (((PRES BE.V) (THE.D (Starbucks BLOCK.N)) (NEAR.P (THE.D (Mercedes BLOCK.N)))) ?)
+11:59:01 DAVID:  YES .
+11:59:10 USER:  which blocks are near the mercedes block?
+11:59:11 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (NEAR.P (THE.D (Mercedes BLOCK.N))))) ?)
+11:59:25 DAVID:  THERE ARE 7 THAT ARE NEAR THE MERCEDES BLOCK , INCLUDING THE TOYOTA , TEXACO , BURGER KING , STARBUCKS , AND MCDONALD'S BLOCKS .
+11:59:52 USER: is it near the target block?
+12:00:01 DAVID:  I'M ASKING ABOUT SOME TARGET BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+12:00:05 USER:  is the mercedes block near the target block?
+12:00:06 ULF: (((PRES BE.V) (THE.D (Mercedes BLOCK.N)) (NEAR.P (THE.D (Target BLOCK.N)))) ?)
+12:00:10 DAVID:  NO .
+12:00:22 USER:  is it near the target block?
+12:00:31 DAVID:  I'M ASKING ABOUT SOME TARGET BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+12:00:43 USER: is the mercedes block near the target block?
+12:00:44 ULF: (((PRES BE.V) (THE.D (Mercedes BLOCK.N)) (NEAR.P (THE.D (Target BLOCK.N)))) ?)
+12:00:47 DAVID:  YES .
+12:01:22 USER: are there any blue blocks touching blue blocks?
+12:01:23 ULF: (((PRES BE.V) THERE.PRO (ANY.D (BLUE.A (PLUR BLOCK.N))) (TOUCHING.P (K (BLUE.A (PLUR BLOCK.N))))) ?)
+12:01:28 DAVID:  NO .
+12:01:46 USER: are there any green blocks touching green blocks?
+12:01:47 ULF: (((PRES BE.V) THERE.PRO (ANY.D (GREEN.A (PLUR BLOCK.N))) (TOUCHING.P (K (GREEN.A (PLUR BLOCK.N))))) ?)
+12:01:51 DAVID:  YES .
+12:01:56 USER: which green block is touching another green block?
+12:01:58 ULF: (((WHICH.D (GREEN.A BLOCK.N)) ((PRES BE.V) (TOUCHING.P (ANOTHER.D (GREEN.A BLOCK.N))))) ?)
+12:02:04 DAVID:  PROBABLY JUST THE BURGER KING BLOCK IS .
+12:03:03 USER: what is the highest block?
+12:03:04 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N HIGH.A BLOCK.N))))) ?)
+12:03:10 DAVID:  ONLY THE BURGER KING BLOCK .
+12:03:21 USER: block is highest.
+12:03:23 ULF: NIL
+12:03:37 USER:  which block is highest?
+12:03:46 DAVID:  I'M ASKING ABOUT SOME BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+12:04:18 USER: is the twitter block above a red block?
+12:04:19 ULF: (((PRES BE.V) (THE.D (Twitter BLOCK.N)) (ABOVE.P (A.D (RED.A BLOCK.N)))) ?)
+12:04:23 DAVID:  YES .
+12:04:32 USER:  is the mcdonalds block above a green block?
+12:04:33 ULF: (((PRES BE.V) (THE.D (McDonalds BLOCK.N)) (ABOVE.P (A.D (GREEN.A BLOCK.N)))) ?)
+12:04:37 DAVID:  NO .
+12:04:48 USER:  how many blocks are below the mcdonald's block?
+12:04:50 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BELOW.P (THE.D (McDonalds BLOCK.N))))) ?)
+12:04:56 DAVID:  JUST THE TARGET BLOCK IS BELOW THE MCDONALD'S BLOCK .
+12:05:26 USER: how many blocks are touching a blue block?
+12:05:27 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (A.D (BLUE.A BLOCK.N))))) ?)
+12:05:34 DAVID:  THERE ARE 4 BLOCKS THAT ARE TOUCHING A BLUE BLOCK .
+12:05:46 USER:  which blocks are touching green blocks?
+12:05:47 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (K (GREEN.A (PLUR BLOCK.N)))))) ?)
+12:05:59 DAVID:  THE MCDONALD'S , BURGER KING , TARGET , TEXACO , AND MERCEDES BLOCKS ARE TOUCHING GREEN BLOCKS .
+12:06:38 USER: is the toyota block next to another block?
+12:06:39 ULF: (((PRES BE.V) (THE.D (Toyota BLOCK.N)) (NEXT_TO.P (ANOTHER.D BLOCK.N))) ?)
+12:06:43 DAVID:  YES .
+12:06:46 USER: which block?
+12:06:54 DAVID:  I'M ASKING ABOUT SOME BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+12:07:08 USER: which block is next to the toyota block?
+12:07:09 ULF: (((WHICH.D BLOCK.N) ((PRES BE.V) (NEXT_TO.P (THE.D (Toyota BLOCK.N))))) ?)
+12:07:16 DAVID:  THE MERCEDES BLOCK IS NEXT TO THE TOYOTA BLOCK .
+12:07:44 USER: what is the highest block?
+12:07:45 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N HIGH.A BLOCK.N))))) ?)
+12:07:51 DAVID:  ONLY THE TWITTER BLOCK .
+12:08:24 USER: how many blocks are touching the table?
+12:08:25 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D TABLE.N)))) ?)
+12:08:32 DAVID:  THERE ARE NO BLOCKS THAT ARE TOUCHING THE TABLE .
+12:08:55 USER: which blocks are on top of the table?
+12:08:57 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D TABLE.N)))) ?)
+12:09:07 DAVID:  THE TARGET , MERCEDES , TWITTER , BURGER KING , AND MCDONALD'S BLOCKS ARE ON TOP OF THE TABLE .
+12:09:17 USER:  what is the rightmost block?
+12:09:18 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N RIGHT.A BLOCK.N))))) ?)
+12:09:23 DAVID:  ONLY THE MERCEDES BLOCK .
+12:09:35 USER:  what is the rightmost block?
+12:09:36 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N RIGHT.A BLOCK.N))))) ?)
+12:09:42 DAVID:  ONLY THE STARBUCKS BLOCK .
+12:09:44 USER: what is the leftmost block?
+12:09:45 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N LEFT.A BLOCK.N))))) ?)
+12:09:51 DAVID:  THERE IS NO SUCH BLOCK .
+12:10:02 USER: what is the frontmost block?
+12:10:03 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N FRONT.A BLOCK.N))))) ?)
+12:10:07 DAVID:  THERE IS NO SUCH BLOCK .
+12:10:37 USER: which block is closest to the mcdonald's block?
+12:10:38 ULF: (((WHICH.D BLOCK.N) ((PRES BE.V) (TO.P (THE.D (McDonalds BLOCK.N))))) ?)
+12:10:49 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+12:10:56 USER: which block is nearest to the burger king block?
+12:10:57 ULF: (((WHICH.D BLOCK.N) ((PRES BE.V) (TO.P (THE.D (Burger King BLOCK.N))))) ?)
+12:11:07 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+12:11:49 USER: what is the highest green block?
+12:11:50 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N HIGH.A (GREEN.A BLOCK.N)))))) ?)
+12:11:54 DAVID:  ONLY THE STARBUCKS BLOCK .
+12:12:01 USER:  what is the highest red block?
+12:12:02 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N HIGH.A (RED.A BLOCK.N)))))) ?)
+12:12:06 DAVID:  ONLY THE TWITTER BLOCK .
+12:12:14 USER:  what is the leftmost block?
+12:12:15 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N LEFT.A BLOCK.N))))) ?)
+12:12:20 DAVID:  ONLY THE MCDONALD'S BLOCK .
+12:12:35 USER: are there blocks next to the texaco block?
+12:12:36 ULF: (((PRES BE.V) THERE.PRO (K (PLUR BLOCK.N)) (NEXT_TO.P (THE.D (Texaco BLOCK.N)))) ?)
+12:12:41 DAVID:  YES .
+12:12:46 USER: which blocks are near the texaco block?
+12:12:47 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (NEAR.P (THE.D (Texaco BLOCK.N))))) ?)
+12:12:57 DAVID:  THE TOYOTA , MERCEDES , TARGET , TWITTER , AND STARBUCKS BLOCKS ARE NEAR THE TEXACO BLOCK .
+12:14:01 USER: which blocks are above the twitter block?
+12:14:02 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Twitter BLOCK.N))))) ?)
+12:14:09 DAVID:  JUST THE STARBUCKS BLOCK IS ABOVE THE TWITTER BLOCK .
+12:14:34 USER: what blocks are between the burger king and mercedes blocks?
+12:14:35 ULF: (((WHAT.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P ((THE.D (Burger King BLOCK.N)) AND.CC (THE.D (Mercedes BLOCK.N)))))) ?)
+12:14:43 DAVID:  THERE ARE NO BLOCKS THAT ARE BETWEEN THE BURGER KING AND MERCEDES BLOCKS .
+12:15:07 USER: which blocks are between the mercedes block and the toyota block?
+12:15:09 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P ((THE.D (Mercedes BLOCK.N)) AND.CC (THE.D (Toyota BLOCK.N)))))) ?)
+12:15:16 DAVID:  JUST THE TEXACO BLOCK IS BETWEEN THE MERCEDES BLOCK AND THE TOYOTA BLOCK .
+12:15:23 USER: which blocks are between the toyota block and the burger king block?
+12:15:24 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P ((THE.D (Toyota BLOCK.N)) AND.CC (THE.D (Burger King BLOCK.N)))))) ?)
+12:15:33 DAVID:  JUST THE TEXACO BLOCK IS BETWEEN THE TOYOTA BLOCK AND THE BURGER KING BLOCK .
+12:16:00 USER:  which block is between the target and mcdonald's blocks?
+12:16:01 ULF: (((WHICH.D BLOCK.N) ((PRES BE.V) (BETWEEN.P ((THE.D (Target BLOCK.N)) AND.CC (THE.D (McDonalds BLOCK.N)))))) ?)
+12:16:08 DAVID:  THERE IS NO BLOCK THAT IS BETWEEN THE TARGET AND MCDONALD'S BLOCKS .
+12:17:34 USER: which blocks are touching blue blocks?
+12:17:35 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (K (BLUE.A (PLUR BLOCK.N)))))) ?)
+12:17:45 DAVID:  THE BURGER KING , TARGET , TEXACO , AND TOYOTA BLOCKS ARE TOUCHING BLUE BLOCKS .
+18:07:09 USER: what does system?
+18:07:16 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+18:07:21 USER:  so
+18:07:28 DAVID:  I APOLOGIZE , I COULDN'T UNDERSTAND WHAT YOU SAID .
+
+SESSION: 2019-08-30 10:26:57
+=============================================================
+10:27:25 USER: the target block is on top of which block.
+10:27:26 ULF: (((THE.D (Target BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (WHICH.D BLOCK.N)))) ?)
+10:27:38 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+
+SESSION: 2019-08-30 10:29:03
+=============================================================
+10:29:12 DAVID:  HI, MY NAME IS DAVID. I'M READY TO ANSWER YOUR SPATIAL QUESTIONS.
+
+SESSION: 2019-08-30 10:31:36
+=============================================================
+10:31:46 USER: the target block is on top of which block.
+10:31:48 ULF: (((THE.D (Target BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (WHICH.D BLOCK.N)))) ?)
+10:31:59 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+10:32:32 USER: which block?
+10:32:42 DAVID:  I'M ASKING ABOUT SOME BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+10:32:51 USER: which blocks are touching which blocks?
+10:32:52 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (WHICH.D (PLUR BLOCK.N))))) ?)
+10:33:07 DAVID:  THERE ARE 8 THAT ARE TOUCHING WHICH BLOCKS , INCLUDING THE TEXACO , MCDONALD'S , TWITTER , MERCEDES , AND TOYOTA BLOCKS .
+10:35:34 USER: the target block is on top of which block.
+10:35:35 ULF: (((THE.D (Target BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (WHICH.D BLOCK.N)))) ?)
+10:35:46 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+
+SESSION: 2019-08-30 10:38:22
+=============================================================
+10:38:36 USER: the target block is on top of which block.
+10:38:37 ULF: (((THE.D (Target BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (WHICH.D BLOCK.N)))) ?)
+
+SESSION: 2019-08-30 10:39:00
+=============================================================
+10:39:06 USER: the target block is on top of which block.
+10:39:07 ULF: (((THE.D (Target BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (WHICH.D BLOCK.N)))) ?)
+10:39:18 DAVID:  SORRY , YOU WAS UNABLE TO FIND AN OBJECT THAT SATISFIES GIVEN CONSTRAINTS , PLEASE REPHRASE IN A SIMPLER WAY .
+
+SESSION: 2019-08-30 10:47:55
+=============================================================
+10:48:02 USER: the target block is on top of which block.
+10:48:03 ULF: (((THE.D (Target BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (WHICH.D BLOCK.N)))) ?)
+10:48:11 DAVID:  THERE IS NO BLOCK THAT IS ON TOP OF WHICH BLOCK .
+10:48:30 USER:  the target block is on top of which block.
+10:48:31 ULF: (((THE.D (Target BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (WHICH.D BLOCK.N)))) ?)
+10:48:39 DAVID:  THE STARBUCKS BLOCK IS ON TOP OF WHICH BLOCK .
+
+SESSION: 2019-08-30 10:52:37
+=============================================================
+10:53:30 USER: how many blocks are on top of the starbucks block?
+10:53:31 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+10:53:42 DAVID:  THERE ARE 2 THAT ARE ON TOP OF THE STARBUCKS BLOCK . THE TWITTER BLOCK AND THE TARGET BLOCK .
+10:54:01 USER: how many blocks are on top of the starbucks block?
+10:54:02 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+10:54:12 DAVID:  THERE ARE 2 THAT ARE ON TOP OF THE STARBUCKS BLOCK . THE TWITTER BLOCK AND THE TARGET BLOCK .
+10:54:17 USER: how many blocks are above the starbucks block?
+10:54:19 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Starbucks BLOCK.N))))) ?)
+10:54:26 DAVID:  THERE ARE 4 BLOCKS THAT ARE ABOVE THE STARBUCKS BLOCK .
+10:54:33 USER: which blocks are above the starbucks block?
+10:54:34 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Starbucks BLOCK.N))))) ?)
+10:54:45 DAVID:  THE TWITTER , MERCEDES , TARGET , AND MCDONALD'S BLOCKS ARE ABOVE THE STARBUCKS BLOCK .
+10:59:24 USER: how many green blocks are on top of the texaco block?
+10:59:25 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Texaco BLOCK.N))))) ?)
+10:59:33 DAVID:  ONLY ONE , THE MCDONALD'S BLOCK .
+10:59:44 USER: how many green blocks are on top of the texaco block?
+10:59:46 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Texaco BLOCK.N))))) ?)
+10:59:51 DAVID:  THERE ARE 2 
+11:00:02 USER: which green blocks are on top of the texaco block?
+11:00:03 ULF: (((WHICH.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Texaco BLOCK.N))))) ?)
+11:00:11 DAVID:  THE BURGER KING BLOCK AND THE MCDONALD'S BLOCK DO .
+11:02:51 USER: is the burger king block on top of the mercedes block?
+11:02:52 ULF: (((PRES BE.V) (THE.D (Burger King BLOCK.N)) (ON_TOP_OF.P (THE.D (Mercedes BLOCK.N)))) ?)
+11:02:56 DAVID:  YES .
+11:03:00 USER: is it on top of the mcdonald's block?
+11:03:10 DAVID:  I'M ASKING ABOUT SOME MCDONALDS BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+11:03:17 USER:  is that block on top of the mcdonald's block?
+11:03:18 ULF: (((PRES BE.V) (THE.D (Burger King BLOCK.N)) (ON_TOP_OF.P (THE.D (McDonalds BLOCK.N)))) ?)
+11:03:22 DAVID:  YES .
+11:07:02 USER: are there any red blocks touching another red block?
+11:07:03 ULF: (((PRES BE.V) THERE.PRO (ANY.D (RED.A (PLUR BLOCK.N))) (TOUCHING.P (ANOTHER.D (RED.A BLOCK.N)))) ?)
+11:07:07 DAVID:  NO .
+11:07:25 USER: do the mercedes block touching the twitter block?
+11:07:34 DAVID:  I'M ASKING ABOUT SOME MERCEDES BLOCK , BUT I DIDN'T CATCH WHAT IT WAS.
+11:07:42 USER:  does the mercedes block touch the twitter block?
+11:07:43 ULF: ((DOES.V (THE.D (Mercedes BLOCK.N)) (TOUCH.V (THE.D (Twitter BLOCK.N)))) ?)
+11:07:47 DAVID:  YES .
+11:07:57 USER: is there a red block touching another red block?
+11:07:58 ULF: (((PRES BE.V) THERE.PRO (A.D (RED.A BLOCK.N)) (TOUCHING.P (ANOTHER.D (RED.A BLOCK.N)))) ?)
+11:08:02 DAVID:  NO .
+11:08:29 USER: is there a red block touching a red block?
+11:08:30 ULF: (((PRES BE.V) THERE.PRO (A.D (RED.A BLOCK.N)) (TOUCHING.P (A.D (RED.A BLOCK.N)))) ?)
+11:08:35 DAVID:  YES , IT IS THE MERCEDES BLOCK .
+11:09:26 USER: is there a red block touching another red block?
+11:09:27 ULF: (((PRES BE.V) THERE.PRO (A.D (RED.A BLOCK.N)) (TOUCHING.P (ANOTHER.D (RED.A BLOCK.N)))) ?)
+11:09:31 DAVID:  NO .
+
+SESSION: 2019-08-30 11:12:11
+=============================================================
+
+SESSION: 2019-08-30 11:12:44
+=============================================================
+11:12:51 USER: is there a blue block touching another blue block?
+11:12:52 ULF: (((PRES BE.V) THERE.PRO (A.D (BLUE.A BLOCK.N)) (TOUCHING.P (ANOTHER.D (BLUE.A BLOCK.N)))) ?)
+11:12:56 DAVID:  no .
+11:13:15 USER:  is there a blue block touching another low block?
+11:13:23 DAVID:  i'm asking about some blue block , but i didn't catch what it was.
+11:13:31 USER:  is there a blue block touching another blue block?
+11:13:32 ULF: (((PRES BE.V) THERE.PRO (A.D (BLUE.A BLOCK.N)) (TOUCHING.P (ANOTHER.D (BLUE.A BLOCK.N)))) ?)
+11:13:38 DAVID:  yes , it is the toyota block .
+11:13:46 USER: how many blue blocks dutch seminar blue block?
+11:13:55 DAVID:  i'm asking about some blue blocks , but i didn't catch what it was.
+11:14:03 USER:  how many blue blocks are touching another blue block?
+11:14:04 ULF: (((HOW_MANY.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (ANOTHER.D (BLUE.A BLOCK.N))))) ?)
+11:14:08 DAVID:  there are 2 
+11:15:02 USER: what is the highest block?
+11:15:03 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N HIGH.A BLOCK.N))))) ?)
+11:15:08 DAVID:  there is no such block .
+11:15:23 USER: what is the highest block?
+11:15:24 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N HIGH.A BLOCK.N))))) ?)
+11:15:29 DAVID:  only the starbucks block .
+11:15:56 USER: which block is the highest?
+11:15:57 ULF: (POSS-QUES ((WHICH.PRO ((PRES BE.V) (= (THE.D (MOST-N HIGH.A BLOCK.N))))) ?))
+11:16:07 DAVID:  i am not sure if i understood the question correctly, but my answer is the starbucks block is the highest .
+11:17:29 USER: how many blocks are touching the table?
+11:17:30 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D TABLE.N)))) ?)
+11:17:37 DAVID:  there are no blocks that are touching the table .
+11:21:09 USER: which block is closest to the twitter block?
+11:21:10 ULF: (((WHICH.D BLOCK.N) ((PRES BE.V) (TO.P (THE.D (Twitter BLOCK.N))))) ?)
+11:21:21 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+11:21:35 USER:  which block is the closest to the twitter block?
+11:21:36 ULF: (POSS-QUES (((WHICH.D BLOCK.N) ((PRES BE.V) (TO.P (THE.D (Twitter BLOCK.N))))) ?))
+11:21:46 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+11:22:14 USER: which block is the nearest to the twitter block?
+11:22:15 ULF: (POSS-QUES (((WHICH.D BLOCK.N) ((PRES BE.V) (TO.P (THE.D (Twitter BLOCK.N))))) ?))
+11:22:27 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+11:22:56 USER: what is the highest red block?
+11:22:57 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N HIGH.A (RED.A BLOCK.N)))))) ?)
+11:23:01 DAVID:  there is no such block .
+11:23:05 USER: what is the highest green block?
+11:23:06 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N HIGH.A (GREEN.A BLOCK.N)))))) ?)
+11:23:10 DAVID:  only the starbucks block .
+
+SESSION: 2019-08-30 13:06:46
+=============================================================
+13:06:55 DAVID:  hi, my name is david. i'm ready to answer your spatial questions.
+
+SESSION: 2019-08-30 13:07:11
+=============================================================
+13:07:20 USER: maybe it was your t-shirt.
+13:07:21 ULF: NIL
+13:07:25 USER:  no, green.
+13:07:26 ULF: NIL
+13:07:28 USER:  i guess.
+13:07:36 DAVID:  i apologize , i couldn't understand what you said .
+13:07:40 USER: which blocks are on top of the starbucks block?
+13:07:42 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+13:07:49 DAVID:  there are no blocks that are on top of the starbucks block .
+13:07:58 USER:  which blocks are on top of the starbucks block?
+13:07:59 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+13:08:05 DAVID:  just the target block is on top of the starbucks block .
+13:08:15 USER: which blocks are on top of the starbucks block?
+13:08:16 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+13:08:22 DAVID:  just the target block is on top of the starbucks block .
+13:08:34 USER: which blocks are on top of the starbucks block?
+13:08:35 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+13:08:43 DAVID:  the burger king block and the target block are on top of the starbucks block .
+13:08:47 USER: which blocks are above the starbucks block?
+13:08:48 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Starbucks BLOCK.N))))) ?)
+13:08:55 DAVID:  the burger king block and the target block are above the starbucks block .
+13:09:18 USER: which blocks are on top of the starbucks block?
+13:09:19 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+13:09:27 DAVID:  the burger king block and the target block are on top of the starbucks block .
+13:09:39 USER: which blocks are above the starbucks block?
+13:09:41 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Starbucks BLOCK.N))))) ?)
+13:09:51 DAVID:  the burger king , mcdonald's , target , and texaco blocks are above the starbucks block .
+
+SESSION: 2019-08-30 13:12:14
+=============================================================
+
+SESSION: 2019-08-30 13:12:23
+=============================================================
+
+SESSION: 2019-08-30 13:12:34
+=============================================================
+
+SESSION: 2019-08-30 13:12:43
+=============================================================
+13:13:01 USER: it's only when it's initializing.
+13:13:02 ULF: NIL
+13:13:17 USER:  tri stand clear with initial isaac
+13:13:18 ULF: NIL
+
+SESSION: 2019-08-30 13:13:56
+=============================================================
+13:14:04 USER: is the target block touching the starbucks log?
+13:14:06 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) TOUCHING.A) ?)
+13:14:09 DAVID:  no .
+13:14:24 USER:  is the target block touching the starbucks block?
+13:14:25 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Starbucks BLOCK.N)))) ?)
+13:14:29 DAVID:  yes .
+13:14:34 USER: is that blocktouching the twitter block?
+13:14:42 DAVID:  i'm asking about some twitter block , but i didn't catch what it was.
+13:14:59 USER: this is a happy solution.
+
+SESSION: 2019-08-30 13:15:06
+=============================================================
+13:15:12 DAVID:  i apologize , i couldn't understand what you said .
+13:15:17 USER: is that block touching the twitter block?
+13:15:18 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Twitter BLOCK.N)))) ?)
+13:15:22 DAVID:  yes .
+
+SESSION: 2019-08-30 13:15:54
+=============================================================
+13:16:02 USER: does the target block touch the starbucks block?
+13:16:03 ULF: ((DOES.V (THE.D (Target BLOCK.N)) (TOUCH.V (THE.D (Starbucks BLOCK.N)))) ?)
+13:16:06 DAVID:  yes .
+13:16:11 USER: does the target block touch the twitter block?
+13:16:12 ULF: ((DOES.V (THE.D (Target BLOCK.N)) (TOUCH.V (THE.D (Twitter BLOCK.N)))) ?)
+13:16:16 DAVID:  yes .
+
+SESSION: 2019-08-30 13:16:57
+=============================================================
+13:17:05 USER: does the target block touch the twitter block?
+13:17:06 ULF: ((DOES.V (THE.D (Target BLOCK.N)) (TOUCH.V (THE.D (Twitter BLOCK.N)))) ?)
+13:17:09 DAVID:  no .
+13:17:13 USER: does the target block touch the table?
+13:17:14 ULF: ((DOES.V (THE.D (Target BLOCK.N)) (TOUCH.V (THE.D TABLE.N))) ?)
+
+SESSION: 2019-08-30 13:18:47
+=============================================================
+13:19:37 USER: which block is next to the mcdonald's block?
+13:19:38 ULF: (((WHICH.D BLOCK.N) ((PRES BE.V) (NEXT_TO.P (THE.D (McDonalds BLOCK.N))))) ?)
+13:19:44 DAVID:  the starbucks block is next to the mcdonald's block .
+13:19:54 USER: which blocks are touching the mcdonald's block?
+13:19:55 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+13:20:03 DAVID:  the starbucks block and the texaco block are touching the mcdonald's block .
+13:20:12 USER:  which blocks are near the mcdonald's block?
+13:20:13 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (NEAR.P (THE.D (McDonalds BLOCK.N))))) ?)
+13:20:23 DAVID:  the starbucks , texaco , twitter , target , and mercedes blocks are near the mcdonald's block .
+13:21:03 USER: which block is nearest the mercedes block?
+13:21:12 DAVID:  i'm asking about some block , but i didn't catch what it was.
+13:21:30 USER:  what is the leftmost block?
+13:21:31 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N LEFT.A BLOCK.N))))) ?)
+13:21:37 DAVID:  only the twitter block .
+13:21:49 USER: what block is between the starbucks at texaco blocks?
+13:22:00 DAVID:  sorry, you are asking about some block being between objects , but i didn't really catch what it was.
+13:22:18 USER: what block is between the starbucks block and the texaco block?
+13:22:19 ULF: (((WHAT.D BLOCK.N) ((PRES BE.V) (BETWEEN.P ((THE.D (Starbucks BLOCK.N)) AND.CC (THE.D (Texaco BLOCK.N)))))) ?)
+13:22:27 DAVID:  the burger king block is between the starbucks block and the texaco block .
+13:22:54 USER: what block is touching the starbucks block?
+13:22:55 ULF: (((WHAT.D BLOCK.N) ((PRES BE.V) (TOUCHING.P (THE.D (Starbucks BLOCK.N))))) ?)
+13:23:01 DAVID:  the burger king block is touching the starbucks block .
+13:24:04 USER: what block is near the toyota block?
+13:24:06 ULF: (((WHAT.D BLOCK.N) ((PRES BE.V) (NEAR.P (THE.D (Toyota BLOCK.N))))) ?)
+13:24:12 DAVID:  the mcdonald's block is near the toyota block .
+13:25:27 USER: what block is on top of the toyota block?
+13:25:28 ULF: (((WHAT.D BLOCK.N) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Toyota BLOCK.N))))) ?)
+13:25:36 DAVID:  the burger king block is on top of the toyota block .
+13:25:40 USER: what block is to the right of the twitter block?
+13:25:41 ULF: (((WHAT.D BLOCK.N) ((PRES BE.V) (TO_THE_RIGHT_OF.P (THE.D (Twitter BLOCK.N))))) ?)
+13:25:48 DAVID:  the texaco block is to the right of the twitter block .
+13:25:55 USER:  what blocks are to the left of the texaco block?
+13:25:56 ULF: (((WHAT.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_LEFT_OF.P (THE.D (Texaco BLOCK.N))))) ?)
+13:26:06 DAVID:  the twitter , mcdonald's , toyota , and burger king blocks are to the left of the texaco block .
+13:26:27 USER: what blocks are between the twitter and mercedes block?
+13:26:28 ULF: (((WHAT.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P ((THE.D (Twitter BLOCK.N)) AND.CC (THE.D (Mercedes BLOCK.N)))))) ?)
+13:26:38 DAVID:  the texaco block and the burger king block are between the twitter and mercedes block .
+13:26:53 USER:  what block is between two blue blocks?
+13:26:54 ULF: (((WHAT.D BLOCK.N) ((PRES BE.V) (BETWEEN.P (TWO.D (BLUE.A (PLUR BLOCK.N)))))) ?)
+13:27:01 DAVID:  the starbucks block is between two blue blocks .
+13:27:25 USER: which blocks are below the target block?
+13:27:26 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (BELOW.P (THE.D (Target BLOCK.N))))) ?)
+13:27:40 DAVID:  there are 7 that are below the target block , including the texaco , twitter , burger king , toyota , and starbucks blocks .
+13:27:51 USER:  how many blocks are below the target block?
+13:27:52 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BELOW.P (THE.D (Target BLOCK.N))))) ?)
+13:27:58 DAVID:  there are 6 blocks that are below the target block .
+13:28:11 USER: how many blocks are between two blue blocks?
+13:28:12 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P (TWO.D (BLUE.A (PLUR BLOCK.N)))))) ?)
+13:28:18 DAVID:  there are no blocks that are between two blue blocks .
+13:28:28 USER:  what is the highest block?
+13:28:29 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N HIGH.A BLOCK.N))))) ?)
+13:28:35 DAVID:  only the target block .
+13:28:38 USER:  how many blocks are touching the table?
+13:28:39 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D TABLE.N)))) ?)
+13:28:45 DAVID:  there are no blocks that are touching the table .
+13:28:51 USER:  how many blocks are touching the texaco block?
+13:28:53 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Texaco BLOCK.N))))) ?)
+13:28:59 DAVID:  there are 4 blocks that are touching the texaco block .
+13:29:31 USER: how many blocks are not touching the mercedes block?
+13:29:39 DAVID:  i'm asking about some blocks , but i didn't catch what it was.
+13:29:49 USER: how many blocks are touching the mcdonald's block?
+13:29:50 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (McDonalds BLOCK.N))))) ?)
+13:29:58 DAVID:  there are no blocks that are touching the mcdonald's block .
+13:30:13 USER: how many green blocks are touching green blocks?
+13:30:14 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (K (GREEN.A (PLUR BLOCK.N)))))) ?)
+13:30:18 DAVID:  there are 2 
+13:30:32 USER: which blue blocks are touching red blocks?
+13:30:33 ULF: (((WHICH.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (K (RED.A (PLUR BLOCK.N)))))) ?)
+13:30:40 DAVID:  the toyota block and the texaco block do .
+13:30:59 USER: which blocks are behind the texaco block?
+13:31:00 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Texaco BLOCK.N))))) ?)
+13:31:08 DAVID:  the mercedes block and the mcdonald's block are behind the texaco block .
+13:31:44 USER: how many blocks are behind the texaco block?
+13:31:45 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Texaco BLOCK.N))))) ?)
+13:31:56 DAVID:  there are 3 that are behind the texaco block . the mercedes , mcdonald's , and target blocks .
+13:32:03 USER: which blocks are to the left of the starbucks block?
+13:32:04 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_LEFT_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+13:32:14 DAVID:  the toyota , mcdonald's , target , and twitter blocks are to the left of the starbucks block .
+13:33:24 USER: are there any blocks between
+13:33:35 DAVID:  sorry, you are asking about some blocks being between objects , but i didn't really catch what it was.
+13:33:42 USER: is there a block between the dirt the burger king and mcdonald's block?
+13:33:53 DAVID:  sorry, you are asking about some block being between objects , but i didn't really catch what it was.
+13:34:00 USER: is the mercedes block between the burger king block and the mcdonald's block?
+13:34:01 ULF: (((PRES BE.V) (THE.D (Mercedes BLOCK.N)) (BETWEEN.P ((THE.D (Burger King BLOCK.N)) AND.CC (THE.D (McDonalds BLOCK.N))))) ?)
+13:34:04 DAVID:  no .
+13:34:18 USER: is the texaco block between the burger king block and the twitter block?
+13:34:19 ULF: (((PRES BE.V) (THE.D (Texaco BLOCK.N)) (BETWEEN.P ((THE.D (Burger King BLOCK.N)) AND.CC (THE.D (Twitter BLOCK.N))))) ?)
+13:34:22 DAVID:  no .
+13:34:57 USER: is the starbucks block touching the texaco block?
+13:34:58 ULF: (((PRES BE.V) (THE.D (Starbucks BLOCK.N)) (TOUCHING.P (THE.D (Texaco BLOCK.N)))) ?)
+13:35:01 DAVID:  yes .
+13:35:11 USER: how many green blocks is the texaco block touching?
+13:35:20 DAVID:  i'm asking about some green blocks , but i didn't catch what it was.
+13:35:26 USER: how many green blocks are touching the texaco block?
+13:35:27 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (THE.D (Texaco BLOCK.N))))) ?)
+13:35:31 DAVID:  there are 2 
+13:35:39 USER:  how many red blocks are on the table?
+13:35:40 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+13:35:44 DAVID:  there are 2 
+13:35:51 USER:  how many green blocks are on the table?
+13:35:52 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+13:35:56 DAVID:  there are 3 
+13:36:30 USER: what is the leftmost block?
+13:36:32 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N LEFT.A BLOCK.N))))) ?)
+13:36:37 DAVID:  only the toyota block .
+13:36:44 USER:  which block is farthest from the front of the table?
+13:36:45 ULF: (POSS-QUES (((WHICH.D BLOCK.N) ((PRES BE.V) (FROM.P (THE.D FRONT.N)))) ?))
+13:36:55 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+13:37:46 USER: where is the twitter block?
+13:37:47 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Twitter BLOCK.N)) *H)) ?)
+13:37:51 DAVID:  there is no such block .
+13:38:39 USER: which blocks are behind the starbucks block?
+13:38:40 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (BEHIND.P (THE.D (Starbucks BLOCK.N))))) ?)
+13:38:46 DAVID:  just the target block is behind the starbucks block .
+13:38:52 USER: which block is behind the starbucks block?
+13:38:54 ULF: (((WHICH.D BLOCK.N) ((PRES BE.V) (BEHIND.P (THE.D (Starbucks BLOCK.N))))) ?)
+13:39:00 DAVID:  the target block is behind the starbucks block .
+13:39:07 USER: how many blocks are above the toyota block?
+13:39:08 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ABOVE.P (THE.D (Toyota BLOCK.N))))) ?)
+13:39:20 DAVID:  there are 3 that are above the toyota block . the twitter , starbucks , and target blocks .
+13:39:27 USER:  what color is the highest block?
+13:39:28 ULF: ((SUB ({OF}.P (WHAT.D COLOR.N)) ((PRES BE.V) (THE.D (MOST-N HIGH.A BLOCK.N)) *H)) ?)
+13:39:34 DAVID:  there is no such high block .
+13:40:11 USER: what color is the leftmost block?
+13:40:13 ULF: ((SUB ({OF}.P (WHAT.D COLOR.N)) ((PRES BE.V) (THE.D (MOST-N LEFT.A BLOCK.N)) *H)) ?)
+13:40:18 DAVID:  there is no such left block .
+13:40:26 USER: what is the leftmost block?
+13:40:27 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N LEFT.A BLOCK.N))))) ?)
+13:40:31 DAVID:  only the twitter block .
+13:41:10 USER: how many blocks are near the burger king block?
+13:41:11 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (NEAR.P (THE.D (Burger King BLOCK.N))))) ?)
+13:41:17 DAVID:  there are 6 blocks that are near the burger king block .
+13:41:33 USER: how many red blocks are near the burger king block?
+13:41:35 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (NEAR.P (THE.D (Burger King BLOCK.N))))) ?)
+13:41:40 DAVID:  only one , the mercedes block .
+13:41:58 USER: which red block is not near the burger king block?
+13:41:59 ULF: (((WHICH.D (RED.A BLOCK.N)) ((PRES BE.V) (NEAR.P (THE.D (Burger King BLOCK.N))))) ?)
+13:42:05 DAVID:  only the mercedes block .
+13:43:01 USER: which block is between two red blocks?
+13:43:02 ULF: (((WHICH.D BLOCK.N) ((PRES BE.V) (BETWEEN.P (TWO.D (RED.A (PLUR BLOCK.N)))))) ?)
+13:43:09 DAVID:  the burger king block is between two red blocks .
+13:43:29 USER: how many blocks are between green blocks?
+13:43:30 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BETWEEN.P (K (GREEN.A (PLUR BLOCK.N)))))) ?)
+13:43:37 DAVID:  there are no blocks that are between green blocks .
+13:43:43 USER: how many blocks are touching the starbucks block?
+13:43:44 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Starbucks BLOCK.N))))) ?)
+13:43:51 DAVID:  just the toyota block is touching the starbucks block .
+
+SESSION: 2019-09-01 18:37:36
+=============================================================
+
+SESSION: 2019-09-01 18:39:53
+=============================================================
+
+SESSION: 2019-09-01 18:41:40
+=============================================================
+18:41:46 USER: does the target block touching the starbucks block?
+18:41:55 DAVID:  i'm asking about some target block , but i didn't catch what it was.
+18:42:04 USER:  does the target block touch the starbucks block?
+18:42:05 ULF: ((DOES.V (THE.D (Target BLOCK.N)) (TOUCH.V (THE.D (Starbucks BLOCK.N)))) ?)
+18:42:09 DAVID:  yes .
+18:42:29 USER: does the chocolate block touch the twitter block?
+18:42:38 DAVID:  i'm asking about some chocolate block , but i didn't catch what it was.
+18:42:44 USER: does the target block touch the twitter block?
+18:42:45 ULF: ((DOES.V (THE.D (Target BLOCK.N)) (TOUCH.V (THE.D (Twitter BLOCK.N)))) ?)
+18:42:49 DAVID:  no .
+
+SESSION: 2019-09-01 19:10:28
+=============================================================
+
+SESSION: 2019-09-01 19:10:54
+=============================================================
+
+SESSION: 2019-09-01 19:11:17
+=============================================================
+
+SESSION: 2019-09-01 19:12:25
+=============================================================
+
+SESSION: 2019-09-01 19:12:48
+=============================================================
+
+SESSION: 2019-09-01 19:14:25
+=============================================================
+
+SESSION: 2019-09-01 19:14:44
+=============================================================
+
+SESSION: 2019-09-01 19:15:09
+=============================================================
+
+SESSION: 2019-09-01 19:18:00
+=============================================================
+
+SESSION: 2019-09-01 19:19:11
+=============================================================
+
+SESSION: 2019-09-01 19:20:06
+=============================================================
+
+SESSION: 2019-09-01 19:20:44
+=============================================================
+
+SESSION: 2019-09-01 19:21:46
+=============================================================
+
+SESSION: 2019-09-01 19:22:23
+=============================================================
+
+SESSION: 2019-09-01 19:23:09
+=============================================================
+
+SESSION: 2019-09-01 19:24:35
+=============================================================
+
+SESSION: 2019-09-01 19:24:58
+=============================================================
+
+SESSION: 2019-09-01 19:25:57
+=============================================================
+
+SESSION: 2019-09-01 19:27:05
+=============================================================
+
+SESSION: 2019-09-02 12:41:24
+=============================================================
+
+SESSION: 2019-09-02 12:42:30
+=============================================================
+
+SESSION: 2019-09-02 12:43:03
+=============================================================
+
+SESSION: 2019-09-02 12:43:15
+=============================================================
+
+SESSION: 2019-09-02 12:43:47
+=============================================================
+
+SESSION: 2019-09-02 12:44:27
+=============================================================
+
+SESSION: 2019-09-02 12:46:16
+=============================================================
+
+SESSION: 2019-09-02 12:47:28
+=============================================================
+
+SESSION: 2019-09-02 12:48:18
+=============================================================
+
+SESSION: 2019-09-02 12:48:57
+=============================================================
+
+SESSION: 2019-09-02 12:49:18
+=============================================================
+
+SESSION: 2019-09-02 12:49:35
+=============================================================
+
+SESSION: 2019-09-02 12:51:02
+=============================================================
+
+SESSION: 2019-09-02 12:51:14
+=============================================================
+
+SESSION: 2019-09-02 12:51:38
+=============================================================
+
+SESSION: 2019-09-02 12:51:53
+=============================================================
+
+SESSION: 2019-09-02 12:52:08
+=============================================================
+
+SESSION: 2019-09-02 12:52:25
+=============================================================
+
+SESSION: 2019-09-02 12:52:39
+=============================================================
+
+SESSION: 2019-09-02 12:54:15
+=============================================================
+
+SESSION: 2019-09-02 12:55:14
+=============================================================
+
+SESSION: 2019-09-02 12:55:19
+=============================================================
+
+SESSION: 2019-09-02 13:00:16
+=============================================================
+13:00:24 USER: is the target block touching the starbucks block?
+13:00:25 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Starbucks BLOCK.N)))) ?)
+13:00:37 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+
+SESSION: 2019-09-02 13:01:18
+=============================================================
+13:01:24 USER: is the target block touching the starbucks block?
+13:01:26 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Starbucks BLOCK.N)))) ?)
+
+SESSION: 2019-09-02 13:01:39
+=============================================================
+13:01:45 USER: he's the target bill of touching the starbucks block.
+13:01:55 DAVID:  i'm asking about some starbucks block , but i didn't catch what it was.
+13:02:01 USER:  is the target block touching the starbucks block?
+13:02:02 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Starbucks BLOCK.N)))) ?)
+13:02:15 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+
+SESSION: 2019-09-02 13:02:56
+=============================================================
+13:03:04 USER: is the target block touching the starbucks block?
+13:03:05 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Starbucks BLOCK.N)))) ?)
+13:03:09 DAVID:  yes .
+13:03:19 USER:  is the target block touching the twitter block?
+13:03:20 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D (Twitter BLOCK.N)))) ?)
+13:03:26 DAVID:  no .
+13:03:30 USER: is the target block touching the table?
+13:03:31 ULF: (((PRES BE.V) (THE.D (Target BLOCK.N)) (TOUCHING.P (THE.D TABLE.N))) ?)
+13:03:37 DAVID:  yes .
+13:03:43 USER: is the mcdonalds block clash of the table?
+13:03:44 ULF: (POSS-QUES (((PRES BE.V) (THE.D (McDonalds BLOCK.N)) (OF.P (THE.D TABLE.N))) ?))
+13:03:55 DAVID:  i am not sure if i understood the question correctly, but my answer is no .
+
+SESSION: 2019-09-02 13:27:17
+=============================================================
+
+SESSION: 2019-09-02 13:28:06
+=============================================================
+
+SESSION: 2019-09-02 13:29:12
+=============================================================
+
+SESSION: 2019-09-02 13:30:02
+=============================================================
+
+SESSION: 2019-09-02 13:49:05
+=============================================================
+
+SESSION: 2019-09-02 13:56:07
+=============================================================
+
+SESSION: 2019-09-02 14:01:45
+=============================================================
+
+SESSION: 2019-09-02 14:03:20
+=============================================================
+
+SESSION: 2019-09-02 14:06:55
+=============================================================
+
+SESSION: 2019-09-02 14:10:57
+=============================================================
+
+SESSION: 2019-09-02 14:13:07
+=============================================================
+
+SESSION: 2019-09-02 14:18:53
+=============================================================
+14:19:29 USER: is the starbucks block touching the table?
+14:19:31 ULF: (((PRES BE.V) (THE.D (Starbucks BLOCK.N)) (TOUCHING.P (THE.D TABLE.N))) ?)
+
+SESSION: 2019-09-02 16:05:14
+=============================================================
+16:05:22 USER: is the target block facing the starbucks block?
+16:05:31 DAVID:  i'm asking about some target block , but i didn't catch what it was.
+16:09:26 USER: does the top two block face the starbucks block?
+
+SESSION: 2019-09-02 16:09:59
+=============================================================
+16:10:09 DAVID:  hi, my name is david. i'm ready to answer your spatial questions.
+16:10:16 USER: does the target block face the starbucks block?
+16:10:17 ULF: ((DOES.V (THE.D (Target BLOCK.N)) (FACE.V (THE.D (Starbucks BLOCK.N)))) ?)
+16:10:27 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+16:10:31 USER: does the target block touch the starbucks block?
+16:10:33 ULF: ((DOES.V (THE.D (Target BLOCK.N)) (TOUCH.V (THE.D (Starbucks BLOCK.N)))) ?)
+16:10:36 DAVID:  yes .
+16:10:40 USER: which blocks are touching the table?
+16:10:41 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D TABLE.N)))) ?)
+16:10:55 DAVID:  there are 8 that are touching the table , including the texaco , twitter , toyota , mercedes , and starbucks blocks .
+
+SESSION: 2019-09-02 16:11:19
+=============================================================
+16:11:27 USER: which blocks are touching some blue block?
+16:11:28 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (SOME.D (BLUE.A BLOCK.N))))) ?)
+16:11:38 DAVID:  the starbucks , burger king , twitter , and mcdonald's blocks are touching some blue block .
+
+SESSION: 2019-09-02 16:12:06
+=============================================================
+
+SESSION: 2019-09-02 16:12:18
+=============================================================
+
+SESSION: 2019-09-02 16:12:46
+=============================================================
+16:12:54 USER: which blocks are touching some green block?
+16:12:55 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (SOME.D (GREEN.A BLOCK.N))))) ?)
+16:13:08 DAVID:  the target , texaco , toyota , mercedes , and twitter blocks are touching some green block .
+16:13:16 USER:  which blocks are to the left of summer a block?
+16:13:26 DAVID:  i'm asking about some blocks , but i didn't catch what it was.
+16:13:34 USER:  which blocks are to the left of some red block?
+16:13:35 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_LEFT_OF.P (SOME.D (RED.A BLOCK.N))))) ?)
+16:13:47 DAVID:  the starbucks , target , texaco , twitter , and mcdonald's blocks are to the left of some red block .
+
+SESSION: 2019-09-02 16:19:47
+=============================================================
+
+SESSION: 2019-09-02 16:20:44
+=============================================================
+16:21:21 USER: which blocks are touching the twitter block?
+16:21:22 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Twitter BLOCK.N))))) ?)
+16:21:30 DAVID:  the texaco block and the starbucks block are touching the twitter block .
+16:22:25 USER: which blocks are touching the twitter block?
+16:22:26 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D (Twitter BLOCK.N))))) ?)
+16:22:33 DAVID:  just the texaco block is touching the twitter block .
+16:22:55 USER: how many blocks are on top of the starbucks block?
+16:22:56 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Starbucks BLOCK.N))))) ?)
+16:23:03 DAVID:  just the target block is on top of the starbucks block .
+16:23:09 USER:  is the starbucks block below the target block?
+16:23:10 ULF: (((PRES BE.V) (THE.D (Starbucks BLOCK.N)) (BELOW.P (THE.D (Target BLOCK.N)))) ?)
+16:23:13 DAVID:  yes .
+16:23:20 USER: which blocks are on top of the twitter block?
+16:23:21 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Twitter BLOCK.N))))) ?)
+16:23:27 DAVID:  there are no blocks that are on top of the twitter block .
+16:24:00 USER: how many blocks are on top of the twitter block?
+16:24:01 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Twitter BLOCK.N))))) ?)
+16:24:09 DAVID:  just the texaco block is on top of the twitter block .
+16:24:20 USER: how many blocks are in top of the twitter block?
+16:24:29 DAVID:  i'm asking about some blocks , but i didn't catch what it was.
+16:24:33 USER: how many blocks are on top of the twitter block?
+16:24:34 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Twitter BLOCK.N))))) ?)
+16:24:45 DAVID:  there are 2 that are on top of the twitter block . the mcdonald's block and the texaco block .
+16:24:52 USER:  how many blocks are touching the table?
+16:24:53 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D TABLE.N)))) ?)
+16:25:00 DAVID:  there are 5 blocks that are touching the table .
+16:25:05 USER:  what is the highest block?
+16:25:06 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N HIGH.A BLOCK.N))))) ?)
+16:25:11 DAVID:  only the mcdonald's block .
+16:25:14 USER:  what is the lowest block?
+16:25:15 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N LOW.A BLOCK.N))))) ?)
+16:25:21 DAVID:  there is no such block .
+16:25:26 USER: where is the texaco block?
+16:25:27 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Texaco BLOCK.N)) *H)) ?)
+16:25:32 DAVID:  there is no such block .
+16:25:36 USER:  where does the mcdonald's block?
+16:25:37 ULF: (POSS-QUES ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (McDonalds BLOCK.N)) *H)) ?))
+16:25:47 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+16:25:52 USER:  what is the rightmost block?
+16:25:53 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N RIGHT.A BLOCK.N))))) ?)
+16:25:59 DAVID:  only the burger king block .
+16:26:05 USER: is the starbucks block behind twitter block?
+16:26:14 DAVID:  i'm asking about some starbucks block , but i didn't catch what it was.
+16:26:21 USER: is the starbucks block behind the twitter block?
+16:26:23 ULF: (((PRES BE.V) (THE.D (Starbucks BLOCK.N)) (BEHIND.P (THE.D (Twitter BLOCK.N)))) ?)
+16:26:26 DAVID:  yes .
+16:26:35 USER: is the mercedes block in front of the toyota block?
+16:26:36 ULF: (((PRES BE.V) (THE.D (Mercedes BLOCK.N)) (IN_FRONT_OF.P (THE.D (Toyota BLOCK.N)))) ?)
+16:26:40 DAVID:  no .
+16:26:49 USER:  is the mercedes block in front of the toyota block?
+16:26:50 ULF: (((PRES BE.V) (THE.D (Mercedes BLOCK.N)) (IN_FRONT_OF.P (THE.D (Toyota BLOCK.N)))) ?)
+16:26:53 DAVID:  yes .
+16:27:01 USER: is the mercedes block in front of the toyota block?
+16:27:02 ULF: (((PRES BE.V) (THE.D (Mercedes BLOCK.N)) (IN_FRONT_OF.P (THE.D (Toyota BLOCK.N)))) ?)
+16:27:05 DAVID:  no .
+16:27:17 USER: which blocks are note to the left of the mercedes block?
+16:27:18 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_LEFT_OF.P (THE.D (Mercedes BLOCK.N))))) ?)
+16:27:29 DAVID:  the twitter , toyota , starbucks , and texaco blocks are note to the left of the mercedes block .
+
+SESSION: 2019-09-02 16:29:49
+=============================================================
+
+SESSION: 2019-09-02 16:30:27
+=============================================================
+16:31:19 USER: how many blocks are on the table?
+16:31:21 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+16:31:26 DAVID:  there are 8 blocks that are on the table .
+16:31:50 USER: how many red blocks are to the left of the toyota block?
+16:31:52 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (TO_THE_LEFT_OF.P (THE.D (Toyota BLOCK.N))))) ?)
+16:31:56 DAVID:  there are 2 
+16:32:27 USER: how many blocks are touching each other?
+16:32:28 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (EACH.D OTHER.N)))) ?)
+16:32:35 DAVID:  probably only the texaco block is touching each other .
+16:35:03 USER: how many blocks?
+16:35:12 DAVID:  i'm asking about some blocks , but i didn't catch what it was.
+16:35:19 USER: how many blocks are in a line?
+16:35:20 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (IN.P (A.D LINE.N)))) ?)
+16:35:26 DAVID:  probably only the burger king block is in a line .
+16:35:47 USER:  where is the texaco block?
+16:35:48 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Texaco BLOCK.N)) *H)) ?)
+16:35:52 DAVID:  there is no such block .
+16:36:57 USER: how many blocks are on top of other blocks?
+16:36:59 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (OTHER.D (PLUR BLOCK.N))))) ?)
+16:37:09 DAVID:  there are 2 that are on top of other blocks . the texaco block and the twitter block .
+16:37:49 USER:  where is the target block relative to the twitter block?
+16:37:50 ULF: (POSS-QUES (((PRES BE.V) (THE.D (Target BLOCK.N)) (TO.P (THE.D (Twitter BLOCK.N)))) ?))
+16:37:58 DAVID:  i am not sure if i understood the question correctly, but my answer is no .
+16:38:29 USER: where is the target block?
+16:38:30 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Target BLOCK.N)) *H)) ?)
+16:38:34 DAVID:  there is no such block .
+16:39:04 USER: where is the target block?
+16:39:05 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Target BLOCK.N)) *H)) ?)
+16:39:09 DAVID:  there is no such block .
+16:39:17 USER:  where are the blue blocks?
+16:39:18 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (BLUE.A (PLUR BLOCK.N))) *H)) ?)
+16:39:29 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+16:39:39 USER: where is a red block?
+16:39:40 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (A.D (RED.A BLOCK.N)) *H)) ?)
+16:39:51 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+16:40:02 USER: is there a red block on top of a blue block?
+16:40:04 ULF: (((PRES BE.V) THERE.PRO (A.D (RED.A BLOCK.N)) (ON_TOP_OF.P (A.D (BLUE.A BLOCK.N)))) ?)
+16:40:09 DAVID:  yes , it is the target block .
+16:40:30 USER: how many blocks are in front of other blocks?
+16:40:31 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (IN_FRONT_OF.P (OTHER.D (PLUR BLOCK.N))))) ?)
+16:40:37 DAVID:  just the mercedes block is in front of other blocks .
+16:40:48 USER: what are the leftmost blocks?
+16:40:49 ULF: ((WHAT.PRO ((PRES BE.V) (= (THE.D (MOST-N LEFT.A (PLUR BLOCK.N)))))) ?)
+16:40:54 DAVID:  only the starbucks block .
+16:41:29 USER: how many blue blocks are there underneath other blocks?
+16:41:30 ULF: (((HOW_MANY.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) THERE.PRO (UNDERNEATH.P (OTHER.D (PLUR BLOCK.N))))) ?)
+16:41:40 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+16:42:00 USER: are there blue blocks underneath other blocks?
+16:42:01 ULF: (((PRES BE.V) THERE.PRO (K (BLUE.A (PLUR BLOCK.N))) (UNDERNEATH.P (OTHER.D (PLUR BLOCK.N)))) ?)
+16:42:04 DAVID:  no .
+16:42:30 USER: are all the blue blocks underneath other blocks?
+16:42:40 DAVID:  i'm asking about some the blue blocks , but i didn't catch what it was.
+16:43:08 USER:  how many red blocks are on top of blue blocks?
+16:43:09 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (ON_TOP_OF.P (K (BLUE.A (PLUR BLOCK.N)))))) ?)
+16:43:13 DAVID:  there are 2 
+16:43:45 USER: where are the blue blocks?
+16:43:46 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (BLUE.A (PLUR BLOCK.N))) *H)) ?)
+16:43:57 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+16:44:03 USER: where is the mcdonald's block?
+16:44:04 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (McDonalds BLOCK.N)) *H)) ?)
+16:44:08 DAVID:  there is no such block .
+16:44:17 USER: where is the burger king block?
+16:44:18 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Burger King BLOCK.N)) *H)) ?)
+16:44:23 DAVID:  there is no such block .
+16:44:37 USER:  which blocks are to the left of the toyota block?
+16:44:39 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (TO_THE_LEFT_OF.P (THE.D (Toyota BLOCK.N))))) ?)
+16:44:50 DAVID:  the target , mcdonald's , texaco , twitter , and starbucks blocks are to the left of the toyota block .
+16:44:58 USER:  how many blocks are not touching the table?
+16:45:07 DAVID:  i'm asking about some blocks , but i didn't catch what it was.
+16:45:18 USER: how many blocks are touching the table?
+16:45:19 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (TOUCHING.P (THE.D TABLE.N)))) ?)
+16:45:25 DAVID:  there are 5 blocks that are touching the table .
+16:45:44 USER:  how many blocks are in a line?
+16:45:45 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (IN.P (A.D LINE.N)))) ?)
+16:45:52 DAVID:  probably only the toyota block is in a line .
+16:46:35 USER: how many blocks are on top of the twitter block?
+16:46:36 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (ON_TOP_OF.P (THE.D (Twitter BLOCK.N))))) ?)
+16:46:46 DAVID:  there are 2 that are on top of the twitter block . the burger king block and the texaco block .
+16:46:51 USER:  how many blocks are below the texaco block?
+16:46:53 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (BELOW.P (THE.D (Texaco BLOCK.N))))) ?)
+16:47:04 DAVID:  there are 3 that are below the texaco block . the target , twitter , and mcdonald's blocks .
+16:49:10 USER: how many green blocks are touching a red block?
+16:49:11 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (A.D (RED.A BLOCK.N))))) ?)
+16:49:15 DAVID:  there are 2 
+16:49:29 USER:  how many green blocks are touching a red block?
+16:49:30 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (A.D (RED.A BLOCK.N))))) ?)
+16:49:34 DAVID:  there are 2 
+16:54:12 USER: how many green blocks are touching red blocks?
+16:54:14 ULF: (((HOW_MANY.D (GREEN.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (K (RED.A (PLUR BLOCK.N)))))) ?)
+16:54:18 DAVID:  there are 3 
+16:54:26 USER: how many blue blocks are touching each other?
+16:54:27 ULF: (((HOW_MANY.D (BLUE.A (PLUR BLOCK.N))) ((PRES BE.V) (TOUCHING.P (EACH.D OTHER.N)))) ?)
+16:54:33 DAVID:  probably the target block is the only one .
+16:54:44 USER:  where is the target block?
+16:54:45 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Target BLOCK.N)) *H)) ?)
+16:54:50 DAVID:  there is no such block .
+16:54:59 USER: where is the twitter block?
+16:55:01 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Twitter BLOCK.N)) *H)) ?)
+16:55:05 DAVID:  there is no such block .
+16:55:13 USER:  where is the twitter block?
+16:55:14 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Twitter BLOCK.N)) *H)) ?)
+16:55:18 DAVID:  there is no such block .
+16:55:38 USER: how many red blocks are there?
+16:55:39 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) THERE.PRO)) ?)
+16:55:50 DAVID:  sorry , i was unable to find an object that satisfies given constraints , please rephrase in a simpler way .
+16:55:53 USER: how many red blocks do you see?
+16:56:02 DAVID:  i'm asking about some red blocks , but i didn't catch what it was.
+16:56:07 USER:  how many red blocks are on the table?
+16:56:09 ULF: (((HOW_MANY.D (RED.A (PLUR BLOCK.N))) ((PRES BE.V) (ON.P (THE.D TABLE.N)))) ?)
+16:56:14 DAVID:  only one , the mercedes block .
+16:56:49 USER: are there any blue blocks to the left of a red block?
+16:56:51 ULF: (((PRES BE.V) THERE.PRO (ANY.D (BLUE.A (PLUR BLOCK.N))) (TO_THE_LEFT_OF.P (A.D (RED.A BLOCK.N)))) ?)
+16:56:54 DAVID:  yes .
+16:57:05 USER: are there any yellow blocks?
+16:57:06 ULF: (((PRES BE.V) THERE.PRO (ANY.D (YELLOW.A (PLUR BLOCK.N)))) ?)
+16:57:10 DAVID:  no .
+16:58:05 USER: are there any blocks around the starbucks block?
+16:58:14 DAVID:  i'm asking about some blocks , but i didn't catch what it was.
+16:58:24 USER:  how many blocks are next to the starbucks block?
+16:58:25 ULF: (((HOW_MANY.D (PLUR BLOCK.N)) ((PRES BE.V) (NEXT_TO.P (THE.D (Starbucks BLOCK.N))))) ?)
+16:58:32 DAVID:  there are 4 blocks that are next to the starbucks block .
+16:58:37 USER: which blocks are next to the starbucks block?
+16:58:39 ULF: (((WHICH.D (PLUR BLOCK.N)) ((PRES BE.V) (NEXT_TO.P (THE.D (Starbucks BLOCK.N))))) ?)
+16:58:50 DAVID:  the toyota , burger king , twitter , and mercedes blocks are next to the starbucks block .
+16:59:07 USER: where is the toyota block?
+16:59:08 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Toyota BLOCK.N)) *H)) ?)
+16:59:12 DAVID:  there is no such block .
+16:59:19 USER:  what color is the burger king block?
+16:59:20 ULF: ((SUB ({OF}.P (WHAT.D COLOR.N)) ((PRES BE.V) (THE.D (Burger King BLOCK.N)) *H)) ?)
+16:59:24 DAVID:  there is no such block .
+16:59:40 USER: what color is target block?
+16:59:42 ULF: NIL
+17:01:18 USER: where is the burger king block?
+17:01:19 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Burger King BLOCK.N)) *H)) ?)
+17:01:24 DAVID:  there is no such block .
+17:01:43 USER: the texaco block
+17:01:53 DAVID:  i'm asking about some texaco block , but i didn't catch what it was.
+17:02:11 USER:  where is the texaco block?
+17:02:12 ULF: ((SUB (AT.P (WHAT.D PLACE.N)) ((PRES BE.V) (THE.D (Texaco BLOCK.N)) *H)) ?)
+17:02:17 DAVID:  there is no such block .
+17:02:29 USER: does the texaco block touch the target block?
+17:02:30 ULF: ((DOES.V (THE.D (Texaco BLOCK.N)) (TOUCH.V (THE.D (Target BLOCK.N)))) ?)
+17:02:34 DAVID:  yes .
+17:02:54 USER: is the mcdonalds block to the left of the toyota block?
+17:02:56 ULF: (((PRES BE.V) (THE.D (McDonalds BLOCK.N)) (TO_THE_LEFT_OF.P (THE.D (Toyota BLOCK.N)))) ?)
+17:02:59 DAVID:  yes .
+17:03:10 USER: is there a red block in front of a green block?
+17:03:11 ULF: (((PRES BE.V) THERE.PRO (A.D (RED.A BLOCK.N)) (IN_FRONT_OF.P (A.D (GREEN.A BLOCK.N)))) ?)
+17:03:17 DAVID:  yes , it is the mcdonald's block .

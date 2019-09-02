@@ -8,6 +8,7 @@ import math
 import numpy as np
 #import geometry_utils
 from mathutils import Vector
+from mathutils import Quaternion
 import os
 from threading import *
 from entity import Entity
@@ -44,9 +45,10 @@ class ModalTimerOp(bpy.types.Operator):
                     ent = Entity(bpy.data.objects[name])
                     ModalTimerOp.tracker.world.entities.append(ent)
                     bpy.context.scene.update()
-                    print ("ENTITY RELOCATED: ", name, ent.name, np.linalg.norm(old_loc - ent.location))
-                    print ("OLD LOCATION: ", old_loc)
-                    print ("NEW LOCATION: ", ent.location)
+                    if self.tracker.verbose:
+                        print ("ENTITY RELOCATED: ", name, ent.name, np.linalg.norm(old_loc - ent.location))
+                        print ("OLD LOCATION: ", old_loc)
+                        print ("NEW LOCATION: ", ent.location)
                     
                 #world = ModalTimerOp.tracker.world
                 #toy = world.find_entity_by_name("Toyota")
@@ -82,26 +84,23 @@ class Tracker(object):
 
         self.scene_setup()
 
-        # for block in self.blocks:
-        #     self.block_to_ids[block] = -1
-
-        #print (self.blocks)
-
+        self.verbose = False
+        
         block_data = self.get_block_data()
         block_data.sort(key = lambda x : x[1][0])
-        #print ("SORTED DATA:", block_data)
         for idx in range(len(block_data)):
-            id, location = block_data[idx]
+            id, location, rotation = block_data[idx]
             self.block_to_ids[self.blocks[idx]] = id
             self.block_by_ids[id] = self.blocks[idx]
             self.blocks[idx].location = location
+            self.blocks[idx].rotation_euler = rotation
 
         self.moved_blocks = []
         self.world = world        
         bpy.context.scene.update()   
         bpy.ops.wm.modal_timer_operator()
           
-    def create_block(self, name="", location=None, material=None):
+    def create_block(self, name="", location=None, rotation=None, material=None):
         if bpy.data.objects.get(name) is not None:
             return bpy.data.objects[name]
         block_mesh = bpy.data.meshes.new('Block_mesh')
@@ -115,6 +114,7 @@ class Tracker(object):
         bm.free()
         block.data.materials.append(material)
         block.location = location
+        block.rotation_euler = rotation
         block['id'] = "bw.item.block." + name
         block['color_mod'] = material.name
         block['main'] = 1.0
@@ -145,7 +145,7 @@ class Tracker(object):
         # for ob in bpy.data.objects:
         #     print (ob.name, bpy.data.objects.get(ob.name))
 
-        self.blocks = [self.create_block(name, Vector((0, 0, self.block_edge / 2)), materials[self.block_names.index(name) % 3]) for name in self.block_names]
+        self.blocks = [self.create_block(name, Vector((0, 0, self.block_edge / 2)), (0,0,0), materials[self.block_names.index(name) % 3]) for name in self.block_names]
         self.block_by_ids = {}
         self.block_to_ids = {}
         #self.clear_scene()
@@ -175,31 +175,40 @@ class Tracker(object):
         for block in self.blocks:
             updated_blocks[block] = 0
 
-        for id, location in block_data:
+        for id, location, rotation in block_data:
             if id in self.block_by_ids:
-                block = self.block_by_ids[id]                
-                if np.linalg.norm(location - block.location) >= 0.1:
-                    print ("MOVED BLOCK: ", block.name, location, block.location, np.linalg.norm(location - block.location))
+                block = self.block_by_ids[id]              
+                rot1 = np.array([item for item in rotation])
+                rot2 = np.array([item for item in block.rotation_euler])
+                if np.linalg.norm(location - block.location) >= 0.1 or np.linalg.norm(rot1 - rot2) >= 0.1:
+                    if self.verbose:
+                        if np.linalg.norm(location - block.location) >= 0.1:
+                            print ("MOVED BLOCK: ", block.name, location, block.location, np.linalg.norm(location - block.location))
+                        else:
+                            print ("ROTATED BLOCK: ", block.name, rotation, block.rotation_euler)
                     moved_blocks.append(block.name)
-                    block.location = location                
+                    block.location = location
+                    block.rotation_euler = rotation
                 updated_blocks[block] = 1
             else:
                 id_assigned = False
                 for block in self.blocks:
                     if np.linalg.norm(location - block.location) < 0.1:
-                        print ("NOISE: ", block.name, location, block.location, np.linalg.norm(location - block.location))
+                        if self.verbose:
+                            print ("NOISE: ", block.name, location, block.location, np.linalg.norm(location - block.location))
                         self.block_by_ids.pop(self.block_to_ids[block], None)
                         self.block_by_ids[id] = block
-                        self.block_to_ids[block] = id                        
+                        self.block_to_ids[block] = id
                         block.location = location
+                        block.rotation_euler = rotation
                         id_assigned = True
                         updated_blocks[block] = 1
                         moved_blocks.append(block.name)
                         break
                 if id_assigned == False:
-                    unpaired.append((id, location))
+                    unpaired.append((id, location, rotation))
 
-        for id, location in unpaired:
+        for id, location, rotation in unpaired:
             min_dist = 10e9
             cand = None
             for block in self.blocks:
@@ -209,40 +218,45 @@ class Tracker(object):
                         min_dist = cur_dist
                         cand = block
             if cand != None:
-                print ("MOVED BLOCK: ", cand.name, location, cand.location, np.linalg.norm(location - cand.location))                
+                if self.verbose:
+                    if np.linalg.norm(location - cand.location) >= 0.1:
+                        print ("MOVED BLOCK: ", cand.name, location, cand.location, np.linalg.norm(location - cand.location))                
+                    else:
+                        print ("ROTATED BLOCK: ", block.name, rotation, block.rotation_euler)
                 self.block_by_ids.pop(self.block_to_ids[cand], None)
                 self.block_by_ids[id] = cand
                 self.block_to_ids[cand] = id
                 updated_blocks[cand] = 1
                 if np.linalg.norm(location - cand.location) >= 0.1:
                     cand.location = location
+                    cand.rotation_euler = rotation
                     moved_blocks.append(cand.name)
         return moved_blocks
 
-    def update_scene(self, block_ids, block_locations):
-        remove_queue = []
-        for key in block_ids:
-            if key in self.block_dict:
-                idx = block_ids.index(key)
-                self.block_dict[key].location = block_locations[idx]
-            else:
-                min_dist = 10e9
-                cand = None
-                for key1 in self.block_dict:
-                    if key1 not in block_ids:
-                        print (block_locations[block_ids.index(key)], self.block_dict[key1].location)                    
-                        cur_dist = bl_dist(block_locations[block_ids.index(key)], self.block_dict[key1].location)
-                        if min_dist > cur_dist:
-                            min_dist = cur_dist
-                            cand = key1
-                #print (cand, key)
-                if cand != None:
-                    self.block_dict[cand].location = block_locations[block_ids.index(key)]
-                    self.block_dict[key] = block_dict[cand]
-                    del self.block_dict[cand]
-                else:
-                    self.add_block(key)
-                    self.block_dict[key].location = block_locations[block_ids.index(key)]
+    # def update_scene(self, block_ids, block_locations):
+    #     remove_queue = []
+    #     for key in block_ids:
+    #         if key in self.block_dict:
+    #             idx = block_ids.index(key)
+    #             self.block_dict[key].location = block_locations[idx]
+    #         else:
+    #             min_dist = 10e9
+    #             cand = None
+    #             for key1 in self.block_dict:
+    #                 if key1 not in block_ids:
+    #                     print (block_locations[block_ids.index(key)], self.block_dict[key1].location)                    
+    #                     cur_dist = bl_dist(block_locations[block_ids.index(key)], self.block_dict[key1].location)
+    #                     if min_dist > cur_dist:
+    #                         min_dist = cur_dist
+    #                         cand = key1
+    #             #print (cand, key)
+    #             if cand != None:
+    #                 self.block_dict[cand].location = block_locations[block_ids.index(key)]
+    #                 self.block_dict[key] = block_dict[cand]
+    #                 del self.block_dict[cand]
+    #             else:
+    #                 self.add_block(key)
+    #                 self.block_dict[key].location = block_locations[block_ids.index(key)]
                
             
     def get_block_data(self):
@@ -253,7 +267,7 @@ class Tracker(object):
         #block_ids = []
         #block_locations = []
 
-        block_data = []
+        block_data = []        
 
         for segment in json_data['BlockStates']:
             #print (segment)
@@ -261,7 +275,9 @@ class Tracker(object):
             #str_loc = segment['Position']
             #print (segment['Position'])
             #block_locations += [np.array([float(x) for x in str_loc.split(",")])]
-            block_data.append((segment['ID'], self.bw_multiplier * np.array([float(x) for x in segment['Position'].split(",")])))
+            position = self.bw_multiplier * np.array([float(x) for x in segment['Position'].split(",")])
+            rotation = Quaternion([float(x) for x in segment['Rotation'].split(",")]).to_euler()
+            block_data.append((segment['ID'], position, rotation))            
 
         #print (json_data['BlockStates'][0]['ID'])
         #print (json_data['BlockStates'][0]['Position'])
@@ -279,7 +295,9 @@ class Tracker(object):
         #for bl in json_data["Blocks"]:
         #    print (bl)
         #print ("RETURNED VALS:", block_ids, block_locations, block_data)
-        return block_data#(block_ids, block_locations)
+        #print ("\n".join([str(bl) for bl in block_data]))
+        return block_data
+
 def main():
     Tracker()
 
