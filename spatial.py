@@ -579,6 +579,14 @@ def below(a, b):
 #def behind_intr(a, b):
 #    in_front_of_intr(b, a)
 
+def same_oriented(a, b):
+    a_fr = a.front
+    b_fr = b.front
+    angle = math.fabs(np.dot(a_fr, b_fr))
+    ret_val = math.e ** (- 1.5 * (angle * (1 - angle)))
+    print ("ORIENTATION: ", ret_val)
+    return ret_val
+
 def facing(a, b):
     a_fr = a.front
     b_fr = b.front
@@ -586,10 +594,14 @@ def facing(a, b):
     centroid_disp /= np.linalg.norm(centroid_disp)
     a_angle = math.fabs(np.dot(a_fr, centroid_disp))
     b_angle = math.fabs(np.dot(b_fr, centroid_disp))
-    a_facing = math.e ** (- (a_angle * (1 - a_angle)))
-    b_facing = math.e ** (- (b_angle * (1 - b_angle)))
-    print ("FACING: ", a_facing * b_facing)
-    return a_facing * b_facing
+    a_facing = math.e ** (- 1.5 * (a_angle * (1 - a_angle)))
+    b_facing = math.e ** (- 1.5 * (b_angle * (1 - b_angle)))
+    ret_val = a_facing * b_facing
+    #for bl in entities:
+    #    if between(bl, a, b) > 0.8:
+            
+    print ("FACING: ", a_facing, b_facing, ret_val)
+    return ret_val
 
 def clear(obj):
     """Return the degree to which the object obj is clear, i.e., has nothing on top."""
@@ -629,8 +641,8 @@ def at_same_height(a, b):
         return 1 - a_higher_b * b_higher_a"""
 
 def where(entity):
-    entities = [ent for ent in world.active_context if ent.name != entity.name]
-    entity_pairs = [(ent1, ent2) for (ent1, ent2) in itertools.combinations(world.active_context, r = 2) if entity != ent1 and entity != ent2]
+    entities = [ent for ent in world.active_context if ent.name != entity.name and ent.name != 'Table']
+    entity_pairs = [(ent1, ent2) for (ent1, ent2) in list(itertools.combinations(world.active_context, r = 2)) if entity.name != ent1.name and entity.name != ent2.name and ent1.name != 'Table' and ent2.name != 'Table']
 
     def get_vals(pred_func):
         if pred_func != between:
@@ -640,21 +652,45 @@ def where(entity):
         val.sort(key = lambda x: x[1])
         return val[-1]
 
+    print ('WHERE PROC: ', entities, entity_pairs)
+    max_val = 0
+    ret_val = None
     val = get_vals(at)
-    if val[1] > 0.85:
-        return ("next to", val)
+    if val[1] > max_val:
+        max_val = val[1]
+        ret_val = ("next to", val)
+        
     val = get_vals(on)
-    if val[1] > 0.85:
-        return ("on top of", val)
+    if val[1] > max_val:
+        max_val = val[1]
+        ret_val = ("on top of", val)
+        
     val = get_vals(to_the_left_of_deic)
-    if val[1] > 0.85:
-        return ("to the left of", val)
+    if val[1] > max_val:
+        max_val = val[1]
+        ret_val = ("to the left of", val)
+        
+    val = get_vals(in_front_of_deic)
+    if val[1] > max_val:
+        max_val = val[1]
+        ret_val = ("in front of", val)
+        
+    val = get_vals(behind)
+    if val[1] > max_val:
+        max_val = val[1]
+        ret_val = ("behind", val)
+        
     val = get_vals(to_the_right_of_deic)
-    if val[1] > 0.85:
-        return ("to the right of", val)
+    if val[1] > max_val:
+        max_val = val[1]
+        ret_val = ("to the right of", val)
+        
     val = get_vals(between)
-    if val[1] > 0.8:
-        return ("between", val)
+    if val[1] > max_val:
+        max_val = val[1]
+        ret_val = ("between", val)
+
+    return ret_val
 
 def superlative(predicate, entities, background):
     """Compute the "most" object from a given set of entities against a background."""

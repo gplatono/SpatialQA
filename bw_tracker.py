@@ -85,6 +85,7 @@ class Tracker(object):
         self.scene_setup()
 
         self.verbose = False
+        self.verbose_rotation = True
         
         block_data = self.get_block_data()
         block_data.sort(key = lambda x : x[1][0])
@@ -100,9 +101,12 @@ class Tracker(object):
         bpy.context.scene.update()   
         bpy.ops.wm.modal_timer_operator()
           
-    def create_block(self, name="", location=None, rotation=None, material=None):
+    def create_block(self, name="", location=(0,0,0), rotation=(0,0,0), material=None):
         if bpy.data.objects.get(name) is not None:
-            return bpy.data.objects[name]
+            bl = bpy.data.objects[name]
+            bl.rotation_euler = rotation
+            print (bl.rotation_euler)
+            return bl
         block_mesh = bpy.data.meshes.new('Block_mesh')
         block = bpy.data.objects.new(name, block_mesh)
         bpy.context.scene.objects.link(block)
@@ -180,8 +184,8 @@ class Tracker(object):
                 block = self.block_by_ids[id]              
                 rot1 = np.array([item for item in rotation])
                 rot2 = np.array([item for item in block.rotation_euler])
-                if np.linalg.norm(location - block.location) >= 0.1 or np.linalg.norm(rot1 - rot2) >= 0.1:
-                    if self.verbose:
+                if np.linalg.norm(location - block.location) >= 0.05 or np.linalg.norm(rot1 - rot2) >= 0.05:
+                    if self.verbose or self.verbose_rotation:
                         if np.linalg.norm(location - block.location) >= 0.1:
                             print ("MOVED BLOCK: ", block.name, location, block.location, np.linalg.norm(location - block.location))
                         else:
@@ -193,7 +197,7 @@ class Tracker(object):
             else:
                 id_assigned = False
                 for block in self.blocks:
-                    if np.linalg.norm(location - block.location) < 0.1:
+                    if np.linalg.norm(location - block.location) < 0.05:
                         if self.verbose:
                             print ("NOISE: ", block.name, location, block.location, np.linalg.norm(location - block.location))
                         self.block_by_ids.pop(self.block_to_ids[block], None)
@@ -218,8 +222,8 @@ class Tracker(object):
                         min_dist = cur_dist
                         cand = block
             if cand != None:
-                if self.verbose:
-                    if np.linalg.norm(location - cand.location) >= 0.1:
+                if self.verbose or self.verbose_rotation:
+                    if np.linalg.norm(location - cand.location) >= 0.05:
                         print ("MOVED BLOCK: ", cand.name, location, cand.location, np.linalg.norm(location - cand.location))                
                     else:
                         print ("ROTATED BLOCK: ", block.name, rotation, block.rotation_euler)
@@ -227,7 +231,7 @@ class Tracker(object):
                 self.block_by_ids[id] = cand
                 self.block_to_ids[cand] = id
                 updated_blocks[cand] = 1
-                if np.linalg.norm(location - cand.location) >= 0.1:
+                if np.linalg.norm(location - cand.location) >= 0.05 or np.linalg.norm(rot1 - rot2) >= 0.05:
                     cand.location = location
                     cand.rotation_euler = rotation
                     moved_blocks.append(cand.name)
@@ -277,6 +281,9 @@ class Tracker(object):
             #block_locations += [np.array([float(x) for x in str_loc.split(",")])]
             position = self.bw_multiplier * np.array([float(x) for x in segment['Position'].split(",")])
             rotation = Quaternion([float(x) for x in segment['Rotation'].split(",")]).to_euler()
+            # tmp = rotation[0]
+            # rotation[0] = rotation[1]
+            # rotation[1] = tmp
             block_data.append((segment['ID'], position, rotation))            
 
         #print (json_data['BlockStates'][0]['ID'])

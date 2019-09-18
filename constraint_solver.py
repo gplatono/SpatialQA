@@ -13,6 +13,13 @@ def ident(arg1, arg2):
 def exist(arg):
 	return int(arg is not None)
 
+def color_pred(entity):
+	if hasattr(entity, 'color_mod'):
+		return entity.color_mod
+	elif hasattr(entity, 'color'):
+		return entity.color
+	return None
+
 #Dictionary that maps the relation names to the names of the functions that implement them
 rel_to_func_map = {
 	'on.p': spatial.on,
@@ -36,7 +43,8 @@ rel_to_func_map = {
 	'above.p': spatial.above,
     'below.p': spatial.below,
     'over.p': spatial.over,
-    'under.p': spatial.under,    
+    'under.p': spatial.below,    
+    'underneath.p': spatial.below,    
     'supporting.p': spatial.under,
 
     'in.p': spatial.inside,
@@ -73,7 +81,9 @@ rel_to_func_map = {
     'exist.pred': exist,
 
     'face.v': spatial.facing,
-    'facing.p': spatial.facing
+    'facing.p': spatial.facing,
+
+    'color.pred': color_pred
 }
 
 #Dictionary mapping the predicates to the number of their arguments
@@ -96,8 +106,10 @@ arity = {
 	spatial.higher_than: 2,
 	spatial.lower_than: 2,
 	spatial.where: 1,
+	spatial.facing: 2,
 	ident: 2,
-	exist: 1
+	exist: 1,
+	color_pred: 1
     }
 
 #Returns the sublist of the entity list having the specified color
@@ -107,10 +119,10 @@ def filter_by_color(entities, color):
 	return ret_val
 
 #Returns the list of entities having the specified type
-def filter_by_type(entities, type_id):
-	#print ("TYPE PROCESSING: ", type_id)
+def filter_by_type(entities, type_id):	
+	print ("TYPE PROCESSING: ", type_id)
 	ret_val = [] if entities == [] or entities is None \
-			else [entity for entity in entities if type_id in entity.type_structure]
+			else [entity for entity in entities if type_id in entity.type_structure or type_id == 'one']
 	return ret_val
 	# # for entity in entities:
 	# # 	print (entity.type_structure)
@@ -187,11 +199,54 @@ def filter_by_numeral(numeral, entities):
 	return ret_val
 
 def compute_predicate(predicate, *arglists):	
-	arg_combinations = list(itertools.product(*arglists))
-	#print ("ARG_LISTS: ", arglists, *arglists, arg_combinations)
+	arg_combinations = list(itertools.product(*arglists))	
+	print ("ARG_LISTS: ", arglists, *arglists, arg_combinations)
 	if arg_combinations is None or arg_combinations == [] or len(arg_combinations[0]) != arity[predicate]:
 		return []
 	predicate_values = [(arg, predicate(*arg)) for arg in arg_combinations]	
+	return predicate_values
+
+def compute_predicate1(predicate, relata, referents):
+	# if referents is not None and referents != []:
+	# 	arg_combinations = [(rel[0], ref[0], (rel[1] + ref[1]) / 2) for rel in relata for ref in referents]
+	# else:
+	# 	arg_combinations = relata
+	# #arg_combinations = list(itertools.product(relata, referents))
+	#arg_combinations = [(item[0][0], item[1][0], (item[0][1] + item[1][1]) / 2) for item in arg_combinations]
+	#print ("ARG_LISTS: ", arglists, *arglists, arg_combinations)
+	# if arg_combinations is None or arg_combinations == []:# or len(arg_combinations[0]) != arity[predicate]:
+	# 	return []
+	predicate_values = []
+
+	print("\n\n\n")
+	print ("RELATA: ", relata)
+	print ("\nREFS: ", referents)
+
+	for rel in relata:
+		if type(rel[0]) != tuple:
+			rel = ((rel[0],), rel[1])
+		rel_tuples = list(itertools.combinations(rel[0], r = 1))
+		rel_cert = rel[1]
+		if referents is not None and referents != []:
+			for ref in referents:
+				if type(ref[0]) != tuple:
+					ref = ((ref[0],), ref[1])
+				ref_tuples = list(itertools.combinations(ref[0], r = arity[predicate] - 1))
+				ref_cert = ref[1]
+				print ("REL TUPLES: ", rel_tuples)
+				print ("REF TUPLES: ", ref_tuples)
+				arg_combinations = list(itertools.product(rel_tuples, ref_tuples))
+				print ("ARG_COMBINATIONS: ", arg_combinations)
+				arg_combinations = [(*arg0, *arg1) for (arg0, arg1) in arg_combinations]
+				print ("ARG_COMBINATIONS1: ", arg_combinations)
+				pred_value = np.average([predicate(*arg) for arg in arg_combinations])
+				predicate_values.append(((*rel[0], *ref[0]), pred_value))
+		else:
+			arg_combinations = rel_tuples
+			pred_value = np.average([predicate(*arg) for arg in arg_combinations])
+			predicate_values.append(((*rel[0], None), pred_value))
+
+	#predicate_values = [(arg, predicate(*arg)) for arg in arg_combinations]	
 	return predicate_values
 
 def filter_by_predicate_modifier(predicate_values, modifier):
@@ -224,14 +279,13 @@ def filter_by_mod(entities, modifier, entity_list):
 		items = [entity[0] for entity in entities]
 		ret_val = filter_by_color(items, modifier.content)
 		return [(item, 1.0) for item in ret_val]
-	elif type(modifier) == TNumber:
-		pass
+	elif type(modifier) == TNumber:		
 		ret_val = filter_by_numeral(modifier, entities)
 		return ret_val
 	elif type(modifier) == TAdj:
 		print ("ADJ PROCESSING... PRED = ", modifier, " RELATA = ", entities)
 		pred = NPred(content = modifier.content, mods = modifier.mods)
-		predicate_values = process_predicate(pred, relata=entities, entity_list=entity_list)
+		predicate_values = process_predicate1(pred, relata=entities, entity_list=entity_list)
 
 		answer_set = {}
 		for (item, val) in predicate_values:
@@ -242,7 +296,7 @@ def filter_by_mod(entities, modifier, entity_list):
 		answer_set = [(item, answer_set[item]) for item in answer_set.keys()]
 		return answer_set
 	elif type(modifier) == NPred or type(modifier) == NRel:
-		predicate_values = process_predicate(modifier, relata=entities, entity_list=entity_list)
+		predicate_values = process_predicate1(modifier, relata=entities, entity_list=entity_list)
 
 		answer_set = {}
 		for (item, val) in predicate_values:
@@ -343,6 +397,79 @@ def process_predicate(predicate, relata=None, referents=None, entity_list=None):
 	print ("FINAL ARGLISTS RETURNED FROM PRED: ",  predicate_values)
 	return predicate_values
 
+def process_predicate1(predicate, relata=None, referents=None, entity_list=None):
+	"""
+	Processes the predicate by computing its values over all the combinations
+	of arguments and then appyling each modifiers to obtain more and more
+	restricted list of argument tuples that satisfy the constraints of the
+	predicate.
+
+	"""
+	#print ("ENTERING PREDICATE PROCESSING: ", predicate)
+	predicate_func = resolve_predicate(predicate)
+	pred_arity = arity[predicate_func]
+	modifiers = predicate.mods
+	print ("\nPREDICATE COMPONENTS: ", predicate, modifiers)
+	unique = False
+
+	#Resolve arguments
+	print ("ARGS BEFORE RESOLVING: ", relata, referents)
+	if relata is None:
+		relata = resolve_argument(predicate.children[0], entity_list) if len(predicate.children) > 0 else None
+		if referents is None:
+			referents = resolve_argument(predicate.children[1], entity_list) if len(predicate.children) > 1 else None
+	elif referents is None:
+		referents = resolve_argument(predicate.children[0], entity_list) if len(predicate.children) > 0 else None
+	print ("RESOLVED RELATA:", relata)
+	print ("RESOLVED REFERENTS:", referents)
+	
+	#For handling "Where" and color requests
+	if predicate_func == spatial.where:		
+		predicate_values = [spatial.where(relatum[0]) for relatum in relata]
+		print ("WHERE PRED VALUES: ", predicate_values)
+		return predicate_values
+	elif predicate_func == color_pred:
+		predicate_values = [color_pred(relatum[0]) for relatum in relata]
+		return predicate_values
+
+	#For superlatives	
+	if (referents is None or referents == []) and pred_arity == 2:
+		unique = True
+		referents = [(ent, 1.0) for ent in world.active_context]
+		print ("REFERENTS FOR SUP:", referents)
+		predicate_values = []
+		for relatum in relata:
+			avg = np.average([val for ref in referents for (arg, val) in compute_predicate1(predicate_func, [relatum], [ref])])
+			predicate_values.append(((relatum[0],), avg)) 
+		print ("AVG VAL: ", predicate_values)
+	#For the rest
+	else:
+		print ("FINAL_RELATA: ", relata)
+		print ("FINAL_REFERENTS: ", referents)
+		predicate_values = compute_predicate1(predicate_func, relata, referents)
+
+	predicate_values.sort(key = lambda x: x[1])
+	predicate_values.reverse()
+
+	print ("PREDICATE VALUES: ", predicate_values)	
+	if modifiers is not None and modifiers != []:
+		for modifier in modifiers:
+			predicate_values = filter_by_predicate_modifier(predicate_values, modifier)
+	elif predicate_values is not None and predicate_values != []:
+		if unique == False:
+			predicate_values = [(arg, val) for (arg, val) in predicate_values if val >= 0.7]
+		else:
+			predicate_values = [predicate_values[0]]
+
+	print ("RESULTING ARGLISTS AFTER PRED FILTERING: ",  predicate_values)	
+	if len(predicate_values) > 0 and type(predicate_values[0][0]) == tuple and \
+			len(predicate_values[0][0]) > 1:
+		if predicate_func != ident:
+			predicate_values = [(arg, val) for (arg, val) in predicate_values if arg[0] not in arg[1:]]
+		
+	print ("FINAL ARGLISTS RETURNED FROM PRED: ",  predicate_values)
+	return predicate_values
+
 def resolve_argument(arg_object, entities):
 	ret_args = entities
 
@@ -383,6 +510,7 @@ def resolve_argument(arg_object, entities):
 		if type(ret_args[0]) != tuple:
 			ret_args = [(item, 1.0) for item in ret_args]
 
+	print ("ARGS BEFORE MODIFIERS: ", ret_args, arg_mods)
 	if arg_mods is not None and arg_mods != []:
 		for modifier in arg_mods:
 			print ("CURRENT MOD: ", modifier)
@@ -392,7 +520,7 @@ def resolve_argument(arg_object, entities):
 	print ("AFTER MOD APPLICATION:", ret_args)
 	return ret_args
 
-def resolve_predicate(predicate_object):
+def resolve_predicate(predicate_object):	
 	if type(predicate_object) == str:
 		pred = rel_to_func_map[predicate_object]
 	elif predicate_object.content is not None and type(predicate_object.content) == str:
@@ -415,8 +543,8 @@ def process_query(query, entities):
 		relata = []
 		referents = []
 
-		predicate_values = process_predicate(pred, entity_list=entities)
-		if query.query_type == query.QueryType.DESCR:
+		predicate_values = process_predicate1(pred, entity_list=entities)
+		if query.query_type == query.QueryType.DESCR or query.query_type == query.QueryType.ATTR_COLOR:
 			return predicate_values		
 		if predicate_values is not None and predicate_values != []:
 			relata = [(arg[0], val) for (arg, val) in predicate_values]

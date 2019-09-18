@@ -121,12 +121,16 @@ class QueryFrame(object):
 		if self.predicate is not None and self.predicate.content == "exist.pred":
 			self.EXIST_FLAG = True
 
-		if self.IDENT_FLAG:
-			self.query_type = self.QueryType.IDENT
-		elif self.COUNT_FLAG:
-			self.query_type = self.QueryType.COUNT
+		self.COLOR_FLAG = 'what.d color.n' in self.ulf
+		
+		if self.COLOR_FLAG:
+			self.query_type = self.QueryType.ATTR_COLOR
 		elif self.DESCR_FLAG:
 			self.query_type = self.QueryType.DESCR
+		elif self.IDENT_FLAG:
+			self.query_type = self.QueryType.IDENT
+		elif self.COUNT_FLAG:
+			self.query_type = self.QueryType.COUNT		
 		elif self.EXIST_FLAG:
 			self.query_type = self.QueryType.EXIST	
 		elif self.YN_FLAG:

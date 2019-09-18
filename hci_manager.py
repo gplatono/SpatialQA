@@ -14,6 +14,7 @@ import spatial
 from spatial import near, touching
 from geometry_utils import get_planar_distance_scaled
 import datetime
+import traceback
 
 class HCIManager(object):
 	"""Manages the high-level interaction loop between the user and the system."""
@@ -154,9 +155,10 @@ class HCIManager(object):
 					(' hyatt', ' highest'), (' hyve', ' highest'), (' hive', ' highest'), (' louis', ' lowest'), 
 					(' father\'s', ' farthest'), (' father', ' farthest'),\
 					(' gridlock', ' green block'), (' rim ', ' green '), (' siri', ' david'), (' date it', ' david'),
-					(' grimblock', ' green block'), (' redlock', ' red block'),
+					(' grimblock', ' green block'), (' redlock', ' red block'), (' rap ', ' red '), (' ramp ', ' red '),
 					(' ram block', ' red block'), (' to other', ' two other'), (' lava the', ' above the'), (' watch', ' touch'),
-					(' phase', ' face'), (' passing', ' touching')]
+					(' phase', ' face'), (' passing', ' touching'), (' 3 ', ' three '), 
+					(' to bl', ' two bl'), (' to red', ' two red'), (' to gre', ' two gre'), ('what colors', 'what color')]
 		for misspell, fix in misspells:
 			input = input.replace(misspell, fix)
 		return input
@@ -304,7 +306,7 @@ class HCIManager(object):
 					query_tree = self.ulf_parser.parse(ulf)					
 					query_frame = QueryFrame(self.current_input, ulf, query_tree)
 					print ("QUERY TYPE: ", query_frame.query_type)
-					if query_frame.query_type != query_frame.QueryType.DESCR:
+					if query_frame.query_type != query_frame.QueryType.DESCR and query_frame.query_type != query_frame.QueryType.ATTR_COLOR:
 						answer_set_rel, answer_set_ref = process_query(query_frame, self.world.entities)
 						print ("ANSWER SET: ", answer_set_rel)
 						#If asking about the arg0
@@ -312,7 +314,7 @@ class HCIManager(object):
 							response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_rel], [item[1] for item in answer_set_rel])
 						else:
 							response_surface = self.generate_response(query_frame, [item[0] for item in answer_set_ref], [item[1] for item in answer_set_ref])
-					else:																		
+					elif query_frame.query_type == query_frame.QueryType.DESCR:																		
 						pred_vals = process_query(query_frame, self.world.entities)
 						print ("ANSWER SET: ", pred_vals)								
 						response_surface = ""
@@ -323,12 +325,27 @@ class HCIManager(object):
 								response_surface += "The " + item[1][0][0].name + " block is " + item[0] + " the " + item[1][0][1].name + " block and the "\
 								+ item[1][0][2].name + " block."
 						response_surface = response_surface.replace("Table block", "Table")
+					elif query_frame.query_type == query_frame.QueryType.ATTR_COLOR:
+						pred_vals = process_query(query_frame, self.world.entities)
+						print ("ANSWER SET: ", pred_vals)								
+						pred_vals = list(set(pred_vals))
+						response_surface = ""
+						if pred_vals == [] or (len(pred_vals) == 1 and pred_vals[0] == None):
+							response_surface = "There is no such block."
+						elif len(pred_vals) == 1:
+							response_surface = "It is " + pred_vals[0]
+						else:
+							response_surface = "They are "
+							for item in pred_vals[:-1]:	
+								response_surface += item + ", "
+							response_surface += "and " + pred_vals[-1]							
 					if POSS_FLAG:
 						response_surface = "POSS-ANS " + response_surface
 				except Exception as e:
 					query_frame = QueryFrame(None, None, None)					
 					response_surface = self.generate_response(query_frame, [], [])
-					print (str(e))
+					#print (str(e))
+					traceback.print_exc()
 
 		return response_surface
 
